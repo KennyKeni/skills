@@ -34,7 +34,7 @@ from subagent_harnesses.catalog import (  # noqa: E402
 )
 
 
-SKILL_DIR = REPOSITORY_DIR / "packages" / "agent-skills" / "personal" / "sidekick"
+SKILL_DIR = REPOSITORY_DIR / "skills" / "personal" / "sidekick"
 REFERENCES_DIR = SKILL_DIR / "references"
 SPEC_PATH = SOURCE_DIR / "setups.yaml"
 SETUP_TEMPLATE = "setup.md.j2"

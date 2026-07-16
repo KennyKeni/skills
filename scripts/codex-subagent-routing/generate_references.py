@@ -35,9 +35,7 @@ from subagent_harnesses.catalog import (  # noqa: E402
 )
 
 
-SKILL_DIR = (
-    REPOSITORY_DIR / "packages" / "agent-skills" / "personal" / "codex-subagent-routing"
-)
+SKILL_DIR = REPOSITORY_DIR / "skills" / "personal" / "codex-subagent-routing"
 REFERENCES_DIR = SKILL_DIR / "references"
 SPEC_PATH = SOURCE_DIR / "lanes.yaml"
 COMPATIBILITY_PATH = SOURCE_DIR / "compatibility.yaml"
