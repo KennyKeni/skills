@@ -1,5 +1,0 @@
-interface:
-  display_name: "Keni Handoff"
-  short_description: "Prepare context for another agent"
-policy:
-  allow_implicit_invocation: false

@@ -1,5 +1,0 @@
-interface:
-  display_name: "Keni To PRD"
-  short_description: "Publish the conversation as a PRD"
-policy:
-  allow_implicit_invocation: false

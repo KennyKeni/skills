@@ -1,5 +1,0 @@
-interface:
-  display_name: "Keni Triage"
-  short_description: "Triage issues into agent-ready work"
-policy:
-  allow_implicit_invocation: false
