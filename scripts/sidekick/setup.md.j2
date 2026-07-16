@@ -1,0 +1,27 @@
+# {{ setup.title }} Setup
+
+{% if setup.family == "native" %}
+Use the current Codex session as the main agent and one persistent native Codex
+subagent as the sidekick.
+{% elif setup.family == "cursor" %}
+Use the current Codex session as the main agent and one persistent Cursor chat
+as the sidekick.
+{% else %}
+Use the current Codex session as the main agent and one persistent OpenCode
+session as the sidekick.
+{% endif %}
+
+{% if setup.family == "native" %}
+{% set execution = setup %}
+{% include "sidekick-native-runtime.md.j2" %}
+{% elif setup.family == "cursor" %}
+{% set execution = setup %}
+{% include "sidekick-cursor-runtime.md.j2" %}
+{% else %}
+{% set execution = setup %}
+{% include "sidekick-opencode-runtime.md.j2" %}
+{% endif %}
+
+Use this adapter for the full sidekick lifecycle. Keep its recorded identifier
+until the task ends or the main agent explicitly replaces an unrecoverable
+session with the same requested setup.

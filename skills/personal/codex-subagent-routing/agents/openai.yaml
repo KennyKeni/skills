@@ -1,0 +1,6 @@
+interface:
+  display_name: "Codex Subagent Routing"
+  short_description: "Route Codex work through native or external lanes"
+  default_prompt: "Use $codex-subagent-routing to delegate this work through the appropriate native Codex, OpenCode, or Cursor execution lane."
+policy:
+  allow_implicit_invocation: false

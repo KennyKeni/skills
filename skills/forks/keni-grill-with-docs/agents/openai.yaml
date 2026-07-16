@@ -1,0 +1,5 @@
+interface:
+  display_name: "Keni Grill With Docs"
+  short_description: "Stress-test plans against domain docs"
+policy:
+  allow_implicit_invocation: false

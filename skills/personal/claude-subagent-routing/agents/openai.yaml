@@ -1,0 +1,6 @@
+interface:
+  display_name: "Claude Subagent Routing"
+  short_description: "Route Claude work through Codex subagents"
+  default_prompt: "Use $claude-subagent-routing to delegate this work through the appropriate Codex execution policy."
+policy:
+  allow_implicit_invocation: false

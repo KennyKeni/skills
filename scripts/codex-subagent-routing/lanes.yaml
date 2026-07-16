@@ -1,0 +1,38 @@
+schema_version: 1
+
+lanes:
+  - slug: codex-quality
+    harness: native-codex
+    title: Native Codex Lane
+    description_name: native Codex
+    selection_label: native Codex
+    policy: direct
+    default: true
+    external: false
+
+  - slug: cursor-grok
+    harness: cursor-grok-4-5
+    title: Cursor Grok Lane
+    description_name: Cursor/Grok
+    selection_label: Grok through Cursor
+    policy: grok
+    default: false
+    external: true
+
+  - slug: opencode-grok
+    harness: opencode-grok-4-5
+    title: OpenCode Grok Lane
+    description_name: OpenCode/Grok
+    selection_label: xAI through OpenCode
+    policy: grok
+    default: false
+    external: true
+
+  - slug: opencode-ollama
+    harness: opencode-ollama
+    title: OpenCode Ollama Lane
+    description_name: OpenCode/Ollama
+    selection_label: Ollama Cloud through OpenCode
+    policy: direct
+    default: false
+    external: true

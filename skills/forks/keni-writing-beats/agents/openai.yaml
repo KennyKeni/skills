@@ -1,0 +1,5 @@
+interface:
+  display_name: "Keni Writing Beats"
+  short_description: "Shape raw material into narrative beats"
+policy:
+  allow_implicit_invocation: false

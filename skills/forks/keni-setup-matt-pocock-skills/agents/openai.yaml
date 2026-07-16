@@ -1,0 +1,5 @@
+interface:
+  display_name: "Keni Setup Matt Pocock Skills"
+  short_description: "Configure shared engineering skill context"
+policy:
+  allow_implicit_invocation: false

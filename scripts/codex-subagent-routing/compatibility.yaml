@@ -1,0 +1,11 @@
+schema_version: 1
+source_commit: 8626673ddc700ade5939c93914e28d7398a03c6e
+
+# These hashes were calculated from source_commit, immediately before Sidekick
+# began sharing harness components with Codex Subagent Routing.
+sha256:
+  SKILL.md: bd3bfc75e629786ca1565a785430d889f7ace7ff3f955a57a3fe3055cecd49db
+  references/codex-quality.md: bf9f50c3e292606acbc77d88698951d2ae136a399bf50ee7e77a7b0203eabfad
+  references/cursor-grok.md: eb2c490bc9c4f9e7fde2470e97f9051a287eedcaf081ebe4b8e44e78e302bbb6
+  references/opencode-grok.md: ff9b3900906562bbbf86419f8a32e7e0b62b208bfb52d02daa916c12cba8ffd3
+  references/opencode-ollama.md: c111d1cd9178cfc9098781b21bd9e212f31d429d517271d6421e3289db258bf1

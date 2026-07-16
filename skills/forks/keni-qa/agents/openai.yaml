@@ -1,0 +1,3 @@
+interface:
+  display_name: "Keni QA"
+  short_description: "Run conversational QA and file issues"

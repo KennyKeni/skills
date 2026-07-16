@@ -1,0 +1,5 @@
+interface:
+  display_name: "Keni Setup Pre-commit"
+  short_description: "Configure formatting and checks before commits"
+policy:
+  allow_implicit_invocation: false

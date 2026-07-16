@@ -1,0 +1,5 @@
+interface:
+  display_name: "Keni To Issues"
+  short_description: "Split plans into implementation issues"
+policy:
+  allow_implicit_invocation: false

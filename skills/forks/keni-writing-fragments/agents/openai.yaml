@@ -1,0 +1,5 @@
+interface:
+  display_name: "Keni Writing Fragments"
+  short_description: "Mine raw material for future writing"
+policy:
+  allow_implicit_invocation: false

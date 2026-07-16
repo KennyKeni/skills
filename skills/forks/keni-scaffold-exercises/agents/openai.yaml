@@ -1,0 +1,5 @@
+interface:
+  display_name: "Keni Scaffold Exercises"
+  short_description: "Create structured course exercises"
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,13 @@
+# Sidekick Setup Registry
+
+Default: [Luna Max](luna-max.md)
+
+| Request | Harness | Sidekick model | Adapter |
+| --- | --- | --- | --- |
+| Luna Max | native | `gpt-5.6-luna` | [luna-max.md](luna-max.md) |
+| Grok 4.5 through OpenCode | opencode | `xai/grok-4.5` | [opencode-grok.md](opencode-grok.md) |
+| Grok 4.5 through Cursor | cursor | `cursor-grok-4.5-high` | [cursor-grok.md](cursor-grok.md) |
+
+Read exactly one adapter before starting the pair. Use an explicitly requested
+setup; otherwise use the declared default. Report an unknown or unavailable
+requested setup rather than substituting another model or harness.
