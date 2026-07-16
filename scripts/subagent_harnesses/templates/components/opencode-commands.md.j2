@@ -1,0 +1,45 @@
+{% macro verify(models) -%}
+opencode models --refresh >/dev/null
+{% for model in models -%}
+opencode models | rg -x '{{ model | replace(".", "\\.") }}'
+{%- endfor -%}
+{%- endmacro %}
+
+{% macro verify_selected(model_variable) -%}
+opencode models --refresh >/dev/null
+opencode models | rg -Fx "${{ model_variable }}"
+{%- endmacro %}
+
+{% macro start(model_argument, agent_argument, title, instruction, writable=false) -%}
+opencode run --dir "$REPO" \
+  --model {{ model_argument }} \
+  --agent {{ agent_argument }} \
+  --file "$PROMPT_FILE" \
+  --format json \
+{% if writable %}
+  --dangerously-skip-permissions \
+{% endif %}
+  --title "{{ title }}" \
+  "{{ instruction }}"
+{%- endmacro %}
+
+{% macro resume(model_argument, agent_argument, instruction, writable=false) -%}
+opencode run --dir "$REPO" \
+  --session "$SESSION_ID" \
+  --model {{ model_argument }} \
+  --agent {{ agent_argument }} \
+  --file "$PROMPT_FILE" \
+  --format json \
+{% if writable %}
+  --dangerously-skip-permissions \
+{% endif %}
+  "{{ instruction }}"
+{%- endmacro %}
+
+{% macro list_sessions() -%}
+opencode session list --format json --max-count 20
+{%- endmacro %}
+
+{% macro inspect_process() -%}
+ps -axo pid,ppid,command | rg '[o]pencode|[b]un.*opencode' || true
+{%- endmacro %}

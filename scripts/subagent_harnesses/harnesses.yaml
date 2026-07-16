@@ -1,0 +1,34 @@
+schema_version: 1
+
+harnesses:
+  - id: native-codex
+    family: native
+
+  - id: cursor-grok-4-5
+    family: cursor
+    models:
+      shared: cursor-grok-4.5-high
+    model_label_patterns:
+      cursor-grok-4.5-high: Cursor Grok 4\.5
+
+  - id: opencode-grok-4-5
+    family: opencode
+    variant: grok
+    models:
+      shared: xai/grok-4.5
+    title_prefix: grok
+
+  - id: opencode-ollama
+    family: opencode
+    variant: ollama
+    title_prefix: ollama
+    models:
+      capability:
+        default: ollama-cloud/glm-5.2
+        variable: MODEL
+        choices_markdown: |-
+          - `ollama-cloud/glm-5.2` for text and code retrieval, implementation, and the
+            largest text-only contexts;
+          - `ollama-cloud/kimi-k2.7-code` when the assignment requires image input;
+          - `ollama-cloud/minimax-m3` when the assignment requires video input or
+            image-plus-text context beyond Kimi's capacity.

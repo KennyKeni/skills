@@ -1,0 +1,31 @@
+{% macro verify(model_verifications) -%}
+cursor-agent status
+{% for verification in model_verifications -%}
+cursor-agent models | rg -x '{{ verification.id | replace(".", "\\.") }} - {{ verification.label_pattern }}'
+{%- endfor -%}
+{%- endmacro %}
+
+{% macro start(model_argument, output_format) -%}
+cursor-agent --print \
+  --workspace "$REPO" \
+  --model {{ model_argument }} \
+  --output-format {{ output_format }} \
+  --trust \
+  --force \
+  < "$PROMPT_FILE"
+{%- endmacro %}
+
+{% macro resume(model_argument, output_format="stream-json") -%}
+cursor-agent --print \
+  --resume "$CHAT_ID" \
+  --workspace "$REPO" \
+  --model {{ model_argument }} \
+  --output-format {{ output_format }} \
+  --trust \
+  --force \
+  < "$PROMPT_FILE"
+{%- endmacro %}
+
+{% macro inspect_process() -%}
+ps -axo pid,ppid,command | rg '[c]ursor-agent' || true
+{%- endmacro %}
