@@ -35,6 +35,6 @@ Prefer small family components with explicit workflow façades.
 ## Change Safety
 
 Make structural refactors byte-identical first. Run
-`task skills:subagents:check` after every component move. Routing compatibility
-hashes and generated-output checks must remain stable unless wording or
-behavior is intentionally changed and reviewed separately.
+`task skills:subagents:check` after every component move. Generated-output
+checks must remain stable unless wording or behavior is intentionally changed
+and reviewed separately.

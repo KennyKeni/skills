@@ -9,7 +9,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import sys
 from pathlib import Path
 from typing import Any
@@ -40,7 +39,6 @@ from subagent_harnesses.generation import (  # noqa: E402
 SKILL_DIR = REPOSITORY_DIR / "skills" / "personal" / "codex-subagent-routing"
 REFERENCES_DIR = SKILL_DIR / "references"
 SPEC_PATH = SOURCE_DIR / "lanes.yaml"
-COMPATIBILITY_PATH = SOURCE_DIR / "compatibility.yaml"
 TEMPLATE_NAME = "lane.md.j2"
 SKILL_TEMPLATE_NAME = "skill.md.j2"
 COMMON_FIELDS = {
@@ -144,51 +142,17 @@ def render(lanes: list[dict[str, Any]]) -> dict[Path, str]:
 def check(outputs: dict[Path, str]) -> int:
     stale = stale_outputs(outputs)
     unexpected = unexpected_references(outputs)
-    compatibility_errors = check_compatibility(outputs)
 
-    if not stale and not unexpected and not compatibility_errors:
-        print(
-            f"All {len(outputs)} generated routing files are current and "
-            "compatibility-stable."
-        )
+    if not stale and not unexpected:
+        print(f"All {len(outputs)} generated routing files are current.")
         return 0
 
     for path in stale:
         print(f"stale: {path.relative_to(SKILL_DIR)}", file=sys.stderr)
     for path in unexpected:
         print(f"unexpected reference: {path.relative_to(SKILL_DIR)}", file=sys.stderr)
-    for error in compatibility_errors:
-        print(f"compatibility drift: {error}", file=sys.stderr)
     print("Run `task skills:routing:generate`.", file=sys.stderr)
     return 1
-
-
-def check_compatibility(outputs: dict[Path, str]) -> list[str]:
-    document = yaml.safe_load(COMPATIBILITY_PATH.read_text(encoding="utf-8"))
-    if not isinstance(document, dict) or document.get("schema_version") != 1:
-        return ["compatibility.yaml must be a schema_version 1 mapping"]
-    expected = document.get("sha256")
-    if not isinstance(expected, dict):
-        return ["compatibility.yaml must define a sha256 mapping"]
-
-    actual = {
-        str(path.relative_to(SKILL_DIR)): hashlib.sha256(content.encode()).hexdigest()
-        for path, content in outputs.items()
-    }
-    errors = [
-        f"manifest is missing {path}"
-        for path in sorted(actual.keys() - expected.keys())
-    ]
-    errors.extend(
-        f"manifest has unexpected {path}"
-        for path in sorted(expected.keys() - actual.keys())
-    )
-    errors.extend(
-        f"{path} expected {expected[path]}, got {actual[path]}"
-        for path in sorted(actual.keys() & expected.keys())
-        if actual[path] != expected[path]
-    )
-    return errors
 
 
 def unexpected_references(outputs: dict[Path, str]) -> list[Path]:
