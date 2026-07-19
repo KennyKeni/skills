@@ -73,6 +73,12 @@ independent planning or judgment work when useful; otherwise observe through
 the adapter. Do not duplicate the sidekick's exploration or edit its active
 write scope.
 
+Supervise patiently. Silence alone is not failure, a deadline, lost context, or
+permission to interrupt or replace the sidekick. Configure deadlines
+prospectively through the user, workflow, assignment contract, or runner. Let
+the selected adapter own observation, liveness checks, and recovery mechanics;
+keep the user informed during quiet periods without contacting the sidekick.
+
 Use a normal return and the adapter's continuation operation for planned phase
 transitions. Reserve interruption for active work that must stop before it can
 return normally.

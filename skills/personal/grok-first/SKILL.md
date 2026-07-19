@@ -132,10 +132,9 @@ opencode run --dir <repo> \
 ```
 
 - Pin `xai/grok-4.5` explicitly; do not rely on user config.
-- Use `--agent build` for implementation, edits, migrations, fixes, tests, and
-  any task expected to modify files.
-- Use `--agent explore` only for read-only discovery or implementation
-  reconnaissance; explicitly prohibit edits in the prompt.
+- Use `--agent build` for every OpenCode invocation, including read-only
+  discovery and implementation reconnaissance. For read-only work, explicitly
+  prohibit edits in the prompt.
 - `--dangerously-skip-permissions` is the house default; Grok may run commands
   and tests freely. Keep prompts scoped to the target repository.
 - Use a unique `--title` for each independent run.

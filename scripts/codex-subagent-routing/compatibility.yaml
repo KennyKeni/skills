@@ -1,8 +1,8 @@
 schema_version: 1
-source_commit: 8626673ddc700ade5939c93914e28d7398a03c6e
+source_commit: 48867bad0a6843d73c0a391b4ad3c4379ee039dd
 
-# These hashes were calculated from source_commit, immediately before Sidekick
-# began sharing harness components with Codex Subagent Routing.
+# These hashes pin the accepted generated routing outputs at source_commit.
+# Update them only with an intentional, reviewed output change.
 sha256:
   SKILL.md: 2aa5bf1312b7053218f628c71b60ca9d44abe556f81f965c3ef60a8ddbb10ea9
   references/codex-quality.md: bf9f50c3e292606acbc77d88698951d2ae136a399bf50ee7e77a7b0203eabfad
