@@ -1,10 +1,8 @@
 {% import "harnesses/opencode/commands.md.j2" as opencode_commands %}
 {% if execution.variant == "ollama" %}
-Use this lower-cost lane only for eligible `scout` and `worker` assignments.
-Use native Codex Sol for every formal validator. When the main skill classifies
-requested work as architecturally consequential or high-risk, return the
-ineligible assignment to the lead; use Sol only when the user or active mission
-authorizes that fallback.
+Use this lower-cost lane only for assignments mapped to it above. When a role
+or consequence tier maps to another executor, follow that configured route
+only when the user or active mission authorizes it.
 
 {% endif -%}
 {{ "\n" if execution.variant == "grok" else "" -}}
@@ -33,17 +31,6 @@ configured model once before the first Qwen assignment in the current context:
 
 Keep the work in Codex or report the limitation when the model is unavailable
 or lacks a required capability. Retain the exact model for focused follow-ups.
-{% if execution.variant == "qwen" %}
-
-## Keep Implementation On Qwen
-
-Use this Qwen model for every worker assignment, including consequential
-implementation and corrections discovered during review. Native Codex may own
-lead decisions and formal validation, but it must not implement, edit, repair,
-or receive an implementation handoff in this lane. If Qwen is unavailable or
-cannot safely complete the worker scope, stop and report the limitation rather
-than substituting a GPT model for implementation.
-{% endif %}
 {% else %}
 Choose one model before starting a session:
 

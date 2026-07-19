@@ -1,8 +1,8 @@
 # OpenCode Grok Lane
 
-Use this policy to spend the configured Grok model or models on routine work
-through OpenCode while reserving native Codex Sol for consequential
-work. This policy selects an execution lane; it does not introduce new roles.
+Use this policy to classify work and route each role and consequence tier
+through its configured executor. This policy selects execution mappings; it
+does not introduce new roles.
 
 ## Classify The Scout
 
@@ -112,19 +112,19 @@ For every consequential classification, record:
 Use these mappings:
 
 - routine `scout`: this lane with `xai/grok-4.5`;
-- consequential `scout`: native Codex Sol at medium effort;
+- consequential `scout`: native Codex with `gpt-5.6-sol` at medium effort;
 - routine `worker`: this lane with `xai/grok-4.5`;
-- consequential `worker`: native Codex Sol at high effort;
-- every `validator`: fresh native Codex Sol at high effort.
+- consequential `worker`: native Codex with `gpt-5.6-sol` at high effort;
+- every `validator`: fresh native Codex with `gpt-5.6-sol` at high effort.
 
 Skip the scout when the main skill's delegation criteria do not justify one.
 Keep `scout`, `worker`, and `validator` as the canonical roles and include the
 routing class, selected execution lane, and exact model in the assignment
 packet.
 
-When an explicit provider or harness request does not authorize Sol fallback,
-return a consequential assignment to the lead and report the mismatch instead
-of silently changing lanes.
+When an explicit provider or harness request does not authorize a configured
+route's executor, return that assignment to the lead and report the mismatch
+instead of silently changing executors.
 
 ## Escalate On Evidence
 
@@ -145,12 +145,14 @@ required contract or operational envelope.
 
 Treat lead or validator findings as new routing evidence. When reassessment
 returns `routine`, send only bounded routine corrections to the same session.
-When it returns `consequential`, stop the routine assignment and give a fresh
-Sol-medium scout or Sol-high worker a compact handoff containing the contract,
-observations, attempted proof, changed files when applicable, and unresolved
-questions. When it returns `not_ready`, stop the worker, preserve its evidence,
-and return the candidate to the lead for shaping. Treat Grok self-checks as
-worker evidence; retain independent Sol-high validation.
+When it returns `consequential`, stop the routine assignment and route the
+scout through native Codex with `gpt-5.6-sol` at medium effort or the worker
+through native Codex with `gpt-5.6-sol` at high effort, passing a compact
+handoff containing the contract, observations, attempted proof, changed files
+when applicable, and unresolved questions. When it returns `not_ready`, stop
+the worker, preserve its evidence, and return the candidate to the lead for
+shaping. Treat executor self-checks as worker evidence; retain independent
+validation through fresh native Codex with `gpt-5.6-sol` at high effort.
 
 
 ## Select And Verify The Model

@@ -50,7 +50,18 @@ COMMON_FIELDS = {
     "policy",
     "default",
     "external",
+    "routes",
 }
+ROUTE_KEYS = {
+    "routine_scout",
+    "consequential_scout",
+    "routine_worker",
+    "consequential_worker",
+    "validator",
+}
+ROUTE_COMMON_FIELDS = {"executor", "fresh"}
+LANE_ROUTE_FIELDS = ROUTE_COMMON_FIELDS | {"model_ref"}
+NATIVE_ROUTE_FIELDS = ROUTE_COMMON_FIELDS | {"model", "effort"}
 
 
 class SpecError(ValueError):
@@ -81,7 +92,7 @@ def load_lanes() -> list[dict[str, Any]]:
         raise SpecError("lanes.yaml must contain a non-empty lanes list")
 
     harnesses = load_harnesses()
-    required = COMMON_FIELDS
+    required = COMMON_FIELDS - {"routes"}
     seen: set[str] = set()
     lanes: list[dict[str, Any]] = []
     for index, raw in enumerate(raw_lanes):
@@ -102,7 +113,9 @@ def load_lanes() -> list[dict[str, Any]]:
         if slug in seen:
             raise SpecError(f"duplicate lane slug: {slug}")
         seen.add(slug)
-        lanes.append(resolve_harness(raw, harnesses, record_name=f"lane {slug}"))
+        lane = resolve_harness(raw, harnesses, record_name=f"lane {slug}")
+        prepare_routes(lane)
+        lanes.append(lane)
 
     defaults = [lane for lane in lanes if lane["default"] is True]
     if len(defaults) != 1:
@@ -110,6 +123,88 @@ def load_lanes() -> list[dict[str, Any]]:
     if any(not isinstance(lane["external"], bool) for lane in lanes):
         raise SpecError("every lane external field must be true or false")
     return lanes
+
+
+def prepare_routes(lane: dict[str, Any]) -> None:
+    policy = lane["policy"]
+    routes = lane.get("routes")
+    if policy == "direct":
+        if routes is not None:
+            raise SpecError(f"direct lane {lane['slug']} must not define routes")
+        return
+    if policy != "classified":
+        raise SpecError(f"lane {lane['slug']} has unsupported policy: {policy!r}")
+    if not isinstance(routes, dict) or set(routes) != ROUTE_KEYS:
+        raise SpecError(
+            f"classified lane {lane['slug']} routes must define exactly: "
+            f"{', '.join(sorted(ROUTE_KEYS))}"
+        )
+
+    prepared: dict[str, dict[str, Any]] = {}
+    for route_name, raw_route in routes.items():
+        if not isinstance(raw_route, dict):
+            raise SpecError(f"route {lane['slug']}.{route_name} must be a mapping")
+        executor = raw_route.get("executor")
+        allowed = LANE_ROUTE_FIELDS if executor == "lane" else NATIVE_ROUTE_FIELDS
+        if executor not in {"lane", "native"}:
+            raise SpecError(
+                f"route {lane['slug']}.{route_name} executor must be lane or native"
+            )
+        unknown = raw_route.keys() - allowed
+        if unknown:
+            raise SpecError(
+                f"route {lane['slug']}.{route_name} has unknown fields: "
+                f"{', '.join(sorted(unknown))}"
+            )
+        fresh = raw_route.get("fresh", False)
+        if not isinstance(fresh, bool):
+            raise SpecError(f"route {lane['slug']}.{route_name} fresh must be boolean")
+
+        route = dict(raw_route)
+        route["fresh"] = fresh
+        if executor == "lane":
+            model_ref = route.get("model_ref")
+            if model_ref not in {"scout", "worker", "selected"}:
+                raise SpecError(
+                    f"route {lane['slug']}.{route_name} model_ref must be "
+                    "scout, worker, or selected"
+                )
+            if model_ref == "selected":
+                if lane.get("model_mode") != "capability":
+                    raise SpecError(
+                        f"route {lane['slug']}.{route_name} uses selected without "
+                        "a capability model harness"
+                    )
+                route["resolved_model"] = None
+                route["description"] = (
+                    f"{'fresh ' if fresh else ''}this lane with the selected exact "
+                    "capability model"
+                )
+            else:
+                route["resolved_model"] = lane[f"{model_ref}_model"]
+                route["description"] = (
+                    f"{'fresh ' if fresh else ''}this lane with "
+                    f"`{route['resolved_model']}`"
+                )
+        else:
+            model = route.get("model")
+            effort = route.get("effort")
+            if not isinstance(model, str) or not model:
+                raise SpecError(
+                    f"route {lane['slug']}.{route_name} model must be non-empty"
+                )
+            valid_efforts = {"none", "low", "medium", "high", "xhigh", "max", "ultra"}
+            if effort not in valid_efforts:
+                raise SpecError(
+                    f"route {lane['slug']}.{route_name} has invalid effort: {effort!r}"
+                )
+            route["resolved_model"] = model
+            route["description"] = (
+                f"{'fresh ' if fresh else ''}native Codex with `{model}` at "
+                f"{effort} effort"
+            )
+        prepared[route_name] = route
+    lane["routes"] = prepared
 
 
 def human_join(values: list[str]) -> str:
@@ -132,7 +227,7 @@ def render(lanes: list[dict[str, Any]]) -> dict[Path, str]:
     skill_rendered = skill_template.render(
         lanes=lanes,
         default_lane=default_lane,
-        grok_lanes=[lane for lane in lanes if lane["policy"] == "grok"],
+        classified_lanes=[lane for lane in lanes if lane["policy"] == "classified"],
         lane_description=human_join([lane["description_name"] for lane in lanes]),
     )
     outputs[SKILL_DIR / "SKILL.md"] = skill_rendered.rstrip() + "\n"

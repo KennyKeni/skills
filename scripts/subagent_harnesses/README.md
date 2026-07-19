@@ -32,6 +32,15 @@ these distinctions explicitly:
 Do not create a single template dominated by family and workflow conditionals.
 Prefer small family components with explicit workflow façades.
 
+## Routing Configuration
+
+Define classified role routes in `scripts/codex-subagent-routing/lanes.yaml`.
+Each lane configures `routine_scout`, `consequential_scout`, `routine_worker`,
+`consequential_worker`, and `validator`. Use `executor: lane` with `model_ref`
+to select that harness's scout, worker, or capability-selected model. Use
+`executor: native` with an exact `model` and `effort` for native Codex. Set
+`fresh: true` when the route requires a new independent context.
+
 ## Change Safety
 
 Make structural refactors byte-identical first. Run

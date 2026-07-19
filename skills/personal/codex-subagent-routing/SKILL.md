@@ -35,8 +35,9 @@ active mission authorizes fallback. Otherwise keep the work in the lead or
 report the limitation.
 
 When an assignment is ineligible for an explicitly requested external policy,
-stop and report the mismatch. Use Sol only after the user or active mission
-authorizes that fallback; do not silently override the provider request.
+stop and report the mismatch. Use a different configured executor only after
+the user or active mission authorizes that route; do not silently override the
+provider request.
 
 ## Preserve The Role Model
 
@@ -91,7 +92,7 @@ security, migrations, concurrency, data integrity, schemas, or public
 interfaces. Classify the semantic change, operational coupling, reversibility,
 blast radius, and available proof through the selected lane.
 
-When a Grok lane is selected, classify each scout and each `ready` worker as
+When a classified lane is selected, classify each scout and each `ready` worker as
 `routine` or `consequential` using that complete lane reference. Treat the
 classification as a routing attribute, not another role. Keep other lane
 mappings unchanged when those policies are selected directly.
@@ -108,7 +109,7 @@ boundaries, required evidence, and stop condition.
 
 When retrieval needs a budget, enumerate the maximum sources, files, queries,
 or evidence branches to inspect. Lane eligibility and escalation triggers are
-hard stops. A routine Grok scout that exhausts its budget or finds a material
+hard stops. A routine scout that exhausts its budget or finds a material
 contradiction returns its evidence to the lead, whose reassessment selects the
 next routing class.
 
@@ -130,7 +131,7 @@ repository instructions, required proof, delivery boundary, stop conditions,
 and return shape.
 
 When implementation needs a budget, enumerate the maximum materially different
-approaches and required acceptance checks. Use a Grok lane's unsuccessful-
+approaches and required acceptance checks. Use a classified lane's unsuccessful-
 approach and failed-proof boundaries as stops for lead reassessment.
 
 Let the worker own implementation and tightly coupled tests. Require it to
@@ -146,8 +147,9 @@ work within the same feature or PR scope.
 
 ## Validate At Coherent Boundaries
 
-Use native Codex Sol at high effort for every formal validator. Treat OpenCode
-self-checks as worker evidence, not independent review.
+Use the selected lane's validator procedure and its configured validator route
+when it declares classified routing. Treat implementation-executor self-checks
+as worker evidence, not independent review.
 
 Start each initial formal validation pass in a fresh native Codex session with
 `fork_turns: "none"` or the native equivalent that excludes implementation
@@ -251,10 +253,10 @@ and cleanup. Include the canonical role and selected lane in every assignment.
 Record the selected lane's task or session identifier needed to steer, resume,
 wait for, or stop the assignment.
 
-For a Grok lane, apply its evidence-based promotion before the review-cycle
-round bound. Treat the handoff from a routine Grok assignment to its native
-Codex Sol consequential tier as a lane escalation rather than a follow-up
-round, then apply the bound to the active Sol assignment.
+For a classified lane, apply its evidence-based promotion before the review-
+cycle round bound. Treat the handoff from a routine assignment to its
+configured consequential route as a lane escalation rather than a follow-up
+round, then apply the bound to the active consequential assignment.
 
 ## Enforce And Recover Assignments
 

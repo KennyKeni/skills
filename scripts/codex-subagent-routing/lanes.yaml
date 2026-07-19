@@ -6,42 +6,72 @@ lanes:
     title: Native Codex Lane
     description_name: native Codex
     selection_label: native Codex
-    policy: direct
+    policy: classified
     default: true
     external: false
+    routes:
+      routine_scout: {executor: native, model: gpt-5.6-luna, effort: high}
+      consequential_scout: {executor: native, model: gpt-5.6-sol, effort: medium}
+      routine_worker: {executor: native, model: gpt-5.6-luna, effort: high}
+      consequential_worker: {executor: native, model: gpt-5.6-sol, effort: medium}
+      validator: {executor: native, model: gpt-5.6-sol, effort: high, fresh: true}
 
   - slug: cursor-grok
     harness: cursor-grok-4-5
     title: Cursor Grok Lane
     description_name: Cursor/Grok
     selection_label: Grok through Cursor
-    policy: grok
+    policy: classified
     default: false
     external: true
+    routes:
+      routine_scout: {executor: lane, model_ref: scout}
+      consequential_scout: {executor: native, model: gpt-5.6-sol, effort: medium}
+      routine_worker: {executor: lane, model_ref: worker}
+      consequential_worker: {executor: native, model: gpt-5.6-sol, effort: high}
+      validator: {executor: native, model: gpt-5.6-sol, effort: high, fresh: true}
 
   - slug: opencode-grok
     harness: opencode-grok-4-5
     title: OpenCode Grok Lane
     description_name: OpenCode/Grok
     selection_label: xAI through OpenCode
-    policy: grok
+    policy: classified
     default: false
     external: true
+    routes:
+      routine_scout: {executor: lane, model_ref: scout}
+      consequential_scout: {executor: native, model: gpt-5.6-sol, effort: medium}
+      routine_worker: {executor: lane, model_ref: worker}
+      consequential_worker: {executor: native, model: gpt-5.6-sol, effort: high}
+      validator: {executor: native, model: gpt-5.6-sol, effort: high, fresh: true}
 
   - slug: opencode-qwen
     harness: opencode-qwen-3-8-max-preview
     title: OpenCode Qwen Lane
     description_name: OpenCode/Qwen3.8 Max Preview
     selection_label: Qwen3.8 Max Preview through OpenCode
-    policy: direct
+    policy: classified
     default: false
     external: true
+    routes:
+      routine_scout: {executor: lane, model_ref: scout}
+      consequential_scout: {executor: native, model: gpt-5.6-sol, effort: medium}
+      routine_worker: {executor: lane, model_ref: worker}
+      consequential_worker: {executor: lane, model_ref: worker}
+      validator: {executor: native, model: gpt-5.6-sol, effort: high, fresh: true}
 
   - slug: opencode-ollama
     harness: opencode-ollama
     title: OpenCode Ollama Lane
     description_name: OpenCode/Ollama
     selection_label: Ollama Cloud through OpenCode
-    policy: direct
+    policy: classified
     default: false
     external: true
+    routes:
+      routine_scout: {executor: lane, model_ref: selected}
+      consequential_scout: {executor: native, model: gpt-5.6-sol, effort: medium}
+      routine_worker: {executor: lane, model_ref: selected}
+      consequential_worker: {executor: native, model: gpt-5.6-sol, effort: high}
+      validator: {executor: native, model: gpt-5.6-sol, effort: high, fresh: true}
