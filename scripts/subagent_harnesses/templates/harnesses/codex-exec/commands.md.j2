@@ -1,0 +1,25 @@
+{% macro verify() -%}
+command codex --version
+{%- endmacro %}
+
+{% macro start(model_argument, sandbox_flag) -%}
+command codex exec -C "$REPO" \
+  --model {{ model_argument }} \
+  -c model_reasoning_effort="$EFFORT" \
+  {{ sandbox_flag }} \
+  -o "$OUT" \
+  - < "$PROMPT_FILE" 2>/dev/null
+{%- endmacro %}
+
+{% macro resume(model_argument, sandbox_flag) -%}
+(cd "$REPO" && command codex exec resume --last \
+  --model {{ model_argument }} \
+  -c model_reasoning_effort="$EFFORT" \
+  {{ sandbox_flag }} \
+  -o "$OUT" \
+  - < "$PROMPT_FILE" 2>/dev/null)
+{%- endmacro %}
+
+{% macro inspect_process() -%}
+ps -axo pid,ppid,command | rg '[c]odex exec' || true
+{%- endmacro %}

@@ -1,7 +1,7 @@
 # Luna Max Setup
 
-Use the current Codex session as the main agent and one persistent native Codex
-subagent as the sidekick.
+Use the current Codex session as the main agent and one persistent native
+Codex subagent as the sidekick.
 
 ## Verify
 

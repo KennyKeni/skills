@@ -4,7 +4,7 @@ Default: [Luna Max](luna-max.md)
 
 | Request | Harness | Sidekick model | Adapter |
 | --- | --- | --- | --- |
-| Luna Max | native | `gpt-5.6-luna` | [luna-max.md](luna-max.md) |
+| Luna Max | codex-native | `gpt-5.6-luna` | [luna-max.md](luna-max.md) |
 | Grok 4.5 through OpenCode | opencode | `xai/grok-4.5` | [opencode-grok.md](opencode-grok.md) |
 | Qwen3.8 Max Preview through OpenCode | opencode | `alibaba-token-plan/qwen3.8-max-preview` | [opencode-qwen.md](opencode-qwen.md) |
 | Grok 4.5 through Cursor | cursor | `cursor-grok-4.5-high` | [cursor-grok.md](cursor-grok.md) |

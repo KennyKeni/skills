@@ -1,0 +1,78 @@
+{% import "harnesses/codex-exec/commands.md.j2" as codex_commands %}
+## Select Model And Effort
+
+Use `{{ execution.worker_model }}` with the effort configured for each role
+and consequence tier above. Set `EFFORT` from that mapping before every
+invocation, and pin model and effort explicitly rather than relying on user
+config.
+{% if execution.model_caution %}
+{{ execution.model_caution }}
+{% endif %}
+Verify the CLI once before the first assignment in the current context:
+
+```bash
+{{ codex_commands.verify() }}
+```
+
+Keep the work in {{ execution.lead_name }} or report the limitation when Codex is
+unavailable.
+
+## Invoke Codex
+
+{{ execution.lead_name }} has no native Codex spawn control. Write the compact assignment
+to a prompt file using the environment's approved file-writing
+mechanism — never inline shell quoting. Set `REPO` and `PROMPT_FILE` to
+absolute paths, `EFFORT` from the tier mapping, and `OUT` to a unique result
+file path per assignment. Use `command codex` to bypass any interactive shell
+wrapper.
+
+Worker invocation:
+
+```bash
+{{ codex_commands.start(execution.worker_model_argument, "--dangerously-bypass-approvals-and-sandbox") }}
+```
+
+Scout invocation:
+
+```bash
+{{ codex_commands.start(execution.scout_model_argument, "--sandbox read-only") }}
+```
+
+Suppress stderr because thinking noise bloats context; remove `2>/dev/null`
+only to debug a failing run. Read the `-o` result file for the outcome rather
+than parsing streamed output. Run long assignments in a supervised background
+execution session and read the result file on exit.
+
+Apply the main skill's event loop. A `codex exec` run is quiet by design:
+treat silence as normal, use process liveness and the result file as the
+observation surface, and do not interrupt a quiet run before a configured
+deadline. Leave the repository untouched during supervision.
+
+For every validator, start a fresh `codex exec` process with only its compact
+validation packet.
+
+## Continue And Clean Up
+
+Send a focused follow-up to an existing scout or worker only while its context
+remains relevant. `codex exec resume` has no `-C`; run it from the repository:
+
+```bash
+{{ codex_commands.resume(execution.worker_model_argument, "--dangerously-bypass-approvals-and-sandbox") }}
+```
+
+Keep `--sandbox read-only` instead of the bypass flag for a scout follow-up.
+Use `resume --last` only when that assignment is unambiguously the
+repository's most recent Codex session; otherwise start a fresh run with a
+compact handoff. Delete each prompt file after its invocation completes, and
+preserve the `-o` result file until its evidence is recorded.
+
+When the main skill's event loop permits a health check or recovery, inspect
+only the delegated run's process:
+
+```bash
+{{ codex_commands.inspect_process() }}
+```
+
+Interrupt only the process created for that assignment and preserve its result
+file and useful evidence. Resume it while its context remains trustworthy;
+replace it with a fresh run and a compact handoff when it cannot resume.

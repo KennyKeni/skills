@@ -11,12 +11,12 @@ tasks:
   skills:routing:generate:
     desc: Generate the Codex subagent routing skill and lane references.
     cmds:
-      - uv run --script scripts/codex-subagent-routing/generate_references.py
+      - uv run --script scripts/subagent-routing/generate_references.py
 
   skills:routing:check:
     desc: Check that generated Codex subagent routing files are current.
     cmds:
-      - uv run --script scripts/codex-subagent-routing/generate_references.py --check
+      - uv run --script scripts/subagent-routing/generate_references.py --check
 
   skills:sidekick:generate:
     desc: Generate the Sidekick skill and setup references.

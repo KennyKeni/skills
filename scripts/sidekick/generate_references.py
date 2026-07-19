@@ -43,6 +43,7 @@ SETUP_TEMPLATE = "setup.md.j2"
 REGISTRY_TEMPLATE = "setups.md.j2"
 OPENAI_TEMPLATE = "openai.yaml.j2"
 COMMON_FIELDS = {"slug", "harness", "title", "selection_label", "default"}
+OPTIONAL_FIELDS = {"policy_note"}
 NATIVE_FIELDS = {
     "sidekick_model",
     "reasoning_effort",
@@ -70,6 +71,14 @@ def load_setups() -> list[dict[str, Any]]:
     document = yaml.safe_load(SPEC_PATH.read_text(encoding="utf-8"))
     if not isinstance(document, dict) or document.get("schema_version") != 1:
         raise SpecError("setups.yaml must be a schema_version 1 mapping")
+    lead = document.get("lead")
+    if (
+        not isinstance(lead, dict)
+        or set(lead) != {"name"}
+        or not isinstance(lead["name"], str)
+        or not lead["name"]
+    ):
+        raise SpecError("setups.yaml lead must define a non-empty name")
     raw_setups = document.get("setups")
     if not isinstance(raw_setups, list) or not raw_setups:
         raise SpecError("setups.yaml must contain a non-empty setups list")
@@ -91,25 +100,29 @@ def load_setups() -> list[dict[str, Any]]:
         seen.add(slug)
 
         setup = resolve_harness(raw, harnesses, record_name=f"setup {slug}")
-        allowed = COMMON_FIELDS | (
-            NATIVE_FIELDS if setup["family"] == "native" else set()
+        setup["lead_name"] = lead["name"]
+        allowed = (
+            COMMON_FIELDS
+            | OPTIONAL_FIELDS
+            | (NATIVE_FIELDS if setup["family"] == "codex-native" else set())
         )
         unknown = raw.keys() - allowed
         if unknown:
             raise SpecError(f"unknown fields for {slug}: {', '.join(sorted(unknown))}")
-        if setup["family"] == "native":
+        if setup["family"] == "codex-native":
             missing_native = NATIVE_FIELDS - raw.keys()
             if missing_native:
                 raise SpecError(
                     f"native setup {slug} is missing: {', '.join(sorted(missing_native))}"
                 )
-        elif (
-            setup.get("variant") not in {"grok", "qwen"}
-            and setup["family"] == "opencode"
-        ):
+            setup["worker_model"] = setup["sidekick_model"]
+        elif setup.get("model_mode") not in {"shared", "tiered"}:
             raise SpecError(
-                f"Sidekick setup {slug} must select a supported OpenCode harness"
+                f"Sidekick setup {slug} requires a harness with a concrete "
+                "worker model"
             )
+        if not isinstance(setup.setdefault("policy_note", ""), str):
+            raise SpecError(f"setup {slug} policy_note must be a string")
         setups.append(setup)
 
     defaults = [setup for setup in setups if setup["default"] is True]

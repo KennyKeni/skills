@@ -9,12 +9,15 @@ import yaml
 
 CATALOG_PATH = Path(__file__).resolve().with_name("harnesses.yaml")
 TEMPLATE_DIR = Path(__file__).resolve().with_name("templates")
-ALLOWED_FAMILIES = {"native", "cursor", "opencode"}
+ALLOWED_FAMILIES = {"codex-native", "claude-native", "cursor", "opencode", "codex-exec"}
+NATIVE_FAMILIES = {"codex-native": "codex", "claude-native": "claude"}
 COMMON_FIELDS = {"id", "family", "models"}
 FAMILY_FIELDS = {
-    "native": set(),
-    "cursor": {"model_label_patterns"},
-    "opencode": {"variant", "title_prefix", "refresh_models"},
+    "codex-native": set(),
+    "claude-native": set(),
+    "cursor": {"model_label_patterns", "model_caution"},
+    "opencode": {"title_prefix", "refresh_models", "model_caution"},
+    "codex-exec": {"model_caution"},
 }
 RESERVED_FIELDS = set().union(COMMON_FIELDS, *FAMILY_FIELDS.values()) - {"id"}
 
@@ -78,14 +81,18 @@ def resolve_harness(
 def _prepare_models(harness: dict[str, Any]) -> None:
     harness_id = harness["id"]
     family = harness["family"]
-    if family == "native":
+    harness["native_to"] = NATIVE_FAMILIES.get(family)
+    if family == "codex-native":
         if "models" in harness:
-            raise CatalogError(f"native harness {harness_id} must not define models")
+            raise CatalogError(f"{harness_id} must configure models per route, not here")
         return
 
     models = harness.get("models")
     if not isinstance(models, dict):
         raise CatalogError(f"{harness_id} models must be a mapping")
+    harness.setdefault("model_caution", "")
+    if not isinstance(harness["model_caution"], str):
+        raise CatalogError(f"{harness_id} model_caution must be a string")
     model_keys = set(models)
     if model_keys == {"shared"}:
         harness["model_mode"] = "shared"
@@ -95,7 +102,7 @@ def _prepare_models(harness: dict[str, Any]) -> None:
         harness["model_mode"] = "tiered"
         harness["scout_model"] = models["scout"]
         harness["worker_model"] = models["worker"]
-    elif model_keys == {"capability"} and harness.get("variant") == "ollama":
+    elif model_keys == {"capability"} and family == "opencode":
         capability = models["capability"]
         fields = {"default", "variable", "choices_markdown"}
         if not isinstance(capability, dict) or set(capability) != fields:
@@ -107,9 +114,12 @@ def _prepare_models(harness: dict[str, Any]) -> None:
         harness["model_default"] = capability["default"]
         harness["model_variable"] = capability["variable"]
         harness["model_choices_markdown"] = capability["choices_markdown"]
+        harness["scout_model_argument"] = f'"${capability["variable"]}"'
+        harness["worker_model_argument"] = harness["scout_model_argument"]
     else:
         raise CatalogError(
-            f"{harness_id} models must use shared, scout+worker, or Ollama capability mode"
+            f"{harness_id} models must use shared, scout+worker, "
+            "or OpenCode capability mode"
         )
 
     if harness["model_mode"] in {"shared", "tiered"}:
@@ -117,6 +127,8 @@ def _prepare_models(harness: dict[str, Any]) -> None:
         if not all(isinstance(model_id, str) and model_id for model_id in model_ids):
             raise CatalogError(f"{harness_id} model IDs must be non-empty strings")
         harness["models_to_verify"] = list(dict.fromkeys(model_ids))
+        harness["scout_model_argument"] = harness["scout_model"]
+        harness["worker_model_argument"] = harness["worker_model"]
 
     if family == "cursor":
         patterns = harness.get("model_label_patterns")
@@ -134,10 +146,6 @@ def _prepare_models(harness: dict[str, Any]) -> None:
         ]
 
     if family == "opencode":
-        if harness.get("variant") not in {"grok", "ollama", "qwen"}:
-            raise CatalogError(
-                f"{harness_id} must define variant as grok, ollama, or qwen"
-            )
         if not isinstance(harness.get("title_prefix"), str):
             raise CatalogError(f"{harness_id} must define title_prefix")
         if not isinstance(harness.get("refresh_models", True), bool):

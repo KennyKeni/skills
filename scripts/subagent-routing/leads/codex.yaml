@@ -1,5 +1,17 @@
 schema_version: 1
 
+lead:
+  name: Codex
+  skill_slug: codex-subagent-routing
+  title: Codex Subagent Routing
+  native: true
+  validation_context: |-
+    Start each initial formal validation pass in a fresh native Codex session with
+    `fork_turns: "none"` or the native equivalent that excludes implementation
+    history. Pass only its compact validation packet, including the no-delegation
+    boundary. If fresh context cannot be established, report that independent
+    validation is unavailable rather than claiming it.
+
 lanes:
   - slug: codex-quality
     harness: native-codex

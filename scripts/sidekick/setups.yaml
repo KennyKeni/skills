@@ -1,5 +1,8 @@
 schema_version: 1
 
+lead:
+  name: Codex
+
 setups:
   - slug: luna-max
     harness: native-codex
@@ -23,6 +26,15 @@ setups:
     title: Qwen3.8 Max Preview via OpenCode
     selection_label: Qwen3.8 Max Preview through OpenCode
     default: false
+    policy_note: |-
+      ## Keep Implementation On Qwen
+
+      Send every implementation, edit, repair, test-fix, and review-correction
+      work unit to the persistent Qwen sidekick. Keep the main agent on
+      planning, ambiguity resolution, consequential decisions, supervision, and
+      final review; the main agent must not implement changes in this setup. If
+      Qwen is unavailable or cannot safely complete the work, stop and report
+      the limitation rather than substituting a GPT model for implementation.
 
   - slug: cursor-grok
     harness: cursor-grok-4-5

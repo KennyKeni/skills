@@ -1,4 +1,4 @@
-# OpenCode Grok Lane
+# OpenCode Qwen Lane
 
 Use this policy to classify work and route each role and consequence tier
 through its configured executor. This policy selects execution mappings; it
@@ -111,11 +111,11 @@ For every consequential classification, record:
 
 Use these mappings:
 
-- routine `scout`: this lane with `xai/grok-4.5`;
-- consequential `scout`: native Codex with `gpt-5.6-sol` at medium effort;
-- routine `worker`: this lane with `xai/grok-4.5`;
-- consequential `worker`: native Codex with `gpt-5.6-sol` at high effort;
-- every `validator`: fresh native Codex with `gpt-5.6-sol` at high effort.
+- routine `scout`: this lane with `alibaba-token-plan/qwen3.8-max-preview`;
+- consequential `scout`: the native Claude lane ([claude-native.md](claude-native.md)) with `claude-opus-4-8`;
+- routine `worker`: this lane with `alibaba-token-plan/qwen3.8-max-preview`;
+- consequential `worker`: this lane with `alibaba-token-plan/qwen3.8-max-preview`;
+- every `validator`: a fresh session of the native Claude lane ([claude-native.md](claude-native.md)) with `claude-opus-4-8`.
 
 Skip the scout when the main skill's delegation criteria do not justify one.
 Keep `scout`, `worker`, and `validator` as the canonical roles and include the
@@ -146,28 +146,26 @@ required contract or operational envelope.
 Treat lead or validator findings as new routing evidence. When reassessment
 returns `routine`, send only bounded routine corrections to the same session.
 When it returns `consequential`, stop the routine assignment and route the
-scout through native Codex with `gpt-5.6-sol` at medium effort or the worker
-through native Codex with `gpt-5.6-sol` at high effort, passing a compact
+scout through the native Claude lane ([claude-native.md](claude-native.md)) with `claude-opus-4-8` or the worker
+through this lane with `alibaba-token-plan/qwen3.8-max-preview`, passing a compact
 handoff containing the contract, observations, attempted proof, changed files
 when applicable, and unresolved questions. When it returns `not_ready`, stop
 the worker, preserve its evidence, and return the candidate to the lead for
 shaping. Treat executor self-checks as worker evidence; retain independent
-validation through fresh native Codex with `gpt-5.6-sol` at high effort.
+validation through a fresh session of the native Claude lane ([claude-native.md](claude-native.md)) with `claude-opus-4-8`.
 
 ## Select And Verify The Model
 
-Use `xai/grok-4.5` for scouts and `xai/grok-4.5`
+Use `alibaba-token-plan/qwen3.8-max-preview` for scouts and `alibaba-token-plan/qwen3.8-max-preview`
 for workers routed to this lane.
-Never substitute a `fast` variant.
 Verify the configured models once before the first assignment in the current
 context, and retain the exact model for focused follow-ups:
 
 ```bash
-opencode models --refresh >/dev/null
-opencode models | rg -x 'xai/grok-4\.5'
+opencode models | rg -x 'alibaba-token-plan/qwen3\.8-max-preview'
 ```
 
-Keep the work in Codex or report the limitation when the model is unavailable
+Keep the work in Claude or report the limitation when the model is unavailable
 or lacks a required capability.
 
 ## Invoke OpenCode
@@ -183,12 +181,12 @@ Worker invocation:
 
 ```bash
 opencode run --dir "$REPO" \
-  --model xai/grok-4.5 \
+  --model alibaba-token-plan/qwen3.8-max-preview \
   --agent build \
   --file "$PROMPT_FILE" \
   --format json \
   --dangerously-skip-permissions \
-  --title "grok worker: <bounded-task>" \
+  --title "qwen worker: <bounded-task>" \
   "Read the attached assignment and complete only that worker scope."
 ```
 
@@ -196,11 +194,11 @@ Scout invocation:
 
 ```bash
 opencode run --dir "$REPO" \
-  --model xai/grok-4.5 \
+  --model alibaba-token-plan/qwen3.8-max-preview \
   --agent build \
   --file "$PROMPT_FILE" \
   --format json \
-  --title "grok scout: <bounded-question>" \
+  --title "qwen scout: <bounded-question>" \
   "Read the attached assignment and return evidence only. Do not edit files."
 ```
 

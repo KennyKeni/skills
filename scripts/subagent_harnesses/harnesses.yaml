@@ -1,8 +1,26 @@
 schema_version: 1
 
+x-snippets:
+  no-fast-variant: &no_fast_variant Never substitute a `fast` variant.
+
 harnesses:
   - id: native-codex
-    family: native
+    family: codex-native
+
+  - id: native-claude
+    family: claude-native
+    models:
+      shared: claude-opus-4-8
+
+  - id: codex-exec-sol
+    family: codex-exec
+    models:
+      shared: gpt-5.6-sol
+
+  - id: codex-exec-luna
+    family: codex-exec
+    models:
+      shared: gpt-5.6-luna
 
   - id: cursor-grok-4-5
     family: cursor
@@ -10,25 +28,25 @@ harnesses:
       shared: cursor-grok-4.5-high
     model_label_patterns:
       cursor-grok-4.5-high: Cursor Grok 4\.5
+    model_caution: *no_fast_variant
 
   - id: opencode-grok-4-5
     family: opencode
-    variant: grok
     models:
       shared: xai/grok-4.5
     title_prefix: grok
+    model_caution: *no_fast_variant
 
   - id: opencode-qwen-3-8-max-preview
     family: opencode
-    variant: qwen
     models:
       shared: alibaba-token-plan/qwen3.8-max-preview
     title_prefix: qwen
+    # Preview model: a local cache entry may precede the upstream catalog.
     refresh_models: false
 
   - id: opencode-ollama
     family: opencode
-    variant: ollama
     title_prefix: ollama
     models:
       capability:

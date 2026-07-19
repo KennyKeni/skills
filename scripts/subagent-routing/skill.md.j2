@@ -1,11 +1,11 @@
 ---
-name: codex-subagent-routing
-description: Route bounded scout, worker, and validator assignments from a Codex lead through {{ lane_description }} execution lanes. Use when the user invokes $codex-subagent-routing, requests one of these Codex-led delegation policies, or combines lane selection with the goal prompt template.
+name: {{ lead.skill_slug }}
+description: Route bounded scout, worker, and validator assignments from a {{ lead.name }} lead through {{ lane_description }} execution lanes. Use when the user invokes ${{ lead.skill_slug }}, requests one of these {{ lead.name }}-led delegation policies, or combines lane selection with the goal prompt template.
 ---
 
-# Codex Subagent Routing
+# {{ lead.title }}
 
-Use this skill only from the user-facing, goal-owning Codex session. Treat each
+Use this skill only from the user-facing, goal-owning {{ lead.name }} session. Treat each
 delegated session as a bounded execution lane. Keep the current session as the
 lead and final judge.
 
@@ -151,11 +151,7 @@ Use the selected lane's validator procedure and its configured validator route
 when it declares classified routing. Treat implementation-executor self-checks
 as worker evidence, not independent review.
 
-Start each initial formal validation pass in a fresh native Codex session with
-`fork_turns: "none"` or the native equivalent that excludes implementation
-history. Pass only its compact validation packet, including the no-delegation
-boundary. If fresh context cannot be established, report that independent
-validation is unavailable rather than claiming it.
+{{ lead.validation_context }}
 
 Have the lead inspect every handoff, complete diff, repository state, focused
 tests, and exact proof output. Follow the active goal workflow's validator

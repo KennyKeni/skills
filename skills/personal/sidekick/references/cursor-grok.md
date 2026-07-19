@@ -7,8 +7,9 @@ as the sidekick.
 
 Use `cursor-grok-4.5-high` for the persistent sidekick. Retain the
 current main agent's model and reasoning effort.
-Do not substitute a `fast` variant. Verify the installed CLI, authentication,
-and model once before the first Cursor assignment in the current context:
+Never substitute a `fast` variant.
+Verify the installed CLI, authentication, and model once before the first
+Cursor assignment in the current context:
 
 ```bash
 cursor-agent status
@@ -22,10 +23,9 @@ the exact model for focused follow-ups.
 ## Start
 
 Create a compact prompt file using the environment's approved file-writing
-mechanism. Set `REPO` and `PROMPT_FILE` to absolute paths. Use event-stream JSON
-for writable or long-running work so the lead can supervise meaningful progress.
-Regular `stream-json` emits completed messages, tool activity, errors, and a
-final result; omit partial-output mode, which duplicates the completed response.
+mechanism. Set `REPO` and `PROMPT_FILE` to absolute paths. Use event-stream
+`stream-json` for writable or long-running work; omit partial-output mode,
+which only duplicates the completed response.
 
 Start the sidekick:
 
@@ -50,21 +50,19 @@ each assignment packet.
 
 ## Observe And Steer
 
-Capture `session_id` from the initial `system/init` event immediately. Observe
-completed assistant messages, tool-call start and completion events, errors,
-and the terminal `result`. Treat the terminal event's error state, subtype,
-process exit, and useful result as completion evidence.
-Record the exact invoked model as `MODEL`. Keep thinking deltas out of the
-returned answer.
+Capture `session_id` from the initial `system/init` event immediately. Treat
+the terminal `result` event's error state, subtype, process exit, and useful
+result as completion evidence. Keep thinking deltas out of the returned
+answer.
 
-Do not open a second chat for a focused question. Let the active run return, or
-interrupt it only when blocked, then resume `CHAT_ID` with the answer and the
-remaining assignment.
+Do not open a second chat for a focused question. Let the active run return,
+or interrupt it only when blocked, then resume `CHAT_ID` with the answer and
+the remaining assignment.
 
 ## Continue
 
-Resume a focused follow-up with the recorded chat ID, the same workspace, exact
-model, full permissions, and a focused prompt file:
+Resume a focused follow-up with the recorded chat ID, the same workspace,
+exact model, full permissions, and a focused prompt file:
 
 ```bash
 MODEL=cursor-grok-4.5-high
@@ -79,10 +77,9 @@ cursor-agent --print \
 ```
 
 Record the chat ID before deleting the prompt file. Recover a missing ID with
-`cursor-agent ls` by matching the repository and assignment context. Keep
-`stream-json` for long follow-ups; `json` is suitable for short follow-ups.
-Resume the same chat after a capacity error or interruption while its context
-remains trustworthy.
+`cursor-agent ls` by matching the repository and assignment context. Resume
+the same chat after a capacity error or interruption while its context remains
+trustworthy.
 
 ## Stop And Recover
 

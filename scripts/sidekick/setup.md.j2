@@ -1,25 +1,10 @@
 # {{ setup.title }} Setup
 
-{% if setup.family == "native" %}
-Use the current Codex session as the main agent and one persistent native Codex
-subagent as the sidekick.
-{% elif setup.family == "cursor" %}
-Use the current Codex session as the main agent and one persistent Cursor chat
-as the sidekick.
-{% else %}
-Use the current Codex session as the main agent and one persistent OpenCode
-session as the sidekick.
-{% endif %}
+{% set execution = setup %}
+{% include "harnesses/" ~ setup.family ~ "/sidekick.md.j2" %}
+{% if setup.policy_note %}
 
-{% if setup.family == "native" %}
-{% set execution = setup %}
-{% include "harnesses/native/sidekick.md.j2" %}
-{% elif setup.family == "cursor" %}
-{% set execution = setup %}
-{% include "harnesses/cursor/sidekick.md.j2" %}
-{% else %}
-{% set execution = setup %}
-{% include "harnesses/opencode/sidekick.md.j2" %}
+{{ setup.policy_note }}
 {% endif %}
 
 Use this adapter for the full sidekick lifecycle. Keep its recorded identifier

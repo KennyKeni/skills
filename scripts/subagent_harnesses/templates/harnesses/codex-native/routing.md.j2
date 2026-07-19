@@ -1,0 +1,34 @@
+## Select Model And Effort
+
+Use the role and consequence-tier mappings configured above. Treat their exact
+model IDs, efforts, and freshness requirements as authoritative. Retain the
+current lead model and effort, and state the selected model and effort in each
+assignment. Keep medium and high as execution settings rather than role names.
+If the requested setting is unavailable, keep the work in the lead or report
+the limitation.
+
+## Invoke Native Codex
+
+Spawn with the current native subagent controls, keeping model and effort
+selection in the spawn assignment rather than persistent custom-agent
+configuration. Pass a compact assignment with the minimum useful context,
+follow the global subagent context-forking policy, and record the task name or
+identifier immediately after spawning.
+
+Apply the main skill's event loop. Observe through mailbox waits of roughly
+one minute; when the loop permits a health check, inspect the active-agent
+list once. Leave the subagent's worktree untouched during supervision.
+
+For each initial formal validation pass, set `fork_turns: "none"` or the
+native equivalent that excludes implementation history. Supply the contract,
+coherent change, relevant primary sources, validation evidence, and
+findings-only return shape directly in the fresh assignment.
+
+## Continue And Clean Up
+
+Send focused scout or worker follow-ups to the recorded task, then return to
+mailbox waiting. Resume a scout or worker only while its context remains
+trustworthy; interrupt only the affected session without closing it. Preserve
+an interrupted initial validator's useful evidence and replace it with a fresh
+pass, resuming a validator only for bounded delta revalidation in the same
+review cycle. Replace or close any task whose context is no longer reliable.

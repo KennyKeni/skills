@@ -1,0 +1,119 @@
+schema_version: 1
+
+lead:
+  name: Claude
+  skill_slug: claude-subagent-routing
+  title: Claude Subagent Routing
+  native: false
+  validation_context: |-
+    Start each initial formal validation pass in a fresh delegated session that
+    excludes implementation history, following the validator route's fresh
+    requirement. Pass only its compact validation packet, including the
+    no-delegation boundary. If fresh context cannot be established, report that
+    independent validation is unavailable rather than claiming it.
+
+lanes:
+  - slug: claude-native
+    harness: native-claude
+    title: Native Claude Lane
+    description_name: native Claude
+    selection_label: native Claude subagents
+    policy: classified
+    default: true
+    external: false
+    routes:
+      routine_scout: {executor: lane, model_ref: scout}
+      consequential_scout: {executor: lane, model_ref: worker}
+      routine_worker: {executor: lane, model_ref: worker}
+      consequential_worker: {executor: lane, model_ref: worker}
+      validator: {executor: lane, model_ref: worker, fresh: true}
+
+  - slug: codex-sol
+    harness: codex-exec-sol
+    title: Codex Sol Lane
+    description_name: Codex Sol
+    selection_label: Codex Sol
+    policy: classified
+    default: false
+    external: true
+    routes:
+      routine_scout: {executor: lane, model_ref: scout, effort: medium}
+      consequential_scout: {executor: lane, model_ref: scout, effort: high}
+      routine_worker: {executor: lane, model_ref: worker, effort: medium}
+      consequential_worker: {executor: lane, model_ref: worker, effort: high}
+      validator: {executor: lane, model_ref: worker, effort: high, fresh: true}
+
+  - slug: codex-efficient
+    harness: codex-exec-luna
+    title: Codex Efficient Lane
+    description_name: Codex Efficient
+    selection_label: Codex Efficient
+    policy: classified
+    default: false
+    external: true
+    routes:
+      routine_scout: {executor: lane, model_ref: scout, effort: high}
+      consequential_scout: {executor: lane, lane: codex-sol, model_ref: scout, effort: medium}
+      routine_worker: {executor: lane, model_ref: worker, effort: high}
+      consequential_worker: {executor: lane, lane: codex-sol, model_ref: worker, effort: high}
+      validator: {executor: lane, lane: codex-sol, model_ref: worker, effort: high, fresh: true}
+
+  - slug: cursor-grok
+    harness: cursor-grok-4-5
+    title: Cursor Grok Lane
+    description_name: Cursor/Grok
+    selection_label: Grok through Cursor
+    policy: classified
+    default: false
+    external: true
+    routes:
+      routine_scout: {executor: lane, model_ref: scout}
+      consequential_scout: {executor: lane, lane: claude-native, model_ref: worker}
+      routine_worker: {executor: lane, model_ref: worker}
+      consequential_worker: {executor: lane, lane: claude-native, model_ref: worker}
+      validator: {executor: lane, lane: claude-native, model_ref: worker, fresh: true}
+
+  - slug: opencode-grok
+    harness: opencode-grok-4-5
+    title: OpenCode Grok Lane
+    description_name: OpenCode/Grok
+    selection_label: xAI through OpenCode
+    policy: classified
+    default: false
+    external: true
+    routes:
+      routine_scout: {executor: lane, model_ref: scout}
+      consequential_scout: {executor: lane, lane: claude-native, model_ref: worker}
+      routine_worker: {executor: lane, model_ref: worker}
+      consequential_worker: {executor: lane, lane: claude-native, model_ref: worker}
+      validator: {executor: lane, lane: claude-native, model_ref: worker, fresh: true}
+
+  - slug: opencode-qwen
+    harness: opencode-qwen-3-8-max-preview
+    title: OpenCode Qwen Lane
+    description_name: OpenCode/Qwen3.8 Max Preview
+    selection_label: Qwen3.8 Max Preview through OpenCode
+    policy: classified
+    default: false
+    external: true
+    routes:
+      routine_scout: {executor: lane, model_ref: scout}
+      consequential_scout: {executor: lane, lane: claude-native, model_ref: worker}
+      routine_worker: {executor: lane, model_ref: worker}
+      consequential_worker: {executor: lane, model_ref: worker}
+      validator: {executor: lane, lane: claude-native, model_ref: worker, fresh: true}
+
+  - slug: opencode-ollama
+    harness: opencode-ollama
+    title: OpenCode Ollama Lane
+    description_name: OpenCode/Ollama
+    selection_label: Ollama Cloud through OpenCode
+    policy: classified
+    default: false
+    external: true
+    routes:
+      routine_scout: {executor: lane, model_ref: selected}
+      consequential_scout: {executor: lane, lane: claude-native, model_ref: worker}
+      routine_worker: {executor: lane, model_ref: selected}
+      consequential_worker: {executor: lane, lane: claude-native, model_ref: worker}
+      validator: {executor: lane, lane: claude-native, model_ref: worker, fresh: true}

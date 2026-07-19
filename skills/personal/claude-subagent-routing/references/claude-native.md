@@ -1,6 +1,5 @@
-# {{ lane.title }}
+# Native Claude Lane
 
-{% if lane.policy == "classified" %}
 Use this policy to classify work and route each role and consequence tier
 through its configured executor. This policy selects execution mappings; it
 does not introduce new roles.
@@ -112,11 +111,11 @@ For every consequential classification, record:
 
 Use these mappings:
 
-- routine `scout`: {{ lane.routes.routine_scout.description }};
-- consequential `scout`: {{ lane.routes.consequential_scout.description }};
-- routine `worker`: {{ lane.routes.routine_worker.description }};
-- consequential `worker`: {{ lane.routes.consequential_worker.description }};
-- every `validator`: {{ lane.routes.validator.description }}.
+- routine `scout`: this lane with `claude-opus-4-8`;
+- consequential `scout`: this lane with `claude-opus-4-8`;
+- routine `worker`: this lane with `claude-opus-4-8`;
+- consequential `worker`: this lane with `claude-opus-4-8`;
+- every `validator`: a fresh session of this lane with `claude-opus-4-8`.
 
 Skip the scout when the main skill's delegation criteria do not justify one.
 Keep `scout`, `worker`, and `validator` as the canonical roles and include the
@@ -147,22 +146,45 @@ required contract or operational envelope.
 Treat lead or validator findings as new routing evidence. When reassessment
 returns `routine`, send only bounded routine corrections to the same session.
 When it returns `consequential`, stop the routine assignment and route the
-scout through {{ lane.routes.consequential_scout.description }} or the worker
-through {{ lane.routes.consequential_worker.description }}, passing a compact
+scout through this lane with `claude-opus-4-8` or the worker
+through this lane with `claude-opus-4-8`, passing a compact
 handoff containing the contract, observations, attempted proof, changed files
 when applicable, and unresolved questions. When it returns `not_ready`, stop
 the worker, preserve its evidence, and return the candidate to the lead for
 shaping. Treat executor self-checks as worker evidence; retain independent
-validation through {{ lane.routes.validator.description }}.
+validation through a fresh session of this lane with `claude-opus-4-8`.
 
-{% endif %}
-{% if lane.family == "native" %}
-{% set execution = lane %}
-{% include "harnesses/native/routing.md.j2" %}
-{% elif lane.family == "cursor" %}
-{% set execution = lane %}
-{% include "harnesses/cursor/routing.md.j2" %}
-{% else %}
-{% set execution = lane %}
-{% include "harnesses/opencode/routing.md.j2" %}
-{% endif %}
+## Select The Model
+
+Use the role and consequence-tier mappings configured above. Treat their exact
+model IDs and freshness requirements as authoritative. Retain the current lead
+model, and state the selected model in each assignment. If the requested model
+is unavailable, keep the work in the lead or report the limitation.
+
+## Invoke Native Claude Subagents
+
+Spawn each assignment with the current native subagent control, passing the
+mapped model and a compact assignment with the minimum useful context. A
+spawned subagent does not inherit the lead conversation, so supply the
+contract, primary sources, boundaries, and return shape explicitly in the
+assignment. Record the returned task or agent identifier immediately after
+spawning.
+
+Apply the main skill's event loop. Background subagents notify the lead on
+completion; treat waits without a notification as quiet ticks, and when the
+loop permits a health check, inspect the active task list once. Leave the
+repository untouched during supervision.
+
+Each initial formal validation pass is naturally fresh: spawn a new validator
+subagent with only the contract, coherent change, relevant primary sources,
+validation evidence, and findings-only return shape. Retain its identifier
+only for bounded delta revalidation in the same review cycle.
+
+## Continue And Clean Up
+
+Send focused scout or worker follow-ups to the recorded subagent so its
+context continues, then return to observation. Resume a scout or worker only
+while its context remains trustworthy; interrupt only the affected subagent.
+Preserve an interrupted initial validator's useful evidence and replace it
+with a fresh pass. Replace any subagent whose context is no longer reliable,
+passing a compact handoff of accepted facts and remaining scope.
