@@ -1,18 +1,31 @@
-{% import "components/opencode-commands.md.j2" as opencode_commands %}
+# Qwen3.8 Max Preview via OpenCode Setup
+
+Use the current Codex session as the main agent and one persistent OpenCode
+session as the sidekick.
+
 ## Verify
 
-Use `{{ execution.worker_model }}` for the persistent sidekick. Retain the
+Use `alibaba-token-plan/qwen3.8-max-preview` for the persistent sidekick. Retain the
 current main agent's model and reasoning effort.
-Do not substitute a `fast` variant.
-Refresh and verify the configured model once before the first assignment in
-the current context:
+This preview model may be present through a local OpenCode cache entry before
+the upstream catalog includes it. Do not refresh the model catalog. Verify the
+configured model once before the first assignment in the current context:
 
 ```bash
-{{ opencode_commands.verify(execution.models_to_verify) }}
+opencode models | rg -x 'alibaba-token-plan/qwen3\.8-max-preview'
 ```
 
 Keep the work in the main agent and report the limitation when the model or a
 required capability is unavailable. Retain the exact model for follow-ups.
+
+## Keep Implementation On Qwen
+
+Send every implementation, edit, repair, test-fix, and review-correction work
+unit to the persistent Qwen sidekick. Keep the main agent on planning,
+ambiguity resolution, consequential decisions, supervision, and final review;
+the main agent must not implement changes in this setup. If Qwen is unavailable
+or cannot safely complete the work, stop and report the limitation rather than
+substituting a GPT model for implementation.
 
 ## Start
 
@@ -24,9 +37,16 @@ Start the sidekick in the build agent so the same session can explore, edit,
 test, and repair:
 
 ```bash
-MODEL={{ execution.worker_model }}
+MODEL=alibaba-token-plan/qwen3.8-max-preview
 AGENT=build
-{{ opencode_commands.start('"$MODEL"', '"$AGENT"', "sidekick: <bounded-task>", "Read the attached assignment and remain the persistent sidekick for this task.", writable=true) }}
+opencode run --dir "$REPO" \
+  --model "$MODEL" \
+  --agent "$AGENT" \
+  --file "$PROMPT_FILE" \
+  --format json \
+  --dangerously-skip-permissions \
+  --title "sidekick: <bounded-task>" \
+  "Read the attached assignment and remain the persistent sidekick for this task."
 ```
 
 Run it in a supervised long-running execution session. Record that execution
@@ -50,9 +70,16 @@ answer and the remaining assignment.
 Resume the recorded session with its exact model and agent, omitting `--fork`.
 
 ```bash
-MODEL={{ execution.worker_model }}
+MODEL=alibaba-token-plan/qwen3.8-max-preview
 AGENT=build
-{{ opencode_commands.resume('"$MODEL"', '"$AGENT"', "Read the attached follow-up and remain within the original assignment.", writable=true) }}
+opencode run --dir "$REPO" \
+  --session "$SESSION_ID" \
+  --model "$MODEL" \
+  --agent "$AGENT" \
+  --file "$PROMPT_FILE" \
+  --format json \
+  --dangerously-skip-permissions \
+  "Read the attached follow-up and remain within the original assignment."
 ```
 
 Retain `--dangerously-skip-permissions` for every writable follow-up. Avoid bare
@@ -60,7 +87,7 @@ Retain `--dangerously-skip-permissions` for every writable follow-up. Avoid bare
 the session ID and useful result are preserved. Recover an unrecorded ID with:
 
 ```bash
-{{ opencode_commands.list_sessions() }}
+opencode session list --format json --max-count 20
 ```
 
 ## Stop And Recover
@@ -68,7 +95,7 @@ the session ID and useful result are preserved. Recover an unrecorded ID with:
 For a permitted health check or recovery, inspect only the recorded run:
 
 ```bash
-{{ opencode_commands.inspect_process() }}
+ps -axo pid,ppid,command | rg '[o]pencode|[b]un.*opencode' || true
 ```
 
 Interrupt only the process created for that run and preserve its prompt and
@@ -78,3 +105,7 @@ When the session cannot safely resume, return the work and useful evidence to
 the main agent. If replacement is worthwhile, start one new session with the
 same model and a compact handoff, record its new `SESSION_ID`, and disclose that
 the cached sidekick context was lost.
+
+Use this adapter for the full sidekick lifecycle. Keep its recorded identifier
+until the task ends or the main agent explicitly replaces an unrecoverable
+session with the same requested setup.

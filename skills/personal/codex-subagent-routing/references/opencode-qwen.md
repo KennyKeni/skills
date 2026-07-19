@@ -1,32 +1,28 @@
-# OpenCode Ollama Lane
-
-Use this lower-cost lane only for eligible `scout` and `worker` assignments.
-Use native Codex Sol for every formal validator. When the main skill classifies
-requested work as architecturally consequential or high-risk, return the
-ineligible assignment to the lead; use Sol only when the user or active mission
-authorizes that fallback.
+# OpenCode Qwen Lane
 
 ## Select And Verify The Model
 
-Choose one model before starting a session:
-
-- `ollama-cloud/glm-5.2` for text and code retrieval, implementation, and the
-  largest text-only contexts;
-- `ollama-cloud/kimi-k2.7-code` when the assignment requires image input;
-- `ollama-cloud/minimax-m3` when the assignment requires video input or
-  image-plus-text context beyond Kimi's capacity.
-
-Retain the selected exact model for focused follow-ups. Refresh and verify it
-once before the first assignment in the current context:
+Use `alibaba-token-plan/qwen3.8-max-preview` for every scout and worker session in this
+lane.
+This preview model may be present through a local OpenCode cache entry before
+the upstream catalog includes it. Do not refresh the model catalog. Verify the
+configured model once before the first Qwen assignment in the current context:
 
 ```bash
-MODEL=ollama-cloud/glm-5.2 # Set the selected exact model ID.
-opencode models --refresh >/dev/null
-opencode models | rg -Fx "$MODEL"
+opencode models | rg -x 'alibaba-token-plan/qwen3\.8-max-preview'
 ```
 
-Choose another listed model only when its routing criteria apply. Otherwise
-keep the work in Codex or report the limitation.
+Keep the work in Codex or report the limitation when the model is unavailable
+or lacks a required capability. Retain the exact model for focused follow-ups.
+
+## Keep Implementation On Qwen
+
+Use this Qwen model for every worker assignment, including consequential
+implementation and corrections discovered during review. Native Codex may own
+lead decisions and formal validation, but it must not implement, edit, repair,
+or receive an implementation handoff in this lane. If Qwen is unavailable or
+cannot safely complete the worker scope, stop and report the limitation rather
+than substituting a GPT model for implementation.
 
 ## Invoke OpenCode
 
@@ -35,18 +31,18 @@ every scout and worker invocation. Enforce read-only scout behavior through the
 assignment prompt and scope, not through a separate OpenCode agent.
 
 Create a compact prompt file using the environment's approved file-writing
-mechanism. Set `REPO`, `MODEL`, and `PROMPT_FILE` before invocation.
+mechanism. Set `REPO` and `PROMPT_FILE` to absolute paths.
 
 Worker invocation:
 
 ```bash
 opencode run --dir "$REPO" \
-  --model "$MODEL" \
+  --model alibaba-token-plan/qwen3.8-max-preview \
   --agent build \
   --file "$PROMPT_FILE" \
   --format json \
   --dangerously-skip-permissions \
-  --title "ollama worker: <bounded-task>" \
+  --title "qwen worker: <bounded-task>" \
   "Read the attached assignment and complete only that worker scope."
 ```
 
@@ -54,11 +50,11 @@ Scout invocation:
 
 ```bash
 opencode run --dir "$REPO" \
-  --model "$MODEL" \
+  --model alibaba-token-plan/qwen3.8-max-preview \
   --agent build \
   --file "$PROMPT_FILE" \
   --format json \
-  --title "ollama scout: <bounded-question>" \
+  --title "qwen scout: <bounded-question>" \
   "Read the attached assignment and return evidence only. Do not edit files."
 ```
 
@@ -86,6 +82,8 @@ to `build`. Use the same model
 and agent, and omit `--fork` so the existing session continues:
 
 ```bash
+MODEL=alibaba-token-plan/qwen3.8-max-preview
+AGENT=build
 opencode run --dir "$REPO" \
   --session "$SESSION_ID" \
   --model "$MODEL" \

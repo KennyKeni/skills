@@ -18,6 +18,14 @@ harnesses:
       shared: xai/grok-4.5
     title_prefix: grok
 
+  - id: opencode-qwen-3-8-max-preview
+    family: opencode
+    variant: qwen
+    models:
+      shared: alibaba-token-plan/qwen3.8-max-preview
+    title_prefix: qwen
+    refresh_models: false
+
   - id: opencode-ollama
     family: opencode
     variant: ollama

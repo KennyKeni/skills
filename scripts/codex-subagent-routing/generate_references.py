@@ -10,16 +10,11 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import os
-import stat
-import subprocess
 import sys
-import tempfile
 from pathlib import Path
 from typing import Any
 
 import yaml
-from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 
 SOURCE_DIR = Path(__file__).resolve().parent
@@ -32,6 +27,13 @@ from subagent_harnesses.catalog import (  # noqa: E402
     TEMPLATE_DIR,
     load_harnesses,
     resolve_harness,
+)
+from subagent_harnesses.generation import (  # noqa: E402
+    create_environment,
+    stale_outputs,
+    trash_outputs,
+    unexpected_markdown_outputs,
+    write_outputs,
 )
 
 
@@ -121,14 +123,7 @@ def human_join(values: list[str]) -> str:
 
 
 def render(lanes: list[dict[str, Any]]) -> dict[Path, str]:
-    environment = Environment(
-        loader=FileSystemLoader([SOURCE_DIR, TEMPLATE_DIR]),
-        undefined=StrictUndefined,
-        autoescape=False,
-        keep_trailing_newline=True,
-        trim_blocks=True,
-        lstrip_blocks=True,
-    )
+    environment = create_environment(SOURCE_DIR, TEMPLATE_DIR)
     template = environment.get_template(TEMPLATE_NAME)
     skill_template = environment.get_template(SKILL_TEMPLATE_NAME)
     outputs: dict[Path, str] = {}
@@ -147,11 +142,7 @@ def render(lanes: list[dict[str, Any]]) -> dict[Path, str]:
 
 
 def check(outputs: dict[Path, str]) -> int:
-    stale: list[Path] = []
-    for path, expected in outputs.items():
-        if not path.exists() or path.read_text(encoding="utf-8") != expected:
-            stale.append(path)
-
+    stale = stale_outputs(outputs)
     unexpected = unexpected_references(outputs)
     compatibility_errors = check_compatibility(outputs)
 
@@ -201,32 +192,7 @@ def check_compatibility(outputs: dict[Path, str]) -> list[str]:
 
 
 def unexpected_references(outputs: dict[Path, str]) -> list[Path]:
-    expected_paths = set(outputs)
-    return [path for path in REFERENCES_DIR.glob("*.md") if path not in expected_paths]
-
-
-def write_atomic(path: Path, content: str) -> bool:
-    if path.exists() and path.read_text(encoding="utf-8") == content:
-        return False
-
-    path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temporary_name = tempfile.mkstemp(
-        dir=path.parent,
-        prefix=f".{path.name}.",
-        text=True,
-    )
-    temporary_path = Path(temporary_name)
-    try:
-        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as handle:
-            handle.write(content)
-            handle.flush()
-            os.fsync(handle.fileno())
-        mode = stat.S_IMODE(path.stat().st_mode) if path.exists() else 0o644
-        os.chmod(temporary_path, mode)
-        os.replace(temporary_path, path)
-    finally:
-        temporary_path.unlink(missing_ok=True)
-    return True
+    return unexpected_markdown_outputs(REFERENCES_DIR, outputs)
 
 
 def main() -> int:
@@ -241,10 +207,8 @@ def main() -> int:
         return check(outputs)
 
     removed = unexpected_references(outputs)
-    for path in removed:
-        subprocess.run(["/usr/bin/trash", str(path)], check=True)
-        print(f"removed: {path.relative_to(SKILL_DIR)}")
-    changed = [path for path, content in outputs.items() if write_atomic(path, content)]
+    trash_outputs(removed, relative_to=SKILL_DIR)
+    changed = write_outputs(outputs)
     for path in changed:
         print(f"generated: {path.relative_to(SKILL_DIR)}")
     if not changed and not removed:

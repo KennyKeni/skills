@@ -9,16 +9,11 @@
 from __future__ import annotations
 
 import argparse
-import os
-import stat
-import subprocess
 import sys
-import tempfile
 from pathlib import Path
 from typing import Any
 
 import yaml
-from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 
 SOURCE_DIR = Path(__file__).resolve().parent
@@ -31,6 +26,13 @@ from subagent_harnesses.catalog import (  # noqa: E402
     TEMPLATE_DIR,
     load_harnesses,
     resolve_harness,
+)
+from subagent_harnesses.generation import (  # noqa: E402
+    create_environment,
+    stale_outputs,
+    trash_outputs,
+    unexpected_markdown_outputs,
+    write_outputs,
 )
 
 
@@ -101,9 +103,12 @@ def load_setups() -> list[dict[str, Any]]:
                 raise SpecError(
                     f"native setup {slug} is missing: {', '.join(sorted(missing_native))}"
                 )
-        elif setup.get("variant") != "grok" and setup["family"] == "opencode":
+        elif (
+            setup.get("variant") not in {"grok", "qwen"}
+            and setup["family"] == "opencode"
+        ):
             raise SpecError(
-                f"Sidekick setup {slug} must select the Grok OpenCode harness"
+                f"Sidekick setup {slug} must select a supported OpenCode harness"
             )
         setups.append(setup)
 
@@ -114,14 +119,7 @@ def load_setups() -> list[dict[str, Any]]:
 
 
 def render(setups: list[dict[str, Any]]) -> dict[Path, str]:
-    environment = Environment(
-        loader=FileSystemLoader([SOURCE_DIR, TEMPLATE_DIR]),
-        undefined=StrictUndefined,
-        autoescape=False,
-        keep_trailing_newline=True,
-        trim_blocks=True,
-        lstrip_blocks=True,
-    )
+    environment = create_environment(SOURCE_DIR, TEMPLATE_DIR)
     setup_template = environment.get_template(SETUP_TEMPLATE)
     registry_template = environment.get_template(REGISTRY_TEMPLATE)
     openai_template = environment.get_template(OPENAI_TEMPLATE)
@@ -144,16 +142,11 @@ def render(setups: list[dict[str, Any]]) -> dict[Path, str]:
 
 
 def unexpected_references(outputs: dict[Path, str]) -> list[Path]:
-    expected = set(outputs)
-    return [path for path in REFERENCES_DIR.glob("*.md") if path not in expected]
+    return unexpected_markdown_outputs(REFERENCES_DIR, outputs)
 
 
 def check(outputs: dict[Path, str]) -> int:
-    stale = [
-        path
-        for path, expected in outputs.items()
-        if not path.exists() or path.read_text(encoding="utf-8") != expected
-    ]
+    stale = stale_outputs(outputs)
     unexpected = unexpected_references(outputs)
     if not stale and not unexpected:
         print(f"All {len(outputs)} generated Sidekick files are current.")
@@ -164,27 +157,6 @@ def check(outputs: dict[Path, str]) -> int:
         print(f"unexpected reference: {path.relative_to(SKILL_DIR)}", file=sys.stderr)
     print("Run `task skills:sidekick:generate`.", file=sys.stderr)
     return 1
-
-
-def write_atomic(path: Path, content: str) -> bool:
-    if path.exists() and path.read_text(encoding="utf-8") == content:
-        return False
-    path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temporary_name = tempfile.mkstemp(
-        dir=path.parent, prefix=f".{path.name}.", text=True
-    )
-    temporary_path = Path(temporary_name)
-    try:
-        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as handle:
-            handle.write(content)
-            handle.flush()
-            os.fsync(handle.fileno())
-        mode = stat.S_IMODE(path.stat().st_mode) if path.exists() else 0o644
-        os.chmod(temporary_path, mode)
-        os.replace(temporary_path, path)
-    finally:
-        temporary_path.unlink(missing_ok=True)
-    return True
 
 
 def main() -> int:
@@ -198,10 +170,8 @@ def main() -> int:
         return check(outputs)
 
     removed = unexpected_references(outputs)
-    for path in removed:
-        subprocess.run(["/usr/bin/trash", str(path)], check=True)
-        print(f"removed: {path.relative_to(SKILL_DIR)}")
-    changed = [path for path, content in outputs.items() if write_atomic(path, content)]
+    trash_outputs(removed, relative_to=SKILL_DIR)
+    changed = write_outputs(outputs)
     for path in changed:
         print(f"generated: {path.relative_to(SKILL_DIR)}")
     if not changed and not removed:

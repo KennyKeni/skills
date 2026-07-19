@@ -41,6 +41,24 @@ Use `wait_agent` for mailbox events and completion. Use `send_message` with
 `target: SIDEKICK_TARGET` only to answer or clarify the active assignment. Do
 not issue a second assignment while it is still running.
 
+Treat a wait that returns without an event as a quiet observation tick, not as
+a timeout, failure, or completed work boundary. A max-reasoning sidekick may
+remain silent while it reads files, runs commands, or reasons. Continue waiting
+when it is still running. Silence alone must never create a deadline, justify a
+stop-and-return message, make the context untrustworthy, or trigger interruption
+or replacement.
+
+Use `list_agents` at most once during the same uninterrupted quiet episode, and
+only after an observation-channel error, an explicit configured deadline, or
+independent evidence that execution may be frozen. If it reports the sidekick
+as running, return to `wait_agent`; liveness is positive evidence and does not
+start a new quiet episode. A later liveness check requires a sidekick event, a
+new observation error, or a deadline established before that quiet episode.
+
+Keep the user informed during a long quiet episode without steering or
+contacting the sidekick. A user-facing status update is not a sidekick event and
+does not justify another health check.
+
 After a final return, use `followup_task` with the same target for the next
 execution unit. This reactivates the retained context; do not spawn a fresh
 agent for each phase. Use this normal return-and-continue path for planned phase
@@ -53,10 +71,13 @@ same sidekick when appropriate.
 
 ## Stop And Recover
 
-Use `list_agents` only for a justified liveness check. Use `interrupt_agent`
-with `target: SIDEKICK_TARGET` only when active work must stop before it can
-return normally or the context is no longer trustworthy. Preserve its useful
-evidence before reassigning work.
+Use `interrupt_agent` with `target: SIDEKICK_TARGET` only when active work must
+stop before it can return normally or concrete evidence makes the context no
+longer trustworthy. Valid triggers include an explicit user or configured
+deadline, a harness error or lost agent, evidence of frozen execution, or work
+continuing beyond an explicit contract boundary. Elapsed silence and repeated
+empty waits are not valid triggers. Preserve useful evidence before reassigning
+work.
 
 If the task cannot resume and a replacement is worthwhile, call `spawn_agent`
 once with the same configuration and a compact handoff of accepted facts,

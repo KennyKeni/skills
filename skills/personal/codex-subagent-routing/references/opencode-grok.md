@@ -170,8 +170,9 @@ or lacks a required capability. Retain the exact model for focused follow-ups.
 
 ## Invoke OpenCode
 
-Verify `opencode agent list` shows both `explore (primary)` and `build
-(primary)`. Use `--agent explore` for scouts and `--agent build` for workers.
+Verify `opencode agent list` includes `build (primary)`. Use `--agent build` for
+every scout and worker invocation. Enforce read-only scout behavior through the
+assignment prompt and scope, not through a separate OpenCode agent.
 
 Create a compact prompt file using the environment's approved file-writing
 mechanism. Set `REPO` and `PROMPT_FILE` to absolute paths.
@@ -194,7 +195,7 @@ Scout invocation:
 ```bash
 opencode run --dir "$REPO" \
   --model xai/grok-4.5 \
-  --agent explore \
+  --agent build \
   --file "$PROMPT_FILE" \
   --format json \
   --title "grok scout: <bounded-question>" \
@@ -221,7 +222,7 @@ the repository untouched during supervision.
 ## Continue And Clean Up
 
 Resume with the recorded session ID and a focused follow-up file. Set `AGENT`
-to the original session's exact `explore` or `build` value. Set `MODEL` to its
+to `build`. Set `MODEL` to its
 exact model. Omit `--fork` so the existing session continues:
 
 ```bash

@@ -1,6 +1,6 @@
 ---
 name: codex-subagent-routing
-description: Route bounded scout, worker, and validator assignments from a Codex lead through native Codex, Cursor/Grok, OpenCode/Grok, or OpenCode/Ollama execution lanes. Use when the user invokes $codex-subagent-routing, requests one of these Codex-led delegation policies, or combines lane selection with the goal prompt template.
+description: Route bounded scout, worker, and validator assignments from a Codex lead through native Codex, Cursor/Grok, OpenCode/Grok, OpenCode/Qwen3.8 Max Preview, or OpenCode/Ollama execution lanes. Use when the user invokes $codex-subagent-routing, requests one of these Codex-led delegation policies, or combines lane selection with the goal prompt template.
 ---
 
 # Codex Subagent Routing
@@ -22,6 +22,7 @@ to a lane in the current context, read its reference completely:
 - native Codex: read [codex-quality.md](references/codex-quality.md);
 - Grok through Cursor: read [cursor-grok.md](references/cursor-grok.md);
 - xAI through OpenCode: read [opencode-grok.md](references/opencode-grok.md);
+- Qwen3.8 Max Preview through OpenCode: read [opencode-qwen.md](references/opencode-qwen.md);
 - Ollama Cloud through OpenCode: read [opencode-ollama.md](references/opencode-ollama.md).
 
 Retain a loaded lane reference for later assignments; do not reread it for

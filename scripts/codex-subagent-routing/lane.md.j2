@@ -156,11 +156,11 @@ worker evidence; retain independent Sol-high validation.
 {% endif %}
 {% if lane.family == "native" %}
 {% set execution = lane %}
-{% include "routing-native-runtime.md.j2" %}
+{% include "harnesses/native/routing.md.j2" %}
 {% elif lane.family == "cursor" %}
 {% set execution = lane %}
-{% include "routing-cursor-runtime.md.j2" %}
+{% include "harnesses/cursor/routing.md.j2" %}
 {% else %}
 {% set execution = lane %}
-{% include "routing-opencode-runtime.md.j2" %}
+{% include "harnesses/opencode/routing.md.j2" %}
 {% endif %}

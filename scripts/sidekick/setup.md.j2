@@ -13,13 +13,13 @@ session as the sidekick.
 
 {% if setup.family == "native" %}
 {% set execution = setup %}
-{% include "sidekick-native-runtime.md.j2" %}
+{% include "harnesses/native/sidekick.md.j2" %}
 {% elif setup.family == "cursor" %}
 {% set execution = setup %}
-{% include "sidekick-cursor-runtime.md.j2" %}
+{% include "harnesses/cursor/sidekick.md.j2" %}
 {% else %}
 {% set execution = setup %}
-{% include "sidekick-opencode-runtime.md.j2" %}
+{% include "harnesses/opencode/sidekick.md.j2" %}
 {% endif %}
 
 Use this adapter for the full sidekick lifecycle. Keep its recorded identifier

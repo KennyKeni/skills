@@ -18,6 +18,12 @@ setups:
     selection_label: Grok 4.5 through OpenCode
     default: false
 
+  - slug: opencode-qwen
+    harness: opencode-qwen-3-8-max-preview
+    title: Qwen3.8 Max Preview via OpenCode
+    selection_label: Qwen3.8 Max Preview through OpenCode
+    default: false
+
   - slug: cursor-grok
     harness: cursor-grok-4-5
     title: Grok 4.5 via Cursor

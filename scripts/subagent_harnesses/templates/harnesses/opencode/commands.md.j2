@@ -1,5 +1,7 @@
-{% macro verify(models) -%}
+{% macro verify(models, refresh=true) -%}
+{% if refresh -%}
 opencode models --refresh >/dev/null
+{% endif -%}
 {% for model in models -%}
 opencode models | rg -x '{{ model | replace(".", "\\.") }}'
 {%- endfor -%}

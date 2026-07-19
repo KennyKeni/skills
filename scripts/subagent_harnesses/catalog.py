@@ -14,7 +14,7 @@ COMMON_FIELDS = {"id", "family", "models"}
 FAMILY_FIELDS = {
     "native": set(),
     "cursor": {"model_label_patterns"},
-    "opencode": {"variant", "title_prefix"},
+    "opencode": {"variant", "title_prefix", "refresh_models"},
 }
 RESERVED_FIELDS = set().union(COMMON_FIELDS, *FAMILY_FIELDS.values()) - {"id"}
 
@@ -134,7 +134,12 @@ def _prepare_models(harness: dict[str, Any]) -> None:
         ]
 
     if family == "opencode":
-        if harness.get("variant") not in {"grok", "ollama"}:
-            raise CatalogError(f"{harness_id} must define variant as grok or ollama")
+        if harness.get("variant") not in {"grok", "ollama", "qwen"}:
+            raise CatalogError(
+                f"{harness_id} must define variant as grok, ollama, or qwen"
+            )
         if not isinstance(harness.get("title_prefix"), str):
             raise CatalogError(f"{harness_id} must define title_prefix")
+        if not isinstance(harness.get("refresh_models", True), bool):
+            raise CatalogError(f"{harness_id} refresh_models must be a boolean")
+        harness.setdefault("refresh_models", True)

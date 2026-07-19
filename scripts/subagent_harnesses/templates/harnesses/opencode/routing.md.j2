@@ -1,4 +1,4 @@
-{% import "components/opencode-commands.md.j2" as opencode_commands %}
+{% import "harnesses/opencode/commands.md.j2" as opencode_commands %}
 {% if execution.variant == "ollama" %}
 Use this lower-cost lane only for eligible `scout` and `worker` assignments.
 Use native Codex Sol for every formal validator. When the main skill classifies
@@ -10,23 +10,40 @@ authorizes that fallback.
 {{ "\n" if execution.variant == "grok" else "" -}}
 ## Select And Verify The Model
 
-{% if execution.variant == "grok" %}
+{% if execution.variant in ["grok", "qwen"] %}
 {% if execution.model_mode == "shared" %}
-Use `{{ execution.scout_model }}` for every routine scout and worker session in this
+Use `{{ execution.scout_model }}` for every {% if execution.variant == "grok" %}routine {% endif %}scout and worker session in this
 lane.
 {% else %}
 Use `{{ execution.scout_model }}` for routine scouts and `{{ execution.worker_model }}`
 for routine workers.
 {% endif %}
+{% if execution.variant == "grok" %}
 Never substitute a `fast` variant. Refresh and verify the configured model or
 models once before the first Grok assignment in the current context:
+{% else %}
+This preview model may be present through a local OpenCode cache entry before
+the upstream catalog includes it. Do not refresh the model catalog. Verify the
+configured model once before the first Qwen assignment in the current context:
+{% endif %}
 
 ```bash
-{{ opencode_commands.verify(execution.models_to_verify) }}
+{{ opencode_commands.verify(execution.models_to_verify, execution.refresh_models) }}
 ```
 
 Keep the work in Codex or report the limitation when the model is unavailable
 or lacks a required capability. Retain the exact model for focused follow-ups.
+{% if execution.variant == "qwen" %}
+
+## Keep Implementation On Qwen
+
+Use this Qwen model for every worker assignment, including consequential
+implementation and corrections discovered during review. Native Codex may own
+lead decisions and formal validation, but it must not implement, edit, repair,
+or receive an implementation handoff in this lane. If Qwen is unavailable or
+cannot safely complete the worker scope, stop and report the limitation rather
+than substituting a GPT model for implementation.
+{% endif %}
 {% else %}
 Choose one model before starting a session:
 
@@ -46,11 +63,12 @@ keep the work in Codex or report the limitation.
 
 ## Invoke OpenCode
 
-Verify `opencode agent list` shows both `explore (primary)` and `build
-(primary)`. Use `--agent explore` for scouts and `--agent build` for workers.
+Verify `opencode agent list` includes `build (primary)`. Use `--agent build` for
+every scout and worker invocation. Enforce read-only scout behavior through the
+assignment prompt and scope, not through a separate OpenCode agent.
 
 Create a compact prompt file using the environment's approved file-writing
-mechanism. Set `REPO`{% if execution.variant == "ollama" %}, `{{ execution.model_variable }}`,{% endif %} and `PROMPT_FILE` {% if execution.variant == "grok" %}to absolute paths{% else %}before invocation{% endif %}.
+mechanism. Set `REPO`{% if execution.variant == "ollama" %}, `{{ execution.model_variable }}`,{% endif %} and `PROMPT_FILE` {% if execution.variant in ["grok", "qwen"] %}to absolute paths{% else %}before invocation{% endif %}.
 
 Worker invocation:
 
@@ -61,7 +79,7 @@ Worker invocation:
 Scout invocation:
 
 ```bash
-{{ opencode_commands.start('"$' ~ execution.model_variable ~ '"' if execution.variant == "ollama" else execution.scout_model, "explore", execution.title_prefix ~ " scout: <bounded-question>", "Read the attached assignment and return evidence only. Do not edit files.") }}
+{{ opencode_commands.start('"$' ~ execution.model_variable ~ '"' if execution.variant == "ollama" else execution.scout_model, "build", execution.title_prefix ~ " scout: <bounded-question>", "Read the attached assignment and return evidence only. Do not edit files.") }}
 ```
 
 Give every run a unique title. Read the completed run output and record its
@@ -84,11 +102,15 @@ the repository untouched during supervision.
 ## Continue And Clean Up
 
 Resume with the recorded session ID and a focused follow-up file. Set `AGENT`
-to the original session's exact `explore` or `build` value. {% if execution.variant == "grok" %}Set `MODEL` to its
+to `build`. {% if execution.variant == "grok" %}Set `MODEL` to its
 exact model. Omit `--fork` so the existing session continues{% else %}Use the same model
 and agent, and omit `--fork` so the existing session continues{% endif %}:
 
 ```bash
+{% if execution.variant == "qwen" -%}
+MODEL={{ execution.worker_model }}
+AGENT=build
+{% endif -%}
 {{ opencode_commands.resume('"$MODEL"', '"$AGENT"', "Read the attached follow-up and remain within the original assignment.") }}
 ```
 

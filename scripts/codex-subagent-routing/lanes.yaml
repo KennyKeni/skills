@@ -28,6 +28,15 @@ lanes:
     default: false
     external: true
 
+  - slug: opencode-qwen
+    harness: opencode-qwen-3-8-max-preview
+    title: OpenCode Qwen Lane
+    description_name: OpenCode/Qwen3.8 Max Preview
+    selection_label: Qwen3.8 Max Preview through OpenCode
+    policy: direct
+    default: false
+    external: true
+
   - slug: opencode-ollama
     harness: opencode-ollama
     title: OpenCode Ollama Lane
