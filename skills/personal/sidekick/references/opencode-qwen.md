@@ -94,15 +94,6 @@ the main agent. If replacement is worthwhile, start one new session with the
 same model and a compact handoff, record its new `SESSION_ID`, and disclose
 that the cached sidekick context was lost.
 
-## Keep Implementation On Qwen
-
-Send every implementation, edit, repair, test-fix, and review-correction
-work unit to the persistent Qwen sidekick. Keep the main agent on
-planning, ambiguity resolution, consequential decisions, supervision, and
-final review; the main agent must not implement changes in this setup. If
-Qwen is unavailable or cannot safely complete the work, stop and report
-the limitation rather than substituting a GPT model for implementation.
-
 Use this adapter for the full sidekick lifecycle. Keep its recorded identifier
 until the task ends or the main agent explicitly replaces an unrecoverable
 session with the same requested setup.

@@ -43,7 +43,6 @@ SETUP_TEMPLATE = "setup.md.j2"
 REGISTRY_TEMPLATE = "setups.md.j2"
 OPENAI_TEMPLATE = "openai.yaml.j2"
 COMMON_FIELDS = {"slug", "harness", "title", "selection_label", "default"}
-OPTIONAL_FIELDS = {"policy_note"}
 NATIVE_FIELDS = {
     "sidekick_model",
     "reasoning_effort",
@@ -101,10 +100,8 @@ def load_setups() -> list[dict[str, Any]]:
 
         setup = resolve_harness(raw, harnesses, record_name=f"setup {slug}")
         setup["lead_name"] = lead["name"]
-        allowed = (
-            COMMON_FIELDS
-            | OPTIONAL_FIELDS
-            | (NATIVE_FIELDS if setup["family"] == "codex-native" else set())
+        allowed = COMMON_FIELDS | (
+            NATIVE_FIELDS if setup["family"] == "codex-native" else set()
         )
         unknown = raw.keys() - allowed
         if unknown:
@@ -121,8 +118,6 @@ def load_setups() -> list[dict[str, Any]]:
                 f"Sidekick setup {slug} requires a harness with a concrete "
                 "worker model"
             )
-        if not isinstance(setup.setdefault("policy_note", ""), str):
-            raise SpecError(f"setup {slug} policy_note must be a string")
         setups.append(setup)
 
     defaults = [setup for setup in setups if setup["default"] is True]

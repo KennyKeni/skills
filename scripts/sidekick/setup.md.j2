@@ -2,10 +2,6 @@
 
 {% set execution = setup %}
 {% include "harnesses/" ~ setup.family ~ "/sidekick.md.j2" %}
-{% if setup.policy_note %}
-
-{{ setup.policy_note }}
-{% endif %}
 
 Use this adapter for the full sidekick lifecycle. Keep its recorded identifier
 until the task ends or the main agent explicitly replaces an unrecoverable
