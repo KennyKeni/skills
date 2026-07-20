@@ -11,6 +11,7 @@ harnesses:
     family: claude-native
     models:
       shared: claude-opus-4-8
+      validator: claude-fable-5
 
   - id: codex-exec-sol
     family: codex-exec

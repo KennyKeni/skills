@@ -94,11 +94,12 @@ def _prepare_models(harness: dict[str, Any]) -> None:
     if not isinstance(harness["model_caution"], str):
         raise CatalogError(f"{harness_id} model_caution must be a string")
     model_keys = set(models)
-    if model_keys == {"shared"}:
+    base_keys = model_keys - {"validator"}
+    if base_keys == {"shared"}:
         harness["model_mode"] = "shared"
         harness["scout_model"] = models["shared"]
         harness["worker_model"] = models["shared"]
-    elif model_keys == {"scout", "worker"}:
+    elif base_keys == {"scout", "worker"}:
         harness["model_mode"] = "tiered"
         harness["scout_model"] = models["scout"]
         harness["worker_model"] = models["worker"]
@@ -118,17 +119,23 @@ def _prepare_models(harness: dict[str, Any]) -> None:
         harness["worker_model_argument"] = harness["scout_model_argument"]
     else:
         raise CatalogError(
-            f"{harness_id} models must use shared, scout+worker, "
-            "or OpenCode capability mode"
+            f"{harness_id} models must use shared, scout+worker, or OpenCode "
+            "capability mode, each optionally with a validator override"
         )
 
     if harness["model_mode"] in {"shared", "tiered"}:
-        model_ids = [harness["scout_model"], harness["worker_model"]]
+        harness["validator_model"] = models.get("validator", harness["worker_model"])
+        model_ids = [
+            harness["scout_model"],
+            harness["worker_model"],
+            harness["validator_model"],
+        ]
         if not all(isinstance(model_id, str) and model_id for model_id in model_ids):
             raise CatalogError(f"{harness_id} model IDs must be non-empty strings")
         harness["models_to_verify"] = list(dict.fromkeys(model_ids))
         harness["scout_model_argument"] = harness["scout_model"]
         harness["worker_model_argument"] = harness["worker_model"]
+        harness["validator_model_argument"] = harness["validator_model"]
 
     if family == "cursor":
         patterns = harness.get("model_label_patterns")

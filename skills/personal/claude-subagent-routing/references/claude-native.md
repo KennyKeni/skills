@@ -115,7 +115,7 @@ Use these mappings:
 - consequential `scout`: this lane with `claude-opus-4-8`;
 - routine `worker`: this lane with `claude-opus-4-8`;
 - consequential `worker`: this lane with `claude-opus-4-8`;
-- every `validator`: a fresh session of this lane with `claude-opus-4-8`.
+- every `validator`: a fresh session of this lane with `claude-fable-5` at high effort.
 
 Skip the scout when the main skill's delegation criteria do not justify one.
 Keep `scout`, `worker`, and `validator` as the canonical roles and include the
@@ -152,7 +152,7 @@ handoff containing the contract, observations, attempted proof, changed files
 when applicable, and unresolved questions. When it returns `not_ready`, stop
 the worker, preserve its evidence, and return the candidate to the lead for
 shaping. Treat executor self-checks as worker evidence; retain independent
-validation through a fresh session of this lane with `claude-opus-4-8`.
+validation through a fresh session of this lane with `claude-fable-5` at high effort.
 
 ## Select The Model
 

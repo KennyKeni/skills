@@ -63,7 +63,8 @@ ROUTE_COMMON_FIELDS = {"executor", "fresh"}
 LANE_ROUTE_FIELDS = ROUTE_COMMON_FIELDS | {"model_ref", "lane", "effort"}
 NATIVE_ROUTE_FIELDS = ROUTE_COMMON_FIELDS | {"model", "effort"}
 VALID_EFFORTS = {"none", "low", "medium", "high", "xhigh", "max", "ultra"}
-EFFORT_FAMILIES = {"codex-exec"}
+# Effort is optional on any lane route, but these families must always set it.
+EFFORT_REQUIRED_FAMILIES = {"codex-exec"}
 
 
 class SpecError(ValueError):
@@ -217,8 +218,10 @@ def prepare_lane_route(
         raise SpecError(f"{route_id} references unknown lane: {target_slug!r}")
 
     model_ref = route.get("model_ref")
-    if model_ref not in {"scout", "worker", "selected"}:
-        raise SpecError(f"{route_id} model_ref must be scout, worker, or selected")
+    if model_ref not in {"scout", "worker", "validator", "selected"}:
+        raise SpecError(
+            f"{route_id} model_ref must be scout, worker, validator, or selected"
+        )
     if model_ref == "selected":
         if target.get("model_mode") != "capability":
             raise SpecError(
@@ -227,21 +230,23 @@ def prepare_lane_route(
         route["resolved_model"] = None
         model_phrase = "the selected exact capability model"
     else:
-        route["resolved_model"] = target[f"{model_ref}_model"]
-        model_phrase = f"`{route['resolved_model']}`"
+        resolved = target.get(f"{model_ref}_model")
+        if resolved is None:
+            raise SpecError(
+                f"{route_id} target lane {target_slug} has no {model_ref} model"
+            )
+        route["resolved_model"] = resolved
+        model_phrase = f"`{resolved}`"
 
     effort = route.get("effort")
-    if target["family"] in EFFORT_FAMILIES:
-        if effort not in VALID_EFFORTS:
-            raise SpecError(f"{route_id} requires a valid effort: {effort!r}")
-        effort_phrase = f" at {effort} effort"
-    elif effort is not None:
-        raise SpecError(
-            f"{route_id} sets effort, but family {target['family']} does not "
-            "configure effort per route"
-        )
-    else:
+    if effort is None:
+        if target["family"] in EFFORT_REQUIRED_FAMILIES:
+            raise SpecError(f"{route_id} requires a valid effort")
         effort_phrase = ""
+    elif effort not in VALID_EFFORTS:
+        raise SpecError(f"{route_id} has invalid effort: {effort!r}")
+    else:
+        effort_phrase = f" at {effort} effort"
 
     if target is lane:
         place = "this lane"

@@ -26,7 +26,7 @@ lanes:
       consequential_scout: {executor: lane, model_ref: worker}
       routine_worker: {executor: lane, model_ref: worker}
       consequential_worker: {executor: lane, model_ref: worker}
-      validator: {executor: lane, model_ref: worker, fresh: true}
+      validator: {executor: lane, model_ref: validator, fresh: true, effort: high}
 
   - slug: codex-sol
     harness: codex-exec-sol
