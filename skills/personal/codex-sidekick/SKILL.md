@@ -1,9 +1,9 @@
 ---
-name: sidekick
-description: Run a Fusion-style coding session with the current Codex session as the high-judgment main agent and a persistent lower-cost sidekick as a parallel executor. Use when the user explicitly invokes Sidekick for coding, refactoring, testing, or repository work and wants frontier judgment retained while execution-heavy work is delegated.
+name: codex-sidekick
+description: Run a Fusion-style coding session with the current Codex session as the high-judgment main agent and a persistent lower-cost sidekick as a parallel executor. Use when the user invokes $codex-sidekick or explicitly requests a Sidekick pairing for coding, refactoring, testing, or repository work and wants frontier judgment retained while execution-heavy work is delegated.
 ---
 
-# Sidekick
+# Codex Sidekick
 
 Run two fully capable agents with separate, persistent contexts. Keep the
 current user-facing session as the main agent. Use its intelligence sparingly

@@ -1,0 +1,97 @@
+# Luna via Codex CLI Setup
+
+Use the current Claude session as the main agent and one persistent Codex
+CLI session as the sidekick.
+
+## Verify
+
+Use `gpt-5.6-luna` at xhigh effort for the persistent
+sidekick. Retain the current main agent's model and reasoning effort, and pin
+the sidekick's model and effort explicitly rather than relying on user config.
+Verify the CLI once before the first assignment in the current context:
+
+```bash
+command codex --version
+```
+
+Keep the work in the main agent and report the limitation when Codex is
+unavailable.
+
+## Start
+
+Write the compact assignment to a prompt file using the environment's approved
+file-writing mechanism — never inline shell quoting. Set `REPO` and
+`PROMPT_FILE` to absolute paths, `EFFORT` to the configured effort, and `OUT`
+to a unique result file path. Use `command codex` to bypass any interactive
+shell wrapper.
+
+Start the sidekick with full write access so the same session can explore,
+edit, test, and repair:
+
+```bash
+EFFORT=xhigh
+command codex exec -C "$REPO" \
+  --model gpt-5.6-luna \
+  -c model_reasoning_effort="$EFFORT" \
+  --dangerously-bypass-approvals-and-sandbox \
+  -o "$OUT" \
+  - < "$PROMPT_FILE" 2>/dev/null
+```
+
+Run it in a supervised long-running execution session so the main agent can
+continue independent judgment work while Codex executes. Keep this sidekick
+the only Codex CLI session in the repository so `resume --last` stays
+unambiguous.
+
+## Observe And Steer
+
+Suppress stderr because thinking noise bloats context; remove `2>/dev/null`
+only to debug a failing run. Read the `-o` result file for each returned
+assignment rather than parsing streamed output. A `codex exec` run is quiet by
+design: treat silence as normal, use process liveness and the result file as
+the observation surface, and do not interrupt a quiet run before a configured
+deadline.
+
+Do not start a second session for a focused question. Let the active run
+return, or interrupt it only when blocked, then resume the session with the
+answer and the remaining assignment.
+
+## Continue
+
+Write each follow-up to a new prompt file and a new `OUT` path. `codex exec
+resume` has no `-C`; run it from the repository:
+
+```bash
+EFFORT=xhigh
+(cd "$REPO" && command codex exec resume --last \
+  --model gpt-5.6-luna \
+  -c model_reasoning_effort="$EFFORT" \
+  --dangerously-bypass-approvals-and-sandbox \
+  -o "$OUT" \
+  - < "$PROMPT_FILE" 2>/dev/null)
+```
+
+Delete each prompt file after its invocation completes, and preserve the `-o`
+result file until its evidence is recorded. If another Codex session may have
+run in the repository since the sidekick's last return, start a replacement
+with a compact handoff instead of trusting `resume --last`.
+
+## Stop And Recover
+
+For a permitted health check or recovery, inspect only the sidekick's process:
+
+```bash
+ps -axo pid,ppid,command | rg '[c]odex exec' || true
+```
+
+Interrupt only the process created for the sidekick and preserve its result
+file and useful evidence until the session is recoverable.
+
+When the session cannot safely resume, return the work and useful evidence to
+the main agent. If replacement is worthwhile, start one new session with the
+same model and effort and a compact handoff, and disclose that the cached
+sidekick context was lost.
+
+Use this adapter for the full sidekick lifecycle. Keep its recorded identifier
+until the task ends or the main agent explicitly replaces an unrecoverable
+session with the same requested setup.

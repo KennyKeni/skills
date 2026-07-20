@@ -1,0 +1,37 @@
+schema_version: 1
+
+lead:
+  name: Codex
+  skill_slug: codex-sidekick
+  title: Codex Sidekick
+  openai_manifest: true
+
+setups:
+  - slug: luna-max
+    harness: native-codex
+    title: Luna Max
+    selection_label: Luna Max
+    default: true
+    sidekick_model: gpt-5.6-luna
+    reasoning_effort: max
+    agent_type: worker
+    task_name: sidekick
+    context_fork: none
+
+  - slug: opencode-grok
+    harness: opencode-grok-4-5
+    title: Grok 4.5 via OpenCode
+    selection_label: Grok 4.5 through OpenCode
+    default: false
+
+  - slug: opencode-qwen
+    harness: opencode-qwen-3-8-max-preview
+    title: Qwen3.8 Max Preview via OpenCode
+    selection_label: Qwen3.8 Max Preview through OpenCode
+    default: false
+
+  - slug: cursor-grok
+    harness: cursor-grok-4-5
+    title: Grok 4.5 via Cursor
+    selection_label: Grok 4.5 through Cursor
+    default: false

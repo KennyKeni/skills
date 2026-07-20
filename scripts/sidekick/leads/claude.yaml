@@ -1,19 +1,18 @@
 schema_version: 1
 
 lead:
-  name: Codex
+  name: Claude
+  skill_slug: claude-sidekick
+  title: Claude Sidekick
+  openai_manifest: false
 
 setups:
-  - slug: luna-max
-    harness: native-codex
-    title: Luna Max
-    selection_label: Luna Max
+  - slug: codex-luna
+    harness: codex-exec-luna
+    title: Luna via Codex CLI
+    selection_label: Luna through the Codex CLI
     default: true
-    sidekick_model: gpt-5.6-luna
-    reasoning_effort: max
-    agent_type: worker
-    task_name: sidekick
-    context_fork: none
+    effort: xhigh
 
   - slug: opencode-grok
     harness: opencode-grok-4-5
