@@ -1,0 +1,48 @@
+{
+  "name": "@kennykeni/repository-local",
+  "version": "0.1.0",
+  "description": "Bootstrap user-owned repository-local policy for coding agents.",
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "bin": {
+    "repository-local": "dist/bin.js"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "README.md",
+    "RUNTIME-BOOTSTRAP.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "verify": "pnpm check && pnpm test && pnpm build && pnpm pack:check",
+    "prepack": "pnpm build",
+    "prepublishOnly": "pnpm verify",
+    "pack:check": "node scripts/verify-packed.mjs"
+  },
+  "engines": {
+    "node": ">=26.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KennyKeni/skills.git",
+    "directory": "packages/repository-local"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@clack/prompts": "1.7.0",
+    "@stricli/core": "1.2.9"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.1",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10"
+  }
+}

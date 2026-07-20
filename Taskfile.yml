@@ -8,6 +8,21 @@ tasks:
     cmds:
       - task --list
 
+  cli:check:
+    desc: Type-check the repository-local CLI workspace.
+    cmds:
+      - mise exec -- pnpm check
+
+  cli:test:
+    desc: Run the repository-local CLI test suite.
+    cmds:
+      - mise exec -- pnpm test
+
+  cli:verify:
+    desc: Check, test, build, and smoke-test the packed repository-local CLI.
+    cmds:
+      - mise exec -- pnpm verify
+
   skills:routing:generate:
     desc: Generate the Codex subagent routing skill and lane references.
     cmds:

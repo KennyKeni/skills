@@ -1,0 +1,14 @@
+{
+  "name": "kennykeni-skills",
+  "private": true,
+  "packageManager": "pnpm@10.34.4",
+  "scripts": {
+    "build": "pnpm --recursive build",
+    "check": "pnpm --recursive check",
+    "test": "pnpm --recursive test",
+    "verify": "pnpm check && pnpm test && pnpm build && pnpm --filter @kennykeni/repository-local pack:check"
+  },
+  "engines": {
+    "node": ">=26.5.0"
+  }
+}
