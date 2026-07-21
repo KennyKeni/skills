@@ -34,102 +34,98 @@ coequal conflict would change scope, acceptance, ownership, or material risk.
 
 ## Maintain Durable State
 
-Choose exactly one canonical writable state artifact:
+A mission is a claimed umbrella work item. Its durable state has exactly two
+homes, split by the repository's placement rule — content that justifies or
+verifies the outcome goes on the ticket; content needed only to resume goes in
+the work folder:
 
-- When ongoing updates to the mission or umbrella issue are already authorized,
-  use that issue as the sole canonical state. Technical write access alone is
-  insufficient. Do not create a local state file alongside it.
-- Otherwise, use `.local/state/<mission-slug>.md` as the sole writable state.
-  Keep it uncommitted and do not create permanent project documentation for
-  execution state. External issues, PRs, plans, and handoffs remain evidence or
-  read-only references; do not maintain a second state snapshot in them.
+- **The mission umbrella ticket** records repository and mission identity,
+  goal and non-goals, the validation contract and profile with current
+  assertion and gate state, tracker and topology authority, the authorization
+  boundary for local edits, branches or worktrees, commits, pushes, pull or
+  merge requests, merges, deployments, ticket updates, and relationship
+  mutations, constraining decisions, blockers, risks, unresolved questions,
+  accepted evidence, and dispositions. When ongoing updates to the mission or
+  umbrella issue are already authorized, that issue is the umbrella ticket;
+  technical write access alone is insufficient. Otherwise create a local
+  umbrella ticket through the repository's local-ticket convention, or as
+  `TICKET.md` inside the work folder below when no convention exists. Never
+  maintain two parallel records of the same content; external PRs, plans, and
+  handoffs remain evidence or read-only references.
+- **The umbrella's work folder** holds resume-only context: the active stage,
+  feature, work item, PR, Git reference, agent and workspace ownership, owned
+  claims, and the exact next action. Use the repository's local work-context
+  convention — `work/<mission-slug>/` beside `.local/INDEX.md` by default —
+  creating the folder when the mission starts and deleting it when the mission
+  resolves. Nothing in the work folder may be the only record of a decision.
 
-Derive `<mission-slug>` from a stable, concise mission identity using lowercase
-ASCII letters, digits, and hyphens. Before creating a file, inspect existing
-state files. Reuse a file only when its recorded repository and mission
-identity match. If a matching direct-execution checkpoint exists, upgrade that
-same file in place when work becomes a mission. If the candidate filename
-belongs to unrelated work, use the first available numeric suffix, such as
-`<mission-slug>-2.md`; never overwrite the unrelated file.
+Derive `<mission-slug>` from a stable, concise mission identity using
+lowercase ASCII letters, digits, and hyphens. Before creating a local ticket
+or work folder, inspect what already exists. Reuse an artifact only when its
+recorded repository and mission identity match. If a matching direct-execution
+checkpoint exists, upgrade it in place when work becomes a mission. If the
+candidate name belongs to unrelated work, use the first available numeric
+suffix, such as `<mission-slug>-2`; never overwrite the unrelated artifact.
 
-Use ISO 8601 UTC timestamps in `YYYY-MM-DDTHH:mm:ssZ` form. The canonical
-artifact must always identify:
+Keep a current-state snapshot rather than an activity diary. Update state
+after contract approval, a material decision, feature or PR completion,
+validation, stage transition, handoff, or proof supersession — not after every
+turn. When the umbrella ticket is local, record its status and ISO 8601 UTC
+timestamps in the ticket.
 
-- status: `active`, `blocked`, `complete`, or `superseded`, plus `created_at`
-  and `updated_at`;
-- repository identity and mission identity, including the mission slug;
-- authority kind: `mission-issue` or `local-state-file`, with the canonical
-  issue URL or repository-relative file path;
-- tracker authority and topology authority, including the tracker, umbrella
-  issue when one exists, and whether tracker-native relationships or the local
-  artifact own mission membership and prerequisite edges;
-- the authorization boundary for local edits, branches or worktrees, commits,
-  pushes, pull or merge requests, merges, deployments, issue updates, and
-  relationship mutations;
-- validation state: profile, contract or stable links, current assertion and
-  gate state, and accepted evidence;
-- active work: stage, feature, issue, PR, Git reference, ownership, integration
-  boundary, and owned implementation locks as applicable;
-- blockers, risks, and unresolved questions; and
-- the exact next action.
+When the mission finishes, resolve the umbrella: complete its ticket through
+the tracker's normal resolution, then tear down the work folder. When another
+artifact takes over mid-mission, record the successor's canonical reference on
+the superseded ticket before switching. Delete a preserved ticket only when
+the user or an already-authorized cleanup workflow explicitly requests that
+cleanup.
 
 When tracker-native relationships define mission membership or dependencies,
 treat that topology as authoritative. Query it fresh and never copy its nodes
-or edges into local durable state. The canonical artifact may record only the
+or edges into local durable state. The umbrella ticket may record only the
 topology authority, relevant tracker references, derived current observations,
 and the exact next action. When no tracker topology has been designated
-authoritative, a local state file may own the mission DAG; record that authority
-explicitly and store the graph only there. Never merge a cached tracker graph
-with a separate local canonical graph.
+authoritative, the umbrella ticket may own the mission DAG; record that
+authority explicitly and store the graph only there. Never merge a cached
+tracker graph with a separate local canonical graph. For a locally owned
+graph, keep membership hierarchy distinct from prerequisite edges, detect
+dependency cycles, and derive readiness from current evidence rather than
+persisting it as durable truth.
 
-For a local graph, keep membership hierarchy distinct from prerequisite edges,
-record the nodes and edges in the canonical local artifact, detect dependency
-cycles, and derive readiness from current node and blocker evidence rather than
-persisting it as durable truth. Refresh a selected node and its blockers
-immediately before dispatch.
+Immediately before dispatching a work item, fetch its ticket, active claims,
+and blockers fresh; never dispatch from a cached frontier. Dispatch only when
+the item is open, in authorized scope, executable rather than an aggregate
+parent, contract-shaped, unclaimed, and free of open prerequisites, and when
+every closed prerequisite completed compatibly with the dependent contract.
+Follow a duplicate to its canonical work item and verify that outcome; an
+unresolved disposition is not satisfied. Require every approval, integration,
+workspace, PR, review, CI, deployment, and human gate that applies before work
+may start.
 
-Immediately before starting implementation of a tracker issue, refresh its
-labels. An unlocked issue may be selected normally. If
-`implementation-locked` is present, continue only when the active mission
-already owns that implementation; otherwise do not start it. When issue-label
-mutations are already authorized, claim an unlocked issue by applying
-`implementation-locked` and reading it back before dispatch. Remove and read
-back an owned lock when implementation is complete or deliberately relinquished.
-Never remove another owner's active lock. The label is issue-local; do not
-propagate it through tracker relationships.
-
-Keep a current-state snapshot rather than an activity diary. In addition to the
-required fields above, retain goal and non-goals, constraining decisions, and
-completed work with accepted evidence when they are material to continuation.
-
-Update it after contract approval, a material decision, feature or PR
-completion, validation, stage transition, handoff, or proof supersession. Do
-not update it after every turn.
-
-When the mission finishes, set `status: complete`, update `updated_at`, and add
-`completed_at`. When another state artifact takes over, set
-`status: superseded`, update `updated_at`, and add `superseded_at` plus the
-successor's canonical reference. Preserve complete and superseded artifacts.
-Delete one only when the user or an already-authorized cleanup workflow
-explicitly requests that cleanup.
+Claim the selected work item per the repository's claim policy and confirm
+the claim before dispatch; release it when implementation completes or is
+deliberately relinquished. Never supersede another owner's active claim except
+through the staleness rules the claim policy defines, and never treat
+assignment, labels, or relationships as a claim.
 
 ## Adopt Approved Issue Decomposition
 
-When `.local/agents/issue-tracker.md` and `.local/agents/issue-contract.md`
-exist, read them before interpreting tracker state. Use their configured
-relationship authority and canonical issue contract.
+Use the repository workflow policy's tracker verb contract, relationship
+authority, claim policy, and canonical ticket contract when interpreting or
+mutating tracker state. After each authorized relationship mutation, read it
+back, recheck affected dependency cycles, and rederive affected readiness.
 
 When an approved tracking umbrella and executable leaves already exist, adopt
 that graph as the baseline decomposition. Treat the umbrella as
 non-dispatchable. Map complete leaf contracts and acceptance criteria to the
 mission validation assertions instead of independently reslicing the work.
-Reshape the graph only for evidenced gaps and only within the authorized issue
-and relationship mutation boundary.
+Reshape the graph only for evidenced gaps and only within the authorized
+ticket and relationship mutation boundary.
 
-Issue labels, contracts, relationships, and assignment establish no execution
+Ticket labels, contracts, relationships, and assignment establish no execution
 or delivery authority. Record the independently approved boundary for local
 edits, branches or worktrees, commits, pushes, pull or merge requests, merges,
-deployments, issue updates, and relationship mutations.
+deployments, ticket updates, and relationship mutations.
 
 ## Define Correctness Before Decomposition
 
@@ -198,8 +194,9 @@ required relationships.
   boundary.
 - When material separate work is required for the selected issue's acceptance,
   publish it within the mission topology. Make it a sibling when an umbrella
-  exists, add a native dependency showing that the selected issue is blocked by
-  it, and continue independent unblocked work. Create children beneath the
+  exists, record a prerequisite relationship per the tracker policy showing
+  that the selected issue is blocked by it, and continue independent unblocked
+  work. Create children beneath the
   selected issue only after approval reshapes that issue into a non-executable
   aggregate and amends its contract, topology, and denominator.
 - When separate work contributes to the mission but is not required for the

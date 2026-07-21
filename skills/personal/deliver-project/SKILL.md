@@ -13,7 +13,12 @@ coordination, not agent activity, branch count, issue count, or apparent
 progress.
 
 Follow repository instructions, project decisions, ownership boundaries, and
-the authorized issue and Git workflow.
+the authorized ticket and Git workflow. When `.local/INDEX.md` exists, read it
+and the concern policies relevant to the work; the workflow policy it links
+defines the tracker verbs this skill relies on — publish, fetch, query the
+frontier, claim, release, resolve — plus ticket structure, relationships,
+claims, readiness, and forge conventions. When no such policy exists, treat
+tracker and forge state as read-only and ask before mutating external state.
 
 ## Choose the Execution Mode
 
@@ -69,10 +74,6 @@ Use progressive disclosure. Do not load every reference at session start.
   Durable State` section of
   [mission-setup.md](references/mission-setup.md) before creating or updating
   that checkpoint.
-- When an authorized mission uses a GitHub umbrella issue and native issue
-  relationships, read
-  [github-mission-graph.md](references/github-mission-graph.md) before shaping
-  or mutating that topology or dispatching dependent work.
 - When completion requires exhaustive repository coverage, read
   [exhaustive-sweeps.md](references/exhaustive-sweeps.md) before defining the
   discovery plan or assigning scouts.
@@ -101,9 +102,9 @@ action. Do not reload a reference merely because another agent is spawned.
 
 After compaction or resumption:
 
-1. Read the sole canonical durable state artifact when one exists. For direct
-   execution without a continuation checkpoint, rederive the compact
-   acceptance contract from the user request and authoritative project
+1. Fetch the mission umbrella ticket and read its work folder when they
+   exist. For direct execution without a continuation checkpoint, rederive the
+   compact acceptance contract from the user request and authoritative project
    artifacts, then inspect the current diff and latest validation evidence.
 2. Verify the active Git reference and, when applicable, issue, PR, and CI state.
 3. When tracker relationships define mission topology, refresh authoritative
@@ -113,8 +114,9 @@ After compaction or resumption:
 6. Refresh stale facts before acting.
 
 If direct execution is likely to cross another continuation boundary, create a
-lightweight checkpoint using the same artifact-selection, identity, required
-field, lifecycle, and cleanup rules as mission state in
+lightweight checkpoint — a work folder, plus a local ticket when the change
+justifies one — using the same identity, placement, lifecycle, and cleanup
+rules as mission state in
 [mission-setup.md](references/mission-setup.md). If direct work later escalates
 to mission execution, upgrade that same checkpoint in place; do not create a
 second durable state artifact.
