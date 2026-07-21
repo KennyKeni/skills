@@ -1,4 +1,0 @@
-interface:
-  display_name: "Design Modular Backend"
-  short_description: "Module-first, selectively hexagonal backends"
-  default_prompt: "Use $design-modular-backend to design or reshape this backend around cohesive modules and justified ports."
