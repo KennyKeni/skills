@@ -6,7 +6,7 @@
     "build": "pnpm --recursive build",
     "check": "pnpm --recursive check",
     "test": "pnpm --recursive test",
-    "verify": "pnpm check && pnpm test && pnpm build && pnpm --filter @kennykeni/repository-local pack:check"
+    "verify": "pnpm check && pnpm test && pnpm build && pnpm --filter @kennykeni/groundwork pack:check"
   },
   "engines": {
     "node": ">=26.5.0"

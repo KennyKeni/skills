@@ -1,0 +1,35 @@
+name: groundwork
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/groundwork.yml"
+      - "package.json"
+      - "mise.toml"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "packages/groundwork/**"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/groundwork.yml"
+      - "package.json"
+      - "mise.toml"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "packages/groundwork/**"
+
+jobs:
+  verify:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v3
+        with:
+          cache: true
+          install: true
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm verify

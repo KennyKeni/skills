@@ -8,7 +8,7 @@ importers:
 
   .: {}
 
-  packages/repository-local:
+  packages/groundwork:
     dependencies:
       '@clack/prompts':
         specifier: 1.7.0

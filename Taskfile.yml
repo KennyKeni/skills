@@ -9,17 +9,17 @@ tasks:
       - task --list
 
   cli:check:
-    desc: Type-check the repository-local CLI workspace.
+    desc: Type-check the groundwork CLI workspace.
     cmds:
       - mise exec -- pnpm check
 
   cli:test:
-    desc: Run the repository-local CLI test suite.
+    desc: Run the groundwork CLI test suite.
     cmds:
       - mise exec -- pnpm test
 
   cli:verify:
-    desc: Check, test, build, and smoke-test the packed repository-local CLI.
+    desc: Check, test, build, and smoke-test the packed groundwork CLI.
     cmds:
       - mise exec -- pnpm verify
 
