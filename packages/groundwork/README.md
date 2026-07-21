@@ -37,6 +37,7 @@ configurable concerns:
 │   └── SURVEY.md        (team profile only; disposable)
 ├── architecture/
 │   ├── README.md
+│   ├── SHAPES.md        (modular-hexagonal style only)
 │   └── decisions/
 │       └── README.md
 ├── development/
@@ -56,6 +57,18 @@ cannot host forge issues). Every tracker fragment implements the identical
 section contract (verb contract, issues, specifications, executable tickets,
 labels, relationships, claims, readiness, local work context), enforced by a
 template-parity test.
+
+The architecture README is composed the same way from a style axis
+(`modular-hexagonal` / `layered` / `framework-idiomatic` / `flat-minimal` /
+`serverless`). Each style is a detailed writeup — doctrine, layout and naming
+conventions, seam rules, fit and failure modes — on an identical section
+contract enforced by a parity test, so agents get concrete naming guidance
+(is there a repository interface? what is a handler called?) that matches the
+project's actual shape. The modular-hexagonal style additionally ships
+`SHAPES.md` with runtime-specific mappings (event consumers, jobs, actors,
+workflows) and the incremental migration order. Fleet-scoped architecture
+keeps the fixed cross-service doctrine; each member repository chooses its
+own internal style.
 
 A third axis, profile (`solo` / `team`), selects default text. The solo
 profile ships opinionated agent-first defaults. The team profile can leave

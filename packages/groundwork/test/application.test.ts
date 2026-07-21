@@ -46,7 +46,8 @@ describe("filesystem application", () => {
           id: "architecture",
           destination: ".local/architecture",
           values: {
-            architectureDoctrine: "Module-first doctrine.",
+            scope: "repository",
+            style: "modular-hexagonal",
             architectureConstraints: "Preserve boundaries.",
             architectureSources: "Accepted decisions.",
           },
@@ -75,6 +76,7 @@ describe("filesystem application", () => {
       "INDEX.md",
       "architecture",
       "architecture/README.md",
+      "architecture/SHAPES.md",
       "architecture/decisions",
       "architecture/decisions/README.md",
       "development",

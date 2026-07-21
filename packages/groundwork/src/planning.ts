@@ -1,6 +1,7 @@
 import { isAbsolute, relative, resolve, sep } from "node:path";
 
 import {
+  architectureStyleLabels,
   folderDefinitions,
   forgeLabels,
   forgeSectionKeys,
@@ -130,23 +131,60 @@ function plannedConcern(
   switch (preference.id) {
     case "workflow":
       return { ...base, ...plannedWorkflow(preference.workflow) };
-    case "architecture":
+    case "architecture": {
+      const decisionsFile: PlannedFile = {
+        name: "decisions/README.md",
+        templates: ["architecture-decisions.md"],
+        requiredValues: [],
+      };
+      const sectionValues = {
+        architectureConstraints: preference.values.architectureConstraints,
+        architectureSources: preference.values.architectureSources,
+      };
+
+      if (preference.values.scope === "fleet") {
+        return {
+          ...base,
+          files: [
+            {
+              name: "README.md",
+              templates: ["architecture/fleet.md"],
+              requiredValues: ["architectureConstraints", "architectureSources"],
+            },
+            decisionsFile,
+          ],
+          values: sectionValues,
+        };
+      }
+
+      const files: PlannedFile[] = [
+        {
+          name: "README.md",
+          templates: [
+            "architecture/header.md",
+            `architecture/style/${preference.values.style}.md`,
+            "architecture/footer.md",
+          ],
+          requiredValues: ["styleLabel", "architectureConstraints", "architectureSources"],
+        },
+        decisionsFile,
+      ];
+      if (preference.values.style === "modular-hexagonal") {
+        files.push({
+          name: "SHAPES.md",
+          templates: ["architecture/shapes.md"],
+          requiredValues: [],
+        });
+      }
       return {
         ...base,
-        files: [
-          {
-            name: "README.md",
-            templates: ["architecture.md"],
-            requiredValues: ["architectureDoctrine", "architectureConstraints", "architectureSources"],
-          },
-          {
-            name: "decisions/README.md",
-            templates: ["architecture-decisions.md"],
-            requiredValues: [],
-          },
-        ],
-        values: preference.values,
+        files,
+        values: {
+          styleLabel: architectureStyleLabels[preference.values.style],
+          ...sectionValues,
+        },
       };
+    }
     case "development":
       return {
         ...base,

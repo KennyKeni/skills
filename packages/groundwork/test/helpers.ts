@@ -1,6 +1,7 @@
 import { join } from "node:path";
 
 import type {
+  ArchitectureStyleId,
   ConcernId,
   ForgeId,
   ForgeSectionValues,
@@ -112,6 +113,9 @@ export class StubDriver implements PromptDriver {
     return initial;
   }
   public async chooseTracker(initial: TrackerId, _allowForgeIssues: boolean): Promise<TrackerId> {
+    return initial;
+  }
+  public async chooseArchitectureStyle(initial: ArchitectureStyleId): Promise<ArchitectureStyleId> {
     return initial;
   }
   public async chooseConcern(

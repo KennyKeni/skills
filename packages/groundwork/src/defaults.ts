@@ -1,7 +1,6 @@
 import { basename } from "node:path";
 
 import type {
-  ArchitecturePreferences,
   DevelopmentPreferences,
   DomainPreferences,
   ForgeSectionValues,
@@ -271,35 +270,16 @@ export function linearTrackerDefaults(discovery: RepositoryDiscovery): TrackerSe
   };
 }
 
-const soloDoctrine =
-  "Module-first, selectively hexagonal. Top-level modules are cohesive " +
-  "business capabilities owning their model and persistent state, exposing a " +
-  "small public contract of commands, queries, and events. Technical layers " +
-  "only inside a module. A port exists only under concrete pressure: " +
-  "multiple real adapters, volatile technology, deterministic-test isolation " +
-  "of an effect, a narrow cross-module contract, or a plausible deployment " +
-  "seam — otherwise call directly. Dependencies point from adapters toward " +
-  "module contracts and core policy; the module graph stays acyclic; " +
-  "boundaries are enforced mechanically wherever the ecosystem allows.";
-
-const fleetDoctrine =
-  "Services are sliced by business capability. Each service owns its model " +
-  "and persistent state behind a narrow public contract of commands, " +
-  "queries, and events; no service reads or writes another's datastore, and " +
-  "there is no shared mutable database. Cross-service communication uses " +
-  "only the mechanisms recorded under stable constraints, and every " +
-  "synchronous API and asynchronous event is a versioned, owner-published " +
-  "contract that stays backward-compatible — evolving through " +
-  "expand–migrate–contract rather than breaking consumers. Prefer eventual " +
-  "consistency across services and avoid distributed transactions that span " +
-  "a boundary; each service degrades predictably when a dependency is " +
-  "unavailable. Record each boundary, contract, or communication-mechanism " +
-  "decision in decisions/ before changing it.";
+// Doctrine text lives in the architecture style templates; defaults here
+// cover only the placeholder sections shared by every style and scope.
+export type ArchitectureSectionDefaults = {
+  readonly architectureConstraints: string;
+  readonly architectureSources: string;
+};
 
 export function architectureDefaults(
   discovery: RepositoryDiscovery,
-  scope: "repository" | "fleet",
-): ArchitecturePreferences {
+): ArchitectureSectionDefaults {
   const candidates = discovery.documentCandidates.filter((candidate) =>
     candidate.kinds.includes("architecture"),
   );
@@ -315,7 +295,6 @@ export function architectureDefaults(
         )
         .join("\n\n");
   return {
-    architectureDoctrine: scope === "fleet" ? fleetDoctrine : soloDoctrine,
     architectureConstraints:
       "No additional constraint is recorded yet. Add constraints here as " +
       "decisions land, with the decision record that motivated each.",

@@ -203,11 +203,38 @@ export type WorkflowPreferences =
       readonly survey: readonly SurveyItem[];
     };
 
-export type ArchitecturePreferences = {
-  readonly architectureDoctrine: string;
-  readonly architectureConstraints: string;
-  readonly architectureSources: string;
+export const architectureStyleIds = [
+  "modular-hexagonal",
+  "layered",
+  "framework-idiomatic",
+  "flat-minimal",
+  "serverless",
+] as const;
+
+export type ArchitectureStyleId = (typeof architectureStyleIds)[number];
+
+export const architectureStyleLabels: Readonly<Record<ArchitectureStyleId, string>> = {
+  "modular-hexagonal": "modular hexagonal",
+  layered: "layered",
+  "framework-idiomatic": "framework idiomatic",
+  "flat-minimal": "flat minimal",
+  serverless: "serverless",
 };
+
+// Fleet-scoped architecture carries fixed cross-service doctrine; only
+// repository-scoped architecture chooses an internal style.
+export type ArchitecturePreferences =
+  | {
+      readonly scope: "repository";
+      readonly style: ArchitectureStyleId;
+      readonly architectureConstraints: string;
+      readonly architectureSources: string;
+    }
+  | {
+      readonly scope: "fleet";
+      readonly architectureConstraints: string;
+      readonly architectureSources: string;
+    };
 
 export type DevelopmentPreferences = {
   readonly verificationCommands: string;

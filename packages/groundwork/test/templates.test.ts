@@ -2,7 +2,12 @@ import { readFile } from "node:fs/promises";
 
 import { describe, expect, it } from "vitest";
 
-import { forgeSectionKeys, trackerSectionKeys, type WorkflowPreferences } from "../src/model.js";
+import {
+  architectureStyleIds,
+  forgeSectionKeys,
+  trackerSectionKeys,
+  type WorkflowPreferences,
+} from "../src/model.js";
 import { buildSetupPlan } from "../src/planning.js";
 import { renderPlan } from "../src/rendering.js";
 import { discoveryFor, forgeValues, trackerValues, workflowPreferences } from "./helpers.js";
@@ -67,7 +72,8 @@ describe("packaged policy templates", () => {
           id: "architecture",
           destination: ".local/architecture",
           values: {
-            architectureDoctrine: "Module-first doctrine.",
+            scope: "repository",
+            style: "modular-hexagonal",
             architectureConstraints: "Preserve module boundaries.",
             architectureSources: "Architecture decisions.",
           },
@@ -100,6 +106,71 @@ describe("packaged policy templates", () => {
         expect(file.contents).not.toContain("SKILL.md");
         expect(file.contents).not.toMatch(/\{\{[A-Za-z]/);
       }
+    }
+  });
+
+  it.each(architectureStyleIds.map((style) => [style] as const))(
+    "renders the %s architecture style with no unresolved values",
+    async (style) => {
+      const plan = buildSetupPlan(discoveryFor("/repo"), {
+        mode: "repository",
+        concerns: [{
+          id: "architecture",
+          destination: ".local/architecture",
+          values: {
+            scope: "repository",
+            style,
+            architectureConstraints: "Constraints.",
+            architectureSources: "Sources.",
+          },
+        }],
+      });
+      const rendered = await renderPlan(plan);
+      const readme = rendered.concerns[0]?.renderedFiles.find((file) => file.name === "README.md");
+      expect(readme?.contents).toContain("## Doctrine");
+      expect(readme?.contents).toContain("## Stable constraints");
+      for (const file of rendered.concerns[0]?.renderedFiles ?? []) {
+        expect(file.contents).toMatch(/^# /);
+        expect(file.contents).not.toMatch(/\{\{[A-Za-z]/);
+      }
+    },
+  );
+
+  it("renders the fleet architecture variant with no unresolved values", async () => {
+    const plan = buildSetupPlan(discoveryFor("/repo"), {
+      mode: "fleet",
+      concerns: [{
+        id: "architecture",
+        destination: ".local/architecture",
+        values: {
+          scope: "fleet",
+          architectureConstraints: "Constraints.",
+          architectureSources: "Sources.",
+        },
+      }],
+    });
+    const rendered = await renderPlan(plan);
+    const readme = rendered.concerns[0]?.renderedFiles.find((file) => file.name === "README.md");
+    expect(readme?.contents).toContain("expand–migrate–contract");
+    expect(readme?.contents).not.toMatch(/\{\{[A-Za-z]/);
+  });
+
+  it("keeps every architecture style on the identical section contract", async () => {
+    const sources = await Promise.all(
+      architectureStyleIds.map((style) => loadTemplate(`architecture/style/${style}.md`)),
+    );
+    const [reference, ...rest] = sources.map(headings);
+    expect(reference).toEqual([
+      "## Doctrine",
+      "## Layout and naming",
+      "## Seams",
+      "## Fit and failure modes",
+    ]);
+    for (const variant of rest) {
+      expect(variant).toEqual(reference);
+    }
+    for (const source of sources) {
+      expect(placeholders(source)).toEqual([]);
     }
   });
 

@@ -84,7 +84,8 @@ describe("planning", () => {
         id: "architecture",
         destination: ".local/architecture",
         values: {
-          architectureDoctrine: "Doctrine.",
+          scope: "repository",
+          style: "layered",
           architectureConstraints: "Constraints.",
           architectureSources: "Sources.",
         },
@@ -93,6 +94,29 @@ describe("planning", () => {
     expect(plan.concerns[0]?.files.map((file) => file.name)).toEqual([
       "README.md",
       "decisions/README.md",
+    ]);
+    expect(plan.concerns[0]?.files[0]?.templates).toContain("architecture/style/layered.md");
+  });
+
+  it("adds SHAPES.md only for the modular-hexagonal architecture style", () => {
+    const root = resolve("repository-root");
+    const plan = buildSetupPlan(discoveryFor(root), {
+      mode: "repository",
+      concerns: [{
+        id: "architecture",
+        destination: ".local/architecture",
+        values: {
+          scope: "repository",
+          style: "modular-hexagonal",
+          architectureConstraints: "Constraints.",
+          architectureSources: "Sources.",
+        },
+      }],
+    });
+    expect(plan.concerns[0]?.files.map((file) => file.name)).toEqual([
+      "README.md",
+      "decisions/README.md",
+      "SHAPES.md",
     ]);
   });
 
@@ -116,7 +140,8 @@ describe("planning", () => {
             id: "architecture",
             destination: ".policy/architecture",
             values: {
-              architectureDoctrine: "Doctrine.",
+              scope: "repository",
+              style: "layered",
               architectureConstraints: "Constraints.",
               architectureSources: "Sources.",
             },

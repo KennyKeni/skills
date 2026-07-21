@@ -28,6 +28,7 @@ import {
   forgeSectionKeys,
   trackerSectionKeys,
   type AnyConcernPreference,
+  type ArchitectureStyleId,
   type ConcernId,
   type ForgeId,
   type ForgeSectionValues,
@@ -66,6 +67,7 @@ export interface PromptDriver {
   chooseProfile(): Promise<ProfileId>;
   chooseForge(initial: ForgeId): Promise<ForgeId>;
   chooseTracker(initial: TrackerId, allowForgeIssues: boolean): Promise<TrackerId>;
+  chooseArchitectureStyle(initial: ArchitectureStyleId): Promise<ArchitectureStyleId>;
   chooseConcern(
     id: ConcernId,
     label: string,
@@ -179,6 +181,42 @@ export class ClackPromptDriver implements PromptDriver {
             : []),
           { value: "linear" as TrackerId, label: "Linear" },
           { value: "none" as TrackerId, label: "None — local tickets and review comments only" },
+        ],
+      }),
+    );
+  }
+
+  public async chooseArchitectureStyle(initial: ArchitectureStyleId): Promise<ArchitectureStyleId> {
+    return unwrap(
+      await select({
+        message: "Architecture style (writes the doctrine, layout, and seam rules)?",
+        initialValue: initial,
+        options: [
+          {
+            value: "modular-hexagonal" as ArchitectureStyleId,
+            label: "Modular hexagonal",
+            hint: "capability modules owning their state; ports only under concrete pressure",
+          },
+          {
+            value: "layered" as ArchitectureStyleId,
+            label: "Layered",
+            hint: "controllers/services/repositories by technical role; repository interface is the seam",
+          },
+          {
+            value: "framework-idiomatic" as ArchitectureStyleId,
+            label: "Framework idiomatic",
+            hint: "Rails/Django/Laravel/Nest conventions are the architecture; no repository over the ORM",
+          },
+          {
+            value: "flat-minimal" as ArchitectureStyleId,
+            label: "Flat minimal",
+            hint: "one procedure per use case, database inline; add structure only when it hurts",
+          },
+          {
+            value: "serverless" as ArchitectureStyleId,
+            label: "Serverless",
+            hint: "one handler per endpoint/event with a shared logic layer; infra config maps the tree",
+          },
         ],
       }),
     );
@@ -574,29 +612,30 @@ export async function collectPreferences(
         });
         break;
       case "architecture": {
-        const defaults = architectureDefaults(discovery, "repository");
+        const defaults = architectureDefaults(discovery);
+        const style = await driver.chooseArchitectureStyle("modular-hexagonal");
         const mode = await driver.sectionMode(
-          "Architecture sections (doctrine, constraints, sources)",
+          "Architecture sections (constraints, sources)",
           profile,
           false,
         );
         concerns.push({
           id: "architecture",
           destination,
-          values: mode === "defaults" ? defaults : {
-            architectureDoctrine: await driver.policyText({
-              message: "Architecture doctrine",
-              initialValue: defaults.architectureDoctrine,
-            }),
-            architectureConstraints: await driver.policyText({
-              message: "Stable architecture constraints and invariants",
-              initialValue: defaults.architectureConstraints,
-            }),
-            architectureSources: await driver.policyText({
-              message: "Authoritative shared architecture documents (review discovered candidates before accepting)",
-              initialValue: defaults.architectureSources,
-            }),
-          },
+          values: mode === "defaults"
+            ? { scope: "repository", style, ...defaults }
+            : {
+                scope: "repository",
+                style,
+                architectureConstraints: await driver.policyText({
+                  message: "Stable architecture constraints and invariants",
+                  initialValue: defaults.architectureConstraints,
+                }),
+                architectureSources: await driver.policyText({
+                  message: "Authoritative shared architecture documents (review discovered candidates before accepting)",
+                  initialValue: defaults.architectureSources,
+                }),
+              },
         });
         break;
       }
@@ -694,29 +733,28 @@ async function collectFleetPreferences(
     );
 
     if (definition.id === "architecture") {
-      const defaults = architectureDefaults(discovery, "fleet");
+      const defaults = architectureDefaults(discovery);
       const mode = await driver.sectionMode(
-        "Fleet architecture sections (doctrine, constraints, sources)",
+        "Fleet architecture sections (constraints, sources)",
         "solo",
         false,
       );
       concerns.push({
         id: "architecture",
         destination,
-        values: mode === "defaults" ? defaults : {
-          architectureDoctrine: await driver.policyText({
-            message: "Cross-service architecture doctrine",
-            initialValue: defaults.architectureDoctrine,
-          }),
-          architectureConstraints: await driver.policyText({
-            message: "Cross-service constraints (boundaries, communication rules)",
-            initialValue: defaults.architectureConstraints,
-          }),
-          architectureSources: await driver.policyText({
-            message: "Authoritative shared architecture documents",
-            initialValue: defaults.architectureSources,
-          }),
-        },
+        values: mode === "defaults"
+          ? { scope: "fleet", ...defaults }
+          : {
+              scope: "fleet",
+              architectureConstraints: await driver.policyText({
+                message: "Cross-service constraints (boundaries, communication rules)",
+                initialValue: defaults.architectureConstraints,
+              }),
+              architectureSources: await driver.policyText({
+                message: "Authoritative shared architecture documents",
+                initialValue: defaults.architectureSources,
+              }),
+            },
       });
       continue;
     }

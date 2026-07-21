@@ -1,14 +1,3 @@
-# Architecture policy
-
-This README records stable guarantees, not a snapshot of the current tree.
-Read the live codebase for module inventories, dependencies, hot spots, and
-file locations. Edit this user-owned policy when a decision changes the
-rules, and record the decision in [decisions/](decisions/) first.
-
-## Doctrine
-
-{{architectureDoctrine}}
-
 ## Stable constraints
 
 {{architectureConstraints}}
@@ -24,4 +13,5 @@ constraints requiring explicit review.
 
 Accepted decision records in [decisions/](decisions/) are normative. Proposed
 material is context, and superseded material cannot silently become an active
-requirement.
+requirement. Changing the style above is itself a decision: record it in
+[decisions/](decisions/) and regenerate or rewrite this README deliberately.
