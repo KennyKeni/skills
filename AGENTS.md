@@ -1,9 +1,10 @@
 # Skills
 
-This repository (`KennyKeni/skills`) is the maintained skill source. The sibling
-`../dotfiles` repository owns the global `npx skills` lock and restore workflow.
-Make skill-source changes here, commit and push them, then refresh installed
-skills from `../dotfiles` with `npx skills update`.
+This repository (`KennyKeni/skills`) is the maintained skill source and owns
+the global `npx skills` restore workflow (`task skills:restore-global`). The
+native global lock lives at `~/.agents/.skill-lock.json` and is not tracked in
+any repository. Make skill-source changes here, commit and push them, then
+refresh installed skills with `npx skills update -g -y`.
 
 Install skills for Codex, Claude Code, and Zed by default. Use a narrower agent
 set only when a skill is specific to one or more agent harnesses.

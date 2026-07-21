@@ -54,3 +54,132 @@ tasks:
     deps:
       - skills:routing:check
       - skills:sidekick:check
+
+  skills:restore-global:
+    desc: Restore global skills from the native global skills lock, respecting local per-skill agent overrides.
+    cmds:
+      - |
+        /usr/bin/env bash <<'BASH'
+        set -euo pipefail
+
+        node <<'NODE'
+        const fs = require("node:fs");
+        const os = require("node:os");
+        const path = require("node:path");
+        const { spawnSync } = require("node:child_process");
+
+        const lockPath = process.env.XDG_STATE_HOME
+          ? path.join(process.env.XDG_STATE_HOME, "skills", ".skill-lock.json")
+          : path.join(os.homedir(), ".agents", ".skill-lock.json");
+
+        if (!fs.existsSync(lockPath)) {
+          console.error(`Global skills lock not found: ${lockPath}`);
+          process.exit(1);
+        }
+
+        const originalLockText = fs.readFileSync(lockPath, "utf8");
+        const lock = JSON.parse(originalLockText);
+        const skills = Object.entries(lock.skills || {}).filter(([, entry]) => {
+          return entry && entry.source;
+        });
+
+        if (skills.length === 0) {
+          console.log(`No global skills recorded in ${lockPath}`);
+          process.exit(0);
+        }
+
+        const defaultAgents = ["codex", "claude-code", "zed"];
+        const claudeOnlySkills = [
+          "claude-subagent-routing",
+          "claude-sidekick",
+          "codex-first",
+          "grok-first",
+        ];
+        const codexOnlySkills = ["codex-subagent-routing", "codex-sidekick"];
+        const skillAgentOverrides = new Map([
+          ...claudeOnlySkills.map((skillName) => [skillName, ["claude-code"]]),
+          ...codexOnlySkills.map((skillName) => [skillName, ["codex"]]),
+        ]);
+        const bySourceAndAgents = new Map();
+
+        for (const [skillName, entry] of skills) {
+          const source = entry.ref ? `${entry.source}#${entry.ref}` : entry.source;
+          const agents = skillAgentOverrides.get(skillName) ?? defaultAgents;
+          const key = JSON.stringify({ source, agents });
+          if (!bySourceAndAgents.has(key)) {
+            bySourceAndAgents.set(key, { source, agents, skillNames: [] });
+          }
+          bySourceAndAgents.get(key).skillNames.push(skillName);
+        }
+
+        let exitCode = 0;
+
+        const harnessSpecificSkills = [
+          ...claudeOnlySkills,
+          ...codexOnlySkills,
+        ].filter((skillName) => lock.skills?.[skillName]?.source);
+
+        if (harnessSpecificSkills.length > 0) {
+          console.log(
+            `Removing stale harness placements for ${harnessSpecificSkills.join(", ")}`,
+          );
+
+          const result = spawnSync(
+            "npx",
+            [
+              "-y",
+              "skills@latest",
+              "remove",
+              ...harnessSpecificSkills,
+              "-g",
+              "-y",
+            ],
+            { stdio: "inherit" },
+          );
+
+          if (result.status !== 0) {
+            exitCode = result.status ?? 1;
+          }
+        }
+
+        for (const { source, agents, skillNames } of bySourceAndAgents.values()) {
+          if (exitCode !== 0) break;
+
+          const sortedSkills = skillNames.sort();
+          console.log(
+            `Restoring ${sortedSkills.length} skill(s) from ${source} to ${agents.join(", ")}`,
+          );
+
+          const result = spawnSync(
+            "npx",
+            [
+              "-y",
+              "skills@latest",
+              "add",
+              source,
+              "-g",
+              "--copy",
+              "--full-depth",
+              "-a",
+              ...agents,
+              "-s",
+              ...sortedSkills,
+              "-y",
+            ],
+            { stdio: "inherit" },
+          );
+
+          if (result.status !== 0) {
+            exitCode = result.status ?? 1;
+            break;
+          }
+        }
+
+        const currentLockText = fs.readFileSync(lockPath, "utf8");
+        if (currentLockText !== originalLockText) {
+          fs.writeFileSync(lockPath, originalLockText);
+        }
+
+        process.exit(exitCode);
+        NODE
+        BASH
