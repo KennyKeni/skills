@@ -20,7 +20,7 @@ skills manually.
 
 `AGENTS.md` and `CLAUDE.md` are globally git-excluded on this machine. If a repository should track one of these files, unexclude it on a per-repository basis.
 
-The `.local/` directory is globally git-excluded and should stay that way. Never unexclude or force-track `.local/`.
+When a repository contains `.local/INDEX.md`, start there and use its gitignored `.local/` tree for repository-specific agent policy, tracker conventions, domain and architecture context, secrets, state, and disposable artifacts; never unexclude or force-track it.
 
 # Attribution and Provenance
 
