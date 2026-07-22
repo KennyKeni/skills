@@ -94,10 +94,9 @@ At each question, evidence update, or return, choose one move:
 - stop and recover the session through the adapter when its context or process
   is no longer trustworthy.
 
-If the persistent session cannot recover, keep the work in the main agent or
-start one replacement with the same requested setup and a compact handoff when
-the remaining execution savings justify rebuilding context. Never hide the
-loss of context or silently substitute another model.
+If repeated attempts to resume the persistent session fail, stop retrying it
+and start one replacement with the same requested setup and a compact handoff.
+Never hide the loss of context or silently substitute another model.
 
 ## Review With The Main Agent
 

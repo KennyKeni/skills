@@ -272,3 +272,8 @@ When the event loop reaches a recovery event, apply its role-aware decision and
 follow the selected lane's recovery procedure. Recover or replace only the
 session or process created for that assignment and preserve its last useful
 evidence before resuming, replacing, or closing it.
+
+If repeated attempts to resume the affected assignment fail, stop retrying it
+and start a fresh assignment through the same selected lane with the same role
+and model plus a compact handoff of the original assignment and useful
+evidence. Record the fresh assignment's identifier.
