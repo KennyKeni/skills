@@ -8,20 +8,24 @@ const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const temporaryRoot = await mkdtemp(join(tmpdir(), "groundwork-pack-"));
 const sourceManifest = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf8"));
 
+// Windows npm/npx are .cmd shims, and Node refuses to spawn those without a
+// shell (CVE-2024-27980), so Windows runs go through the shell.
+const useShell = process.platform === "win32";
+
 function run(command, args, cwd) {
-  const executable = process.platform === "win32" ? `${command}.cmd` : command;
-  const result = spawnSync(executable, args, { cwd, encoding: "utf8", stdio: "pipe", shell: false });
+  const result = spawnSync(command, args, { cwd, encoding: "utf8", stdio: "pipe", shell: useShell });
   if (result.status !== 0) {
-    throw new Error(`${command} ${args.join(" ")} failed:\n${result.stdout}\n${result.stderr}`);
+    throw new Error(
+      `${command} ${args.join(" ")} failed:\n${result.stdout ?? ""}\n${result.stderr ?? ""}\n${result.error ?? ""}`,
+    );
   }
   return result.stdout;
 }
 
 function runExpectFailure(command, args, cwd) {
-  const executable = process.platform === "win32" ? `${command}.cmd` : command;
-  const result = spawnSync(executable, args, { cwd, encoding: "utf8", stdio: "pipe", shell: false });
+  const result = spawnSync(command, args, { cwd, encoding: "utf8", stdio: "pipe", shell: useShell });
   if (result.status === 0) throw new Error(`${command} ${args.join(" ")} unexpectedly succeeded.`);
-  return `${result.stdout}\n${result.stderr}`;
+  return `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
 }
 
 try {
