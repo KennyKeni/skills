@@ -92,6 +92,12 @@ type DiscoveredFiles = {
   readonly architecture: string[];
 };
 
+// Repository-relative paths appear in generated policy and evidence, so they
+// use forward slashes on every platform.
+function repositoryRelative(root: string, absolutePath: string): string {
+  return relative(root, absolutePath).replaceAll("\\", "/");
+}
+
 async function walkRepository(root: string): Promise<DiscoveredFiles> {
   const files: DiscoveredFiles = { packages: [], workspaces: [], guidance: [], architecture: [] };
 
@@ -114,7 +120,7 @@ async function walkRepository(root: string): Promise<DiscoveredFiles> {
       }
       if (!entry.isFile()) continue;
 
-      const repositoryPath = relative(root, absolutePath);
+      const repositoryPath = repositoryRelative(root, absolutePath);
       if (packageManifestNames.has(entry.name)) files.packages.push(repositoryPath);
       if (workspaceFileNames.has(entry.name)) files.workspaces.push(repositoryPath);
       if (guidanceFileNames.has(entry.name) || guidanceFilePattern.test(entry.name)) {
@@ -183,7 +189,7 @@ async function listExistingLocalPaths(root: string): Promise<string[]> {
     }
     for (const entry of entries) {
       const absolutePath = join(directory, entry.name);
-      paths.push(relative(root, absolutePath));
+      paths.push(repositoryRelative(root, absolutePath));
       if (entry.isDirectory() && !entry.isSymbolicLink()) await visit(absolutePath, depth + 1);
     }
   }
