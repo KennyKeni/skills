@@ -42,6 +42,7 @@ export const runCommand: CommandRunner = async (command, args, cwd) => {
 const ignoredDirectoryNames = new Set([
   ".git",
   ".local",
+  ".worktrees",
   "node_modules",
   "dist",
   "build",
@@ -126,9 +127,12 @@ async function walkRepository(root: string): Promise<DiscoveredFiles> {
       if (guidanceFileNames.has(entry.name) || guidanceFilePattern.test(entry.name)) {
         files.guidance.push(repositoryPath);
       }
+      // Only prose documents become excerpt candidates; architecture-named
+      // scripts, tests, and manifests are code, not policy sources.
       if (
-        /(^|[-_.])(architecture|architectural|adr)([-_.]|$)/i.test(entry.name) ||
-        repositoryPath.split(/[\\/]/).some((segment) => /^(architecture|adr|decisions)$/i.test(segment))
+        /\.(md|markdown|txt|rst)$/i.test(entry.name) &&
+        (/(^|[-_.])(architecture|architectural|adr)([-_.]|$)/i.test(entry.name) ||
+          repositoryPath.split(/[\\/]/).some((segment) => /^(architecture|adr|decisions)$/i.test(segment)))
       ) {
         files.architecture.push(repositoryPath);
       }
