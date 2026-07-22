@@ -31,7 +31,9 @@ Start the sidekick:
 
 ```bash
 MODEL=cursor-grok-4.5-high
+CHAT_ID=$(cursor-agent create-chat)
 cursor-agent --print \
+  --resume "$CHAT_ID" \
   --workspace "$REPO" \
   --model "$MODEL" \
   --output-format stream-json \
@@ -40,9 +42,9 @@ cursor-agent --print \
   < "$PROMPT_FILE"
 ```
 
-Run it in a supervised long-running execution session. Record that execution
-session and capture the Cursor `session_id` as `CHAT_ID` so the main agent can
-continue independent judgment work while Cursor executes.
+Run it in a supervised long-running execution session. The `start` macro mints
+`CHAT_ID` with `create-chat` before launching inside it, so record `CHAT_ID` up
+front; the main agent uses it to resume and health-check while Cursor executes.
 
 Use full Agent mode throughout the persistent chat. Enforce exploration-only,
 writable scope, judgment boundaries, and no-delegation requirements through
@@ -50,10 +52,10 @@ each assignment packet.
 
 ## Observe And Steer
 
-Capture `session_id` from the initial `system/init` event immediately. Treat
-the terminal `result` event's error state, subtype, process exit, and useful
-result as completion evidence. Keep thinking deltas out of the returned
-answer.
+`CHAT_ID` is minted before the run by `create-chat`; the initial `system/init`
+`session_id` confirms it. Treat the terminal `result` event's error state,
+subtype, process exit, and useful result as completion evidence. Keep thinking
+deltas out of the returned answer.
 
 Do not open a second chat for a focused question. Let the active run return,
 or interrupt it only when blocked, then resume `CHAT_ID` with the answer and
@@ -86,7 +88,7 @@ trustworthy.
 For a permitted health check or recovery, inspect only the recorded run:
 
 ```bash
-ps -axo pid,ppid,command | rg '[c]ursor-agent' || true
+pgrep -fl -- "$CHAT_ID" || true
 ```
 
 Interrupt only the process created for that run and preserve the prompt and

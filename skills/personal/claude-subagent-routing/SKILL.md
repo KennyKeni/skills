@@ -69,6 +69,10 @@ operational envelope preserves affected consumers, deployment dependencies,
 integration obligations, cumulative behavior, rollback constraints, and proof
 obligations.
 
+Every handoff charges the lead a packet write and a return review, so do not
+split work below that overhead. Batch related bounded assignments with shared
+ownership and scope into one round rather than one spawn each.
+
 Gate worker readiness before routing. Mark a candidate `ready` only when its
 behavior, contract, bounded scope, material design, acceptance assertions, and
 credible proof plan are resolved. Otherwise mark it `not_ready` and keep it

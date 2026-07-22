@@ -187,7 +187,7 @@ opencode run --dir "$REPO" \
   --agent build \
   --file "$PROMPT_FILE" \
   --format json \
-  --dangerously-skip-permissions \
+  --auto \
   --title "grok worker: <bounded-task>" \
   "Read the attached assignment and complete only that worker scope."
 ```
@@ -215,9 +215,8 @@ supervising, and leave the repository untouched during supervision.
 ## Continue And Clean Up
 
 Resume with the recorded session ID, `MODEL` set to the exact model used by the
-original scout or worker, and a focused follow-up file. Retain
-`--dangerously-skip-permissions` for a worker follow-up, and omit `--fork` so
-the existing session continues:
+original scout or worker, and a focused follow-up file. Retain `--auto` for
+writable follow-ups, and omit `--fork` so the existing session continues:
 
 ```bash
 opencode run --dir "$REPO" \
@@ -226,6 +225,7 @@ opencode run --dir "$REPO" \
   --agent build \
   --file "$PROMPT_FILE" \
   --format json \
+  --auto \
   "Read the attached follow-up and remain within the original assignment."
 ```
 
@@ -241,7 +241,7 @@ When the main skill's event loop permits a health check or recovery, inspect
 only the delegated run's process:
 
 ```bash
-ps -axo pid,ppid,command | rg '[o]pencode|[b]un.*opencode' || true
+pgrep -fl -- "$PROMPT_FILE" || true
 ```
 
 Interrupt only that process, preserve its prompt file and session evidence,

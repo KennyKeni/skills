@@ -125,7 +125,7 @@ opencode run --dir <repo> \
   --model xai/grok-4.5 \
   --agent build \
   --file "$P" \
-  --dangerously-skip-permissions \
+  --auto \
   --title "grok delegated task" \
   "Read the attached prompt and complete it exactly." \
   | tee /tmp/opencode-last.md
@@ -135,7 +135,7 @@ opencode run --dir <repo> \
 - Use `--agent build` for every OpenCode invocation, including read-only
   discovery and implementation reconnaissance. For read-only work, explicitly
   prohibit edits in the prompt.
-- `--dangerously-skip-permissions` is the house default; Grok may run commands
+- `--auto` is the house default; Grok may run commands
   and tests freely. Keep prompts scoped to the target repository.
 - Use a unique `--title` for each independent run.
 - Read the captured output file for the result.
@@ -149,7 +149,7 @@ Follow-up fixes are cheaper than fresh runs and keep context:
 ```bash
 opencode run --dir <repo> --continue \
   --file "$P2" \
-  --dangerously-skip-permissions \
+  --auto \
   "Read the attached follow-up and revise the existing session output." \
   | tee /tmp/opencode-last.md
 ```

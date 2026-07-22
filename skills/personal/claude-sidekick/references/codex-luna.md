@@ -21,9 +21,11 @@ unavailable.
 
 Write the compact assignment to a prompt file using the environment's approved
 file-writing mechanism — never inline shell quoting. Set `REPO` and
-`PROMPT_FILE` to absolute paths, `EFFORT` to the configured effort, and `OUT`
-to a unique result file path. Use `command codex` to bypass any interactive
-shell wrapper.
+`PROMPT_FILE` to absolute paths, `EFFORT` to the configured effort, `OUT`
+to a unique result file path, and `EVENTS` to a unique event-log path. Use
+`command codex` to bypass any interactive shell wrapper. The run streams
+`--json` events to `EVENTS`; its first `thread.started` event records the
+`thread_id` that resume targets, so keep that file for the session.
 
 Start the sidekick with full write access so the same session can explore,
 edit, test, and repair:
@@ -33,15 +35,16 @@ EFFORT=xhigh
 command codex exec -C "$REPO" \
   --model gpt-5.6-luna \
   -c model_reasoning_effort="$EFFORT" \
+  --json \
   --dangerously-bypass-approvals-and-sandbox \
   -o "$OUT" \
-  - < "$PROMPT_FILE" 2>/dev/null
+  - < "$PROMPT_FILE" > "$EVENTS" 2>/dev/null
 ```
 
 Run it in a supervised long-running execution session so the main agent can
-continue independent judgment work while Codex executes. Keep this sidekick
-the only Codex CLI session in the repository so `resume --last` stays
-unambiguous.
+continue independent judgment work while Codex executes. Resume later targets
+this session by the `thread_id` recorded in its `EVENTS` file, so a sibling
+Codex session in the same repository never collides with it.
 
 ## Observe And Steer
 
@@ -63,7 +66,9 @@ resume` has no `-C`; run it from the repository:
 
 ```bash
 EFFORT=xhigh
-(cd "$REPO" && command codex exec resume --last \
+(cd "$REPO" \
+  && SESSION_ID=$(rg -m1 -o '"thread_id":"([0-9a-fA-F-]+)"' -r '$1' "$EVENTS") \
+  && command codex exec resume "$SESSION_ID" \
   --model gpt-5.6-luna \
   -c model_reasoning_effort="$EFFORT" \
   --dangerously-bypass-approvals-and-sandbox \
@@ -72,16 +77,17 @@ EFFORT=xhigh
 ```
 
 Delete each prompt file after its invocation completes, and preserve the `-o`
-result file until its evidence is recorded. If another Codex session may have
-run in the repository since the sidekick's last return, start a replacement
-with a compact handoff instead of trusting `resume --last`.
+result file and the `EVENTS` file until their evidence is recorded. Resume
+follows the recorded `thread_id`, so an unrelated Codex session running in the
+repository since the sidekick's last return no longer forces a replacement.
 
 ## Stop And Recover
 
-For a permitted health check or recovery, inspect only the sidekick's process:
+For a permitted health check or recovery, match the sidekick's own process by
+its unique `OUT` path:
 
 ```bash
-ps -axo pid,ppid,command | rg '[c]odex exec' || true
+pgrep -fl -- "$OUT" || true
 ```
 
 Interrupt only the process created for the sidekick and preserve its result

@@ -171,9 +171,12 @@ assignment. Record the returned task or agent identifier immediately after
 spawning.
 
 Apply the main skill's event loop. Background subagents notify the lead on
-completion; treat waits without a notification as quiet ticks, and when the
-loop permits a health check, inspect the active task list once. Leave the
-repository untouched during supervision.
+completion; treat waits without a notification as quiet ticks and keep waiting.
+Do not probe a running subagent: the task list does not surface it, and reading
+its output or task record floods the lead with the subagent's full transcript.
+A running subagent has no cheap liveness probe, so rely on the completion
+notification and reserve action for interruption on concrete evidence of a
+freeze. Leave the repository untouched during supervision.
 
 Each initial formal validation pass is naturally fresh: spawn a new validator
 subagent with only the contract, coherent change, relevant primary sources,

@@ -6,7 +6,9 @@ cursor-agent models | rg -x '{{ verification.id | replace(".", "\\.") }} - {{ ve
 {%- endmacro %}
 
 {% macro start(model_argument, output_format) -%}
+CHAT_ID=$(cursor-agent create-chat)
 cursor-agent --print \
+  --resume "$CHAT_ID" \
   --workspace "$REPO" \
   --model {{ model_argument }} \
   --output-format {{ output_format }} \
@@ -27,5 +29,5 @@ cursor-agent --print \
 {%- endmacro %}
 
 {% macro inspect_process() -%}
-ps -axo pid,ppid,command | rg '[c]ursor-agent' || true
+pgrep -fl -- "$CHAT_ID" || true
 {%- endmacro %}

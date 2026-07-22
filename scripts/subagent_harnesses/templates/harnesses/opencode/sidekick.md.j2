@@ -51,8 +51,7 @@ answer and the remaining assignment.
 ## Continue
 
 Resume the recorded session with `MODEL` set to its exact model, omitting
-`--fork` and retaining `--dangerously-skip-permissions` for every writable
-follow-up:
+`--fork` and retaining `--auto` for every writable follow-up:
 
 ```bash
 {{ opencode_commands.resume('"$MODEL"', "build", "Read the attached follow-up and remain within the original assignment.", writable=true) }}

@@ -33,11 +33,13 @@ model may remain silent while it reads files, runs commands, or reasons.
 Silence alone must never create a deadline, justify a stop-and-return message,
 make the context untrustworthy, or trigger interruption or replacement.
 
-Inspect the active task list at most once during the same uninterrupted quiet
-episode, and only after an observation-channel error, an explicit configured
-deadline, or independent evidence that execution may be frozen. If it reports
-the sidekick as running, return to waiting; liveness is positive evidence and
-does not start a new quiet episode.
+Do not probe a running sidekick to check on it. The task list does not surface
+a background subagent, and reading its output or task record injects the
+subagent's full transcript into the main agent, flooding context for no signal.
+A running subagent has no cheap liveness probe, so keep waiting for its
+completion notification. Reserve quiet-episode action for interruption, and only
+after an observation-channel error, an explicit configured deadline, or
+independent evidence that execution is frozen — never routine inspection.
 
 Send a follow-up message to the recorded target only to answer or clarify the
 active assignment. Do not issue a second assignment while it is still running,

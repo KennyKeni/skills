@@ -22,9 +22,11 @@ unavailable.
 {{ execution.lead_name }} has no native Codex spawn control. Write the compact assignment
 to a prompt file using the environment's approved file-writing
 mechanism — never inline shell quoting. Set `REPO` and `PROMPT_FILE` to
-absolute paths, `EFFORT` from the tier mapping, and `OUT` to a unique result
-file path per assignment. Use `command codex` to bypass any interactive shell
-wrapper.
+absolute paths, `EFFORT` from the tier mapping, `OUT` to a unique result file
+path per assignment, and `EVENTS` to a unique event-log path per assignment.
+Use `command codex` to bypass any interactive shell wrapper. The run streams
+`--json` events to `EVENTS`; its first `thread.started` event records the
+`thread_id` that resume targets, so keep that file with the assignment.
 
 Worker invocation:
 
@@ -54,20 +56,22 @@ validation packet.
 ## Continue And Clean Up
 
 Send a focused follow-up to an existing scout or worker only while its context
-remains relevant. `codex exec resume` has no `-C`; run it from the repository:
+remains relevant. Resume targets that assignment's exact session: the macro
+reads `thread_id` from its `EVENTS` file, never `--last`, so a sibling Codex
+session — including the lead's own — cannot be selected by accident. `codex
+exec resume` has no `-C`; run it from the repository:
 
 ```bash
 {{ codex_commands.resume(execution.worker_model_argument, "--dangerously-bypass-approvals-and-sandbox") }}
 ```
 
-Keep `--sandbox read-only` instead of the bypass flag for a scout follow-up.
-Use `resume --last` only when that assignment is unambiguously the
-repository's most recent Codex session; otherwise start a fresh run with a
-compact handoff. Delete each prompt file after its invocation completes, and
-preserve the `-o` result file until its evidence is recorded.
+`codex exec resume` does not accept `--sandbox`, so a follow-up cannot re-apply
+`--sandbox read-only`; it runs write-enabled like the worker form above. Delete
+each prompt file after its invocation completes, and preserve the `-o` result
+file and the `EVENTS` file until their evidence is recorded.
 
-When the main skill's event loop permits a health check or recovery, inspect
-only the delegated run's process:
+When the main skill's event loop permits a health check or recovery, match the
+assignment's own process by its unique `OUT` path:
 
 ```bash
 {{ codex_commands.inspect_process() }}

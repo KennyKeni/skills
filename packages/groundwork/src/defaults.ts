@@ -28,7 +28,12 @@ export function githubForgeDefaults(discovery: RepositoryDiscovery): ForgeSectio
       "(for example `feat/142-account-balance-api`), where `<type>` is `feat`, " +
       "`fix`, `chore`, `docs`, or `spike`; omit the issue number only when no " +
       "issue exists. One branch per executable work item; do not batch " +
-      "unrelated work items onto one branch.",
+      "unrelated work items onto one branch. Dependent work branches from " +
+      `${base} after its blocker merges — ordering lives in tracker ` +
+      "dependencies, not in branch ancestry. Only when starting early is " +
+      "explicitly authorized, branch from the blocker's branch, name that " +
+      "dependency in the pull request description, and after the blocker's " +
+      `squash merge rebase onto ${base} and retarget the pull request.`,
     commitConvention:
       "Write commit subjects in imperative mood, at most 72 characters, " +
       "describing the outcome, with an optional Conventional Commits prefix " +
@@ -76,7 +81,12 @@ export function gitlabForgeDefaults(discovery: RepositoryDiscovery): ForgeSectio
       "(for example `feat/142-account-balance-api`), where `<type>` is `feat`, " +
       "`fix`, `chore`, `docs`, or `spike`; omit the issue number only when no " +
       "issue exists. One branch per executable work item; do not batch " +
-      "unrelated work items onto one branch.",
+      "unrelated work items onto one branch. Dependent work branches from " +
+      `${base} after its blocker merges — ordering lives in tracker ` +
+      "dependencies, not in branch ancestry. Only when starting early is " +
+      "explicitly authorized, branch from the blocker's branch, name that " +
+      "dependency in the merge request description, and after the blocker's " +
+      `squash merge rebase onto ${base} and retarget the merge request.`,
     commitConvention:
       "Write commit subjects in imperative mood, at most 72 characters, " +
       "describing the outcome, with an optional Conventional Commits prefix " +
@@ -316,9 +326,13 @@ export function developmentDefaults(discovery: RepositoryDiscovery): Development
       "the requirement. Do not add implementation-coupled tests without a " +
       "repository-specific reason.",
     worktreeRules:
-      "One worktree per claimed work item, named by its slug, with the path " +
-      "recorded in the work item's `HANDOFF.md`. Create the branch, " +
-      "worktree, and work folder together on claim.",
+      "One worktree per claimed work item at `.local/worktrees/<slug>` — " +
+      "machine-local beside the policy tree, so it needs no ignore entry and " +
+      "ignore-aware search skips it — checked out on the work item's branch, " +
+      "with the path recorded in the work item's `HANDOFF.md`. Create the " +
+      "branch, worktree, and work folder together on claim; remove the " +
+      "worktree and prune on resolve. Never run concurrent mutating work in " +
+      "the same worktree.",
     reviewChecks:
       "Check correctness, regressions, public-contract changes, error " +
       "paths, security boundaries, and whether verification matches the " +

@@ -19,7 +19,7 @@ opencode run --dir "$REPO" \
   --file "$PROMPT_FILE" \
   --format json \
 {% if writable %}
-  --dangerously-skip-permissions \
+  --auto \
 {% endif %}
   --title "{{ title }}" \
   "{{ instruction }}"
@@ -33,7 +33,7 @@ opencode run --dir "$REPO" \
   --file "$PROMPT_FILE" \
   --format json \
 {% if writable %}
-  --dangerously-skip-permissions \
+  --auto \
 {% endif %}
   "{{ instruction }}"
 {%- endmacro %}
@@ -43,5 +43,5 @@ opencode session list --format json --max-count 20
 {%- endmacro %}
 
 {% macro inspect_process() -%}
-ps -axo pid,ppid,command | rg '[o]pencode|[b]un.*opencode' || true
+pgrep -fl -- "$PROMPT_FILE" || true
 {%- endmacro %}

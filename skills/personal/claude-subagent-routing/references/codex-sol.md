@@ -174,9 +174,11 @@ unavailable.
 Claude has no native Codex spawn control. Write the compact assignment
 to a prompt file using the environment's approved file-writing
 mechanism — never inline shell quoting. Set `REPO` and `PROMPT_FILE` to
-absolute paths, `EFFORT` from the tier mapping, and `OUT` to a unique result
-file path per assignment. Use `command codex` to bypass any interactive shell
-wrapper.
+absolute paths, `EFFORT` from the tier mapping, `OUT` to a unique result file
+path per assignment, and `EVENTS` to a unique event-log path per assignment.
+Use `command codex` to bypass any interactive shell wrapper. The run streams
+`--json` events to `EVENTS`; its first `thread.started` event records the
+`thread_id` that resume targets, so keep that file with the assignment.
 
 Worker invocation:
 
@@ -184,9 +186,10 @@ Worker invocation:
 command codex exec -C "$REPO" \
   --model gpt-5.6-sol \
   -c model_reasoning_effort="$EFFORT" \
+  --json \
   --dangerously-bypass-approvals-and-sandbox \
   -o "$OUT" \
-  - < "$PROMPT_FILE" 2>/dev/null
+  - < "$PROMPT_FILE" > "$EVENTS" 2>/dev/null
 ```
 
 Scout invocation:
@@ -195,9 +198,10 @@ Scout invocation:
 command codex exec -C "$REPO" \
   --model gpt-5.6-sol \
   -c model_reasoning_effort="$EFFORT" \
+  --json \
   --sandbox read-only \
   -o "$OUT" \
-  - < "$PROMPT_FILE" 2>/dev/null
+  - < "$PROMPT_FILE" > "$EVENTS" 2>/dev/null
 ```
 
 Suppress stderr because thinking noise bloats context; remove `2>/dev/null`
@@ -216,10 +220,15 @@ validation packet.
 ## Continue And Clean Up
 
 Send a focused follow-up to an existing scout or worker only while its context
-remains relevant. `codex exec resume` has no `-C`; run it from the repository:
+remains relevant. Resume targets that assignment's exact session: the macro
+reads `thread_id` from its `EVENTS` file, never `--last`, so a sibling Codex
+session — including the lead's own — cannot be selected by accident. `codex
+exec resume` has no `-C`; run it from the repository:
 
 ```bash
-(cd "$REPO" && command codex exec resume --last \
+(cd "$REPO" \
+  && SESSION_ID=$(rg -m1 -o '"thread_id":"([0-9a-fA-F-]+)"' -r '$1' "$EVENTS") \
+  && command codex exec resume "$SESSION_ID" \
   --model gpt-5.6-sol \
   -c model_reasoning_effort="$EFFORT" \
   --dangerously-bypass-approvals-and-sandbox \
@@ -227,17 +236,16 @@ remains relevant. `codex exec resume` has no `-C`; run it from the repository:
   - < "$PROMPT_FILE" 2>/dev/null)
 ```
 
-Keep `--sandbox read-only` instead of the bypass flag for a scout follow-up.
-Use `resume --last` only when that assignment is unambiguously the
-repository's most recent Codex session; otherwise start a fresh run with a
-compact handoff. Delete each prompt file after its invocation completes, and
-preserve the `-o` result file until its evidence is recorded.
+`codex exec resume` does not accept `--sandbox`, so a follow-up cannot re-apply
+`--sandbox read-only`; it runs write-enabled like the worker form above. Delete
+each prompt file after its invocation completes, and preserve the `-o` result
+file and the `EVENTS` file until their evidence is recorded.
 
-When the main skill's event loop permits a health check or recovery, inspect
-only the delegated run's process:
+When the main skill's event loop permits a health check or recovery, match the
+assignment's own process by its unique `OUT` path:
 
 ```bash
-ps -axo pid,ppid,command | rg '[c]odex exec' || true
+pgrep -fl -- "$OUT" || true
 ```
 
 Interrupt only the process created for that assignment and preserve its result

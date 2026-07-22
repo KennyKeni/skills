@@ -182,7 +182,9 @@ completed response.
 Worker invocation:
 
 ```bash
+CHAT_ID=$(cursor-agent create-chat)
 cursor-agent --print \
+  --resume "$CHAT_ID" \
   --workspace "$REPO" \
   --model cursor-grok-4.5-high \
   --output-format stream-json \
@@ -194,7 +196,9 @@ cursor-agent --print \
 Scout invocation:
 
 ```bash
+CHAT_ID=$(cursor-agent create-chat)
 cursor-agent --print \
+  --resume "$CHAT_ID" \
   --workspace "$REPO" \
   --model cursor-grok-4.5-high \
   --output-format json \
@@ -208,11 +212,13 @@ no-edit boundaries through the assignment rather than Cursor mode permissions.
 Give workers the main skill's bounded change surface and no-delegation
 boundary.
 
-For `stream-json`, capture `session_id` from the initial `system/init` event
-immediately. Treat the terminal `result` event's error state, subtype, process
-exit, and useful result as completion evidence; single-result `json` may
-remain quiet until its terminal result. Apply the main skill's event loop
-while supervising, and leave the workspace untouched during supervision.
+The `start` macro mints `CHAT_ID` with `create-chat` before the run and launches
+inside it, so record `CHAT_ID` up front and reuse it for resume and health
+checks; the initial `system/init` `session_id` confirms it. Treat the terminal
+`result` event's error state, subtype, process exit, and useful result as
+completion evidence; single-result `json` may remain quiet until its terminal
+result. Apply the main skill's event loop while supervising, and leave the
+workspace untouched during supervision.
 
 ## Continue And Clean Up
 
@@ -241,7 +247,7 @@ When the main skill's event loop permits a health check or recovery, inspect
 only the delegated run's process:
 
 ```bash
-ps -axo pid,ppid,command | rg '[c]ursor-agent' || true
+pgrep -fl -- "$CHAT_ID" || true
 ```
 
 Interrupt only that process, preserve its prompt file and chat evidence, and

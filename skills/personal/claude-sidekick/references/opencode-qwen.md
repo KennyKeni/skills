@@ -32,7 +32,7 @@ opencode run --dir "$REPO" \
   --agent build \
   --file "$PROMPT_FILE" \
   --format json \
-  --dangerously-skip-permissions \
+  --auto \
   --title "sidekick: <bounded-task>" \
   "Read the attached assignment and remain the persistent sidekick for this task."
 ```
@@ -56,8 +56,7 @@ answer and the remaining assignment.
 ## Continue
 
 Resume the recorded session with `MODEL` set to its exact model, omitting
-`--fork` and retaining `--dangerously-skip-permissions` for every writable
-follow-up:
+`--fork` and retaining `--auto` for every writable follow-up:
 
 ```bash
 opencode run --dir "$REPO" \
@@ -66,7 +65,7 @@ opencode run --dir "$REPO" \
   --agent build \
   --file "$PROMPT_FILE" \
   --format json \
-  --dangerously-skip-permissions \
+  --auto \
   "Read the attached follow-up and remain within the original assignment."
 ```
 
@@ -83,7 +82,7 @@ opencode session list --format json --max-count 20
 For a permitted health check or recovery, inspect only the recorded run:
 
 ```bash
-ps -axo pid,ppid,command | rg '[o]pencode|[b]un.*opencode' || true
+pgrep -fl -- "$PROMPT_FILE" || true
 ```
 
 Interrupt only the process created for that run and preserve its prompt and
