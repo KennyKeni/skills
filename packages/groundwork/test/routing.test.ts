@@ -1,7 +1,13 @@
+import { readFileSync } from "node:fs";
+
 import { run, type StricliProcess } from "@stricli/core";
 import { describe, expect, it } from "vitest";
 
 import { application } from "../src/app.js";
+
+const manifest = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+) as { readonly version: string };
 
 async function invoke(inputs: readonly string[]): Promise<{ stdout: string; stderr: string; exitCode: unknown }> {
   let stdout = "";
@@ -33,6 +39,6 @@ describe("Stricli routing", () => {
 
   it("reports the package version through Stricli", async () => {
     const result = await invoke(["--version"]);
-    expect(result.stdout.trim()).toBe("0.1.0");
+    expect(result.stdout.trim()).toBe(manifest.version);
   });
 });
