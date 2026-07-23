@@ -38,5 +38,5 @@ Accepted decision records in [decisions/](decisions/) are normative. Proposed
 material is context, and superseded material cannot silently become an active
 requirement.
 
-Proposed material does not live in this folder: drafts belong in `scrap/`
+Proposed material does not live in this folder: drafts belong in `scratch/`
 beside the index; only accepted records and this README are normative.

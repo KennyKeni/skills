@@ -16,5 +16,5 @@ material is context, and superseded material cannot silently become an active
 requirement. Changing the style above is itself a decision: record it in
 [decisions/](decisions/) and regenerate or rewrite this README deliberately.
 
-Proposed material does not live in this folder: drafts belong in `scrap/`
+Proposed material does not live in this folder: drafts belong in `scratch/`
 beside the index; only accepted records and this README are normative.
