@@ -36,6 +36,14 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
+      - name: Show OIDC identity (diagnostic)
+        run: |
+          npm --version
+          claims=$(curl -sS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=npm:registry.npmjs.org" \
+            | node -e "const t=JSON.parse(require('fs').readFileSync(0,'utf8')).value.split('.')[1]; console.log(Buffer.from(t,'base64url').toString())")
+          printf '%s' "$claims" | node -e "const c=JSON.parse(require('fs').readFileSync(0,'utf8')); for (const k of ['repository','repository_owner','workflow_ref','job_workflow_ref','ref','environment','event_name']) console.log(k + ': ' + (c[k] ?? '(absent)'))"
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
