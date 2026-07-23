@@ -79,11 +79,21 @@ prospectively through the user, workflow, assignment contract, or runner. Let
 the selected adapter own observation, liveness checks, and recovery mechanics;
 keep the user informed during quiet periods without contacting the sidekick.
 
+Do not use an active sidekick as an incremental review channel. Queue
+non-urgent lead findings locally, let the assignment return normally, review
+the coherent result, and batch accepted bounded corrections into one next
+execution unit whenever ownership and scope permit. Contact an active sidekick
+only to answer its question, communicate a new user or external constraint
+that materially invalidates the assignment, prevent a concrete imminent
+contract or scope violation, or stop work under the adapter's recovery rules.
+Do not send progress inquiries, suggestions, or review findings one at a time.
+
 Use a normal return and the adapter's continuation operation for planned phase
 transitions. Reserve interruption for active work that must stop before it can
 return normally.
 
-At each question, evidence update, or return, choose one move:
+At each sidekick-originated question or return, or new external event that
+materially changes the contract, choose one move:
 
 - continue the same assignment when the contract still holds;
 - answer a bounded question and let the sidekick proceed;
@@ -107,8 +117,9 @@ correction does not automatically own its execution.
 
 Require the sidekick to return changed files, proof run, observed results,
 unrun checks, deviations, and risks. Inspect the complete diff and repository
-state in the main agent. Make judgment-heavy corrections directly; send
-bounded execution corrections back to the retained sidekick context.
+state in the main agent after a normal return. Make judgment-heavy corrections
+directly; batch accepted bounded execution corrections and send them back to
+the retained sidekick context as one continuation when their scope permits.
 
 Finish only after the sidekick has returned or stopped, the main agent accepts
 the result against the user's intent, and the final response reports the actual

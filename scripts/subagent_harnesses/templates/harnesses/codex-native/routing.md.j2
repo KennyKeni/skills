@@ -15,9 +15,10 @@ configuration. Pass a compact assignment with the minimum useful context,
 follow the global subagent context-forking policy, and record the task name or
 identifier immediately after spawning.
 
-Apply the main skill's event loop. Observe through mailbox waits of roughly
-one minute; when the loop permits a health check, inspect the active-agent
-list once. Leave the subagent's worktree untouched during supervision.
+Apply the main skill's event loop. Observe through mailbox waits with a timeout
+of at least one minute, using longer waits when the expected duration warrants
+them; when the loop permits a health check, inspect the active-agent list once.
+Leave the subagent's worktree untouched during supervision.
 
 For each initial formal validation pass, set `fork_turns: "none"` or the
 native equivalent that excludes implementation history. Supply the contract,

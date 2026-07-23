@@ -35,6 +35,15 @@ authentication check before using it. Run the requested `cf` operation
 directly and treat its result as authoritative; only troubleshoot
 authentication if that operation itself returns an authentication error.
 
+# Passive Background Polling
+
+Poll passive background work no more frequently than once every 60 seconds by
+default. Treat 60 seconds as the minimum baseline, not the target, and use
+longer intervals when the expected duration warrants it. Poll sooner only when
+a concrete, task-specific reason makes faster observation necessary. Prefer
+event-driven waits, and do not treat user-facing update cadence as
+justification for polling the underlying work.
+
 # Computer Use App Testing
 
 When using Computer Use to test an app, an app window that was already open

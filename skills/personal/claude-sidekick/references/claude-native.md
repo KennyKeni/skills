@@ -41,9 +41,11 @@ completion notification. Reserve quiet-episode action for interruption, and only
 after an observation-channel error, an explicit configured deadline, or
 independent evidence that execution is frozen — never routine inspection.
 
-Send a follow-up message to the recorded target only to answer or clarify the
-active assignment. Do not issue a second assignment while it is still running,
-and do not spawn a second subagent for a focused question.
+Send a follow-up message to the recorded target only to answer a sidekick
+question or communicate new information that materially invalidates the active
+assignment. Do not use it for progress inquiries or incremental review. Do not
+issue a second assignment while the sidekick is still running, and do not spawn
+a second subagent for a focused question.
 
 ## Continue
 
