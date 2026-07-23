@@ -28,7 +28,12 @@ export function githubForgeDefaults(discovery: RepositoryDiscovery): ForgeSectio
       "(for example `feat/142-account-balance-api`), where `<type>` is `feat`, " +
       "`fix`, `chore`, `docs`, or `spike`; omit the issue number only when no " +
       "issue exists. One branch per executable work item; do not batch " +
-      "unrelated work items onto one branch. Dependent work branches from " +
+      "unrelated work items onto one branch. When the work item is a GitHub " +
+      "issue, create the branch with `gh issue develop <number-or-url> " +
+      `--name <branch> --base ${base}\` so GitHub links branch and issue ` +
+      "natively (use `--branch-repo` when the issue lives in a different " +
+      "repository than the code); a branch created with plain git has no " +
+      "issue link. Dependent work branches from " +
       `${base} after its blocker merges — ordering lives in tracker ` +
       "dependencies, not in branch ancestry. Only when starting early is " +
       "explicitly authorized, branch from the blocker's branch, name that " +
@@ -47,10 +52,14 @@ export function githubForgeDefaults(discovery: RepositoryDiscovery): ForgeSectio
       "under roughly 400 changed lines excluding lockfiles and generated " +
       "code; split the work item rather than growing the PR. Title: an " +
       "imperative outcome summary usable as the squash-commit subject. Body: " +
-      "a `Closes #<n>` line (or an explicit statement that no issue exists " +
-      "and why), material decisions and deviations, and a verification " +
-      "section reporting exactly which checks were run and their results. " +
-      "Open as a draft until acceptance criteria are met and CI is green.",
+      "a `Closes #<n>` line — `Closes OWNER/REPO#<n>` when the issue lives " +
+      "in another repository — present from creation (or an explicit " +
+      "statement that no issue exists and why), material decisions and " +
+      "deviations, and a verification section reporting exactly which " +
+      "checks were run and their results. After opening, confirm the issue " +
+      "link took effect with `gh pr view --json closingIssuesReferences`; " +
+      "a mention without a closing keyword links nothing. Open as a draft " +
+      "until acceptance criteria are met and CI is green.",
     mergePolicy:
       `Target ${base}. Squash-merge is the only merge strategy; the squash ` +
       "subject is the PR title plus `(#<pr>)` and must meet the commit " +
@@ -180,7 +189,11 @@ export function githubIssuesTrackerDefaults(discovery: RepositoryDiscovery): Tra
       "Native parent/sub-issue relationships for umbrella → leaf hierarchy; " +
       "native issue dependencies (blocked-by) for execution ordering. Manage " +
       "both with `gh` (v2.94+): `--parent`/`--set-parent`, " +
-      "`--blocked-by`/`--blocking`, and JSON read-back. Limits: 100 " +
+      "`--blocked-by`/`--blocking`, and JSON read-back. Every relationship " +
+      "flag accepts an issue number or URL, and a bare number resolves in " +
+      "the current repository — for any cross-repository relationship pass " +
+      "the full issue URL, then read the relationship back and confirm it " +
+      "landed on the intended repository before reporting it. Limits: 100 " +
       "sub-issues per parent, 8 nesting levels, 50 dependencies per " +
       "direction.",
     claimPolicy:
