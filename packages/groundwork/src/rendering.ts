@@ -124,6 +124,15 @@ export function renderIndexEntries(
         "Setup never creates it.",
       ];
 
+  const scrapLines = [
+    "",
+    "Free-form drafts — design explorations, issue drafts, planning notes —",
+    "live in `scrap/` beside this file. Nothing there is authoritative or",
+    "citable: policy, decisions, and tickets never reference it, a draft is",
+    "promoted to its real home when it starts to matter, and the folder may",
+    "be cleared at any time without review. Setup never creates it.",
+  ];
+
   return [
     heading,
     "",
@@ -134,6 +143,7 @@ export function renderIndexEntries(
     ...memberLines,
     ...umbrellaLines,
     ...workLines,
+    ...scrapLines,
     "",
   ].join("\n");
 }

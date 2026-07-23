@@ -81,4 +81,6 @@ external-mutation authority.
 
 If it justifies or verifies the outcome it goes in the ticket; if it is only
 needed to resume, it goes in the work folder; if it constrains future work, it
-goes in policy. Nothing in a work folder may be the only record of a decision.
+goes in policy; if it is none of those yet, it goes in `scrap/`, which is
+disposable and never citable. Nothing in a work folder or `scrap/` may be the
+only record of a decision.

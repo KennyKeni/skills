@@ -58,5 +58,6 @@ implementation or external-mutation authority.
 `work/<slug>/` holds the authoritative `TICKET.md`, a `HANDOFF.md` recording
 branch, worktree path, and resume state, and `scratch/` for everything else
 in-flight. Delete the folder when the ticket resolves, promoting anything
-durable into policy first. Nothing in `scratch/` may be the only record of a
-decision.
+durable into policy first. Drafts not yet tied to any ticket go in `scrap/`,
+which is disposable and never citable. Nothing in `scratch/` or `scrap/` may
+be the only record of a decision.
