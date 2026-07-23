@@ -44,6 +44,13 @@ a concrete, task-specific reason makes faster observation necessary. Prefer
 event-driven waits, and do not treat user-facing update cadence as
 justification for polling the underlying work.
 
+Treat an event-driven or blocking wait that returns with a real event, new
+output, or completion as an event, not a poll; handle it immediately and
+re-enter waiting without imposing a 60-second delay. Apply the baseline after a
+no-change return or before a separate status or liveness check. When available,
+wait on the original process or session instead of polling status commands,
+process tables, or result files.
+
 # Computer Use App Testing
 
 When using Computer Use to test an app, an app window that was already open

@@ -205,13 +205,14 @@ command codex exec -C "$REPO" \
 ```
 
 Suppress stderr because thinking noise bloats context; remove `2>/dev/null`
-only to debug a failing run. Read the `-o` result file for the outcome rather
-than parsing streamed output. Run long assignments in a supervised background
-execution session and read the result file on exit.
+only to debug a failing run. Run long assignments in a supervised background
+execution session, wait on that existing session until it exits, then read the
+`-o` result file rather than parsing streamed output.
 
 Apply the main skill's event loop. A `codex exec` run is quiet by design:
-treat silence as normal, use process liveness and the result file as the
-observation surface, and do not interrupt a quiet run before a configured
+treat silence as normal and do not poll process liveness or the result file
+during routine supervision. Use them only when the main event loop permits a
+health check or recovery, and do not interrupt a quiet run before a configured
 deadline. Leave the repository untouched during supervision.
 
 For every validator, start a fresh `codex exec` process with only its compact

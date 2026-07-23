@@ -49,11 +49,12 @@ Codex session in the same repository never collides with it.
 ## Observe And Steer
 
 Suppress stderr because thinking noise bloats context; remove `2>/dev/null`
-only to debug a failing run. Read the `-o` result file for each returned
-assignment rather than parsing streamed output. A `codex exec` run is quiet by
-design: treat silence as normal, use process liveness and the result file as
-the observation surface, and do not interrupt a quiet run before a configured
-deadline.
+only to debug a failing run. Wait on the existing supervised execution session
+until it exits, then read the `-o` result file rather than parsing streamed
+output. A `codex exec` run is quiet by design, so treat silence as normal. Do
+not poll process liveness or the result file during routine supervision; use
+them only for a health check or recovery permitted below. Do not interrupt a
+quiet run before a configured deadline.
 
 Do not start a second session for a focused question. Let the active run
 return, or interrupt it only when blocked, then resume the session with the
