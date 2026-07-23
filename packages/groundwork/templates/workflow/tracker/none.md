@@ -30,6 +30,11 @@ Each executable ticket is a `work/<slug>/TICKET.md` with sections: What to
 build, Acceptance criteria, Autonomy (`autonomous` or `needs-human` naming
 the gating decision), and `Blocked by:` lines referencing other ticket slugs.
 
+Any factual observation about the codebase in a ticket — sizes,
+structure, paths, measured behavior — is stamped with the commit it was
+made at (`as of <sha>`). An unstamped measurement reads as a current
+fact and goes stale invisibly.
+
 ## Labels
 
 No label system exists. Category and readiness are recorded as `Type:` and
@@ -52,6 +57,10 @@ Reread the ticket immediately before starting work.
 A ticket is eligible when its outcome, acceptance criteria, and dependencies
 are complete and unblocked. Readiness is eligibility only; it never grants
 implementation or external-mutation authority.
+
+Before claiming, check the ticket's stamped observations against the
+current default branch: when the facts have drifted, update or close
+the ticket first — never implement an outdated plan as written.
 
 ## Local work context
 

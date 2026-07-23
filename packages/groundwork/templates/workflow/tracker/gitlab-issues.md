@@ -33,6 +33,11 @@ implementation.
 
 Publish blockers before dependents so edges reference real issue numbers.
 
+Any factual observation about the codebase in an issue — sizes,
+structure, paths, measured behavior — is stamped with the commit it was
+made at (`as of <sha>`). An unstamped measurement reads as a current
+fact and goes stale invisibly.
+
 ## Labels
 
 {{labelPolicy}}
@@ -65,6 +70,10 @@ never rely on a cached frontier.
 
 Readiness is eligibility only. It never grants implementation or
 external-mutation authority.
+
+Before claiming, check the ticket's stamped observations against the
+current default branch: when the facts have drifted, update or close
+the ticket first — never implement an outdated plan as written.
 
 ## Local work context
 
