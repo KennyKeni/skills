@@ -124,7 +124,7 @@ export function renderIndexEntries(
         "Setup never creates it.",
       ];
 
-  const scrapLines = [
+  const scratchLines = [
     "",
     "Free-form drafts — design explorations, issue drafts, planning notes —",
     "live in `scratch/` beside this file. Nothing there is authoritative or",
@@ -143,7 +143,7 @@ export function renderIndexEntries(
     ...memberLines,
     ...umbrellaLines,
     ...workLines,
-    ...scrapLines,
+    ...scratchLines,
     "",
   ].join("\n");
 }
