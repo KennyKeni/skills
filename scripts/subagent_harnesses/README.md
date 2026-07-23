@@ -80,6 +80,15 @@ effort per route (codex-exec). Use `executor: native` with an exact `model`
 and `effort` only for a lead that declares `native: true`. Set `fresh: true`
 when the route requires a new independent context.
 
+## Sidekick Configuration
+
+Define one spec per lead in `scripts/sidekick/leads/<lead>.yaml`. Each setup
+selects the persistent sidekick harness and declares a separate `validator`
+route. Use `executor: native` with an exact model and effort for a lead with
+native subagent control. Use `executor: lane` with `lane: <setup-slug>` and
+`model_ref: worker` or `validator` to select a model exposed by another setup.
+Every Sidekick validator route must set `fresh: true`.
+
 ## Change Safety
 
 Keep structural refactors byte-identical. Wording changes happen in YAML

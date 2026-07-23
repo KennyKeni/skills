@@ -99,6 +99,19 @@ main agent. If replacement is worthwhile, start one new chat with the same
 model and a compact handoff, record its new `CHAT_ID`, and disclose that the
 cached sidekick context was lost.
 
+## Independent Validator Route
+
+Default validator: a fresh session of the Native Opus setup ([claude-native.md](claude-native.md)) with `claude-fable-5`.
+
+Spawn each initial formal validation pass as a new background native Claude
+subagent with `claude-fable-5` and a compact findings-only
+validation packet. Record its target and wait for its completion notification
+without probing the running subagent or editing its review surface.
+
+If the configured model or fresh context is unavailable, report that
+independent validation is unavailable rather than substituting another model
+or claiming validation.
+
 Use this adapter for the full sidekick lifecycle. Keep its recorded identifier
 until the task ends or the main agent explicitly replaces an unrecoverable
 session with the same requested setup.

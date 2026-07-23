@@ -42,8 +42,15 @@ SETUP_TEMPLATE = "setup.md.j2"
 REGISTRY_TEMPLATE = "setups.md.j2"
 SKILL_TEMPLATE = "skill.md.j2"
 OPENAI_TEMPLATE = "openai.yaml.j2"
-LEAD_FIELDS = {"name", "skill_slug", "title", "openai_manifest"}
-COMMON_FIELDS = {"slug", "harness", "title", "selection_label", "default"}
+LEAD_FIELDS = {"name", "skill_slug", "title", "openai_manifest", "native"}
+COMMON_FIELDS = {
+    "slug",
+    "harness",
+    "title",
+    "selection_label",
+    "default",
+    "validator",
+}
 NATIVE_FIELDS = {
     "sidekick_model",
     "reasoning_effort",
@@ -51,6 +58,9 @@ NATIVE_FIELDS = {
     "task_name",
     "context_fork",
 }
+ROUTE_COMMON_FIELDS = {"executor", "fresh"}
+LANE_ROUTE_FIELDS = ROUTE_COMMON_FIELDS | {"model_ref", "lane", "effort"}
+NATIVE_ROUTE_FIELDS = ROUTE_COMMON_FIELDS | {"model", "effort"}
 VALID_EFFORTS = {"none", "low", "medium", "high", "xhigh", "max", "ultra"}
 EFFORT_FAMILIES = {"codex-exec"}
 
@@ -96,13 +106,15 @@ def load_spec(path: Path, harnesses: dict[str, dict[str, Any]]) -> dict[str, Any
             raise SpecError(f"{path.name} lead {field} must be a non-empty string")
     if not isinstance(lead["openai_manifest"], bool):
         raise SpecError(f"{path.name} lead openai_manifest must be a boolean")
+    if not isinstance(lead["native"], bool):
+        raise SpecError(f"{path.name} lead native must be a boolean")
 
     raw_setups = document.get("setups")
     if not isinstance(raw_setups, list) or not raw_setups:
         raise SpecError(f"{path.name} must contain a non-empty setups list")
 
     setups: list[dict[str, Any]] = []
-    seen: set[str] = set()
+    setups_by_slug: dict[str, dict[str, Any]] = {}
     for index, raw in enumerate(raw_setups):
         if not isinstance(raw, dict):
             raise SpecError(f"setup {index} must be a mapping")
@@ -112,9 +124,8 @@ def load_spec(path: Path, harnesses: dict[str, dict[str, Any]]) -> dict[str, Any
         slug = raw["slug"]
         if not isinstance(slug, str) or not slug.replace("-", "").isalnum():
             raise SpecError(f"invalid setup slug: {slug!r}")
-        if slug in seen:
+        if slug in setups_by_slug:
             raise SpecError(f"duplicate setup slug: {slug}")
-        seen.add(slug)
 
         setup = resolve_harness(raw, harnesses, record_name=f"setup {slug}")
         native_to = setup.get("native_to")
@@ -126,6 +137,10 @@ def load_spec(path: Path, harnesses: dict[str, dict[str, Any]]) -> dict[str, Any
         setup["lead_name"] = lead["name"]
         prepare_setup(setup, raw, slug)
         setups.append(setup)
+        setups_by_slug[slug] = setup
+
+    for setup in setups:
+        setup["validator"] = prepare_validator(setup, setups_by_slug, lead)
 
     defaults = [setup for setup in setups if setup["default"] is True]
     if len(defaults) != 1:
@@ -159,6 +174,102 @@ def prepare_setup(setup: dict[str, Any], raw: dict[str, Any], slug: str) -> None
         )
     if family in EFFORT_FAMILIES and raw.get("effort") not in VALID_EFFORTS:
         raise SpecError(f"setup {slug} requires a valid effort: {raw.get('effort')!r}")
+
+
+def prepare_validator(
+    setup: dict[str, Any],
+    setups_by_slug: dict[str, dict[str, Any]],
+    lead: dict[str, Any],
+) -> dict[str, Any]:
+    route_id = f"validator route for setup {setup['slug']}"
+    raw_route = setup.get("validator")
+    if not isinstance(raw_route, dict):
+        raise SpecError(f"{route_id} must be a mapping")
+
+    executor = raw_route.get("executor")
+    if executor not in {"lane", "native"}:
+        raise SpecError(f"{route_id} executor must be lane or native")
+    allowed = LANE_ROUTE_FIELDS if executor == "lane" else NATIVE_ROUTE_FIELDS
+    unknown = raw_route.keys() - allowed
+    if unknown:
+        raise SpecError(f"{route_id} has unknown fields: {', '.join(sorted(unknown))}")
+    if raw_route.get("fresh") is not True:
+        raise SpecError(f"{route_id} must set fresh: true")
+
+    route = dict(raw_route)
+    if executor == "native":
+        prepare_native_validator(route, route_id, lead)
+    else:
+        prepare_lane_validator(route, route_id, setup, setups_by_slug)
+    return route
+
+
+def prepare_native_validator(
+    route: dict[str, Any], route_id: str, lead: dict[str, Any]
+) -> None:
+    if not lead["native"]:
+        raise SpecError(
+            f"{route_id} uses the native executor, but lead {lead['name']} "
+            "declares no native subagent control"
+        )
+    model = route.get("model")
+    effort = route.get("effort")
+    if not isinstance(model, str) or not model:
+        raise SpecError(f"{route_id} model must be non-empty")
+    if effort not in VALID_EFFORTS:
+        raise SpecError(f"{route_id} has invalid effort: {effort!r}")
+
+    route["resolved_model"] = model
+    route["family"] = f"{lead['name'].lower()}-native"
+    route["description"] = (
+        f"fresh native {lead['name']} with `{model}` at {effort} effort"
+    )
+    route["short_description"] = f"`{model}` at {effort} effort"
+
+
+def prepare_lane_validator(
+    route: dict[str, Any],
+    route_id: str,
+    setup: dict[str, Any],
+    setups_by_slug: dict[str, dict[str, Any]],
+) -> None:
+    target_slug = route.get("lane", setup["slug"])
+    target = setups_by_slug.get(target_slug)
+    if target is None:
+        raise SpecError(f"{route_id} references unknown setup: {target_slug!r}")
+
+    model_ref = route.get("model_ref")
+    if model_ref not in {"worker", "validator"}:
+        raise SpecError(f"{route_id} model_ref must be worker or validator")
+    model = target.get(f"{model_ref}_model")
+    if not isinstance(model, str) or not model:
+        raise SpecError(
+            f"{route_id} target setup {target_slug} has no {model_ref} model"
+        )
+
+    effort = route.get("effort")
+    if effort is None:
+        if target["family"] in EFFORT_FAMILIES:
+            raise SpecError(f"{route_id} requires a valid effort")
+        effort_phrase = ""
+    elif effort not in VALID_EFFORTS:
+        raise SpecError(f"{route_id} has invalid effort: {effort!r}")
+    else:
+        effort_phrase = f" at {effort} effort"
+
+    if target["family"] not in {"codex-native", "claude-native"}:
+        raise SpecError(
+            f"{route_id} selects unsupported validator harness family: "
+            f"{target['family']}"
+        )
+
+    route["resolved_model"] = model
+    route["family"] = target["family"]
+    route["description"] = (
+        f"a fresh session of the {target['title']} setup "
+        f"([{target_slug}.md]({target_slug}.md)) with `{model}`{effort_phrase}"
+    )
+    route["short_description"] = f"`{model}`{effort_phrase}"
 
 
 def render(leads: list[dict[str, Any]]) -> dict[Path, str]:

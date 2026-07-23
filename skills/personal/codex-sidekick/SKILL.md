@@ -34,6 +34,23 @@ and its context remains relevant. Never use the retained sidekick as a required
 fresh validator; create an independent validator when the active workflow
 requires one.
 
+## Select The Independent Validator
+
+Treat validator cadence and validator routing as separate decisions. Let an
+active orchestration workflow decide whether and when independent validation is
+required. Use an explicitly requested compatible validator route when present.
+Otherwise use the default validator route in the selected Sidekick setup
+adapter. When a subagent-routing skill is also active, use its matching
+validator invocation and supervision procedure without replacing the
+Sidekick-configured model, effort, or freshness requirement.
+
+Start every initial formal validation pass in fresh context without
+implementation history. Give the validator only the coherent change, contract,
+relevant primary sources, validation evidence, findings-only return shape, and
+an explicit no-delegation boundary. Have the main agent disposition every
+finding. Reuse that validator only for bounded delta revalidation in the same
+review cycle.
+
 ## Start Both Contexts Early
 
 When delegation is authorized, start the sidekick near the beginning of the

@@ -99,6 +99,26 @@ main agent. If replacement is worthwhile, start one new chat with the same
 model and a compact handoff, record its new `CHAT_ID`, and disclose that the
 cached sidekick context was lost.
 
+## Independent Validator Route
+
+Default validator: fresh native Codex with `gpt-5.6-sol` at medium effort.
+
+Invoke `spawn_agent` for each initial formal validation pass with this
+configuration:
+
+```yaml
+task_name: <unique-validator-task-name>
+model: gpt-5.6-sol
+reasoning_effort: medium
+fork_turns: "none"
+message: <compact findings-only validation packet>
+```
+
+Record the returned validator target. Observe it through mailbox waits and
+leave its review surface untouched while it runs. If the configured model,
+effort, or fresh context is unavailable, report that independent validation is
+unavailable rather than substituting another setting or claiming validation.
+
 Use this adapter for the full sidekick lifecycle. Keep its recorded identifier
 until the task ends or the main agent explicitly replaces an unrecoverable
 session with the same requested setup.

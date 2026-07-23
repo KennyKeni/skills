@@ -3,6 +3,13 @@
 {% set execution = setup %}
 {% include "harnesses/" ~ setup.family ~ "/sidekick.md.j2" %}
 
+## Independent Validator Route
+
+Default validator: {{ setup.validator.description }}.
+
+{% set validator = setup.validator %}
+{% include "harnesses/" ~ setup.validator.family ~ "/validator.md.j2" %}
+
 Use this adapter for the full sidekick lifecycle. Keep its recorded identifier
 until the task ends or the main agent explicitly replaces an unrecoverable
 session with the same requested setup.

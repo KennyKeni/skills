@@ -151,9 +151,12 @@ work within the same feature or PR scope.
 
 ## Validate At Coherent Boundaries
 
-Use the selected lane's validator procedure and its configured validator route
-when it declares classified routing. Treat implementation-executor self-checks
-as worker evidence, not independent review.
+Honor an explicitly requested compatible validator route first. Otherwise,
+when an active Sidekick setup declares a validator route, treat it as the
+configured route for that review and use the matching lane's validator
+procedure. Without either override, use the selected lane's configured
+validator route. Treat implementation-executor self-checks as worker evidence,
+not independent review.
 
 Start each initial formal validation pass in a fresh native Codex session with
 `fork_turns: "none"` or the native equivalent that excludes implementation

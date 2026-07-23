@@ -5,6 +5,7 @@ lead:
   skill_slug: claude-sidekick
   title: Claude Sidekick
   openai_manifest: false
+  native: false
 
 setups:
   - slug: codex-luna
@@ -13,27 +14,33 @@ setups:
     selection_label: Luna through the Codex CLI
     default: true
     effort: xhigh
+    validator: &default_validator
+      {executor: lane, lane: claude-native, model_ref: validator, fresh: true}
 
   - slug: claude-native
     harness: native-claude
     title: Native Opus
     selection_label: native Claude subagent
     default: false
+    validator: *default_validator
 
   - slug: opencode-grok
     harness: opencode-grok-4-5
     title: Grok 4.5 via OpenCode
     selection_label: Grok 4.5 through OpenCode
     default: false
+    validator: *default_validator
 
   - slug: opencode-qwen
     harness: opencode-qwen-3-8-max-preview
     title: Qwen3.8 Max Preview via OpenCode
     selection_label: Qwen3.8 Max Preview through OpenCode
     default: false
+    validator: *default_validator
 
   - slug: cursor-grok
     harness: cursor-grok-4-5
     title: Grok 4.5 via Cursor
     selection_label: Grok 4.5 through Cursor
     default: false
+    validator: *default_validator

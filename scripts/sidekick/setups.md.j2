@@ -2,10 +2,10 @@
 
 Default: [{{ default_setup.title }}]({{ default_setup.slug }}.md)
 
-| Request | Harness | Sidekick model | Adapter |
-| --- | --- | --- | --- |
+| Request | Harness | Sidekick model | Default validator | Adapter |
+| --- | --- | --- | --- | --- |
 {% for setup in setups -%}
-| {{ setup.selection_label }} | {{ setup.family }} | `{{ setup.worker_model }}` | [{{ setup.slug }}.md]({{ setup.slug }}.md) |
+| {{ setup.selection_label }} | {{ setup.family }} | `{{ setup.worker_model }}` | {{ setup.validator.short_description }} | [{{ setup.slug }}.md]({{ setup.slug }}.md) |
 {% endfor %}
 
 Read exactly one adapter before starting the pair. Use an explicitly requested
