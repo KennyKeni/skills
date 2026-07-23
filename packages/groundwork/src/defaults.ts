@@ -326,13 +326,16 @@ export function developmentDefaults(discovery: RepositoryDiscovery): Development
       "the requirement. Do not add implementation-coupled tests without a " +
       "repository-specific reason.",
     worktreeRules:
-      "One worktree per claimed work item at `.local/worktrees/<slug>` — " +
-      "machine-local beside the policy tree, so it needs no ignore entry and " +
-      "ignore-aware search skips it — checked out on the work item's branch, " +
-      "with the path recorded in the work item's `HANDOFF.md`. Create the " +
-      "branch, worktree, and work folder together on claim; remove the " +
-      "worktree and prune on resolve. Never run concurrent mutating work in " +
-      "the same worktree.",
+      "One worktree per claimed work item at `.local/worktrees/<slug>` in " +
+      "the primary checkout — machine-local beside the policy tree, so git " +
+      "needs no ignore entry and ignore-aware search skips it. " +
+      "Gitignore-unaware tools (repo-wide linter invocations, some watchers " +
+      "and custom scripts) do descend into it; give them an explicit " +
+      "`.local` ignore in their own configuration. Check out the work " +
+      "item's branch there and record the path in the work item's " +
+      "`HANDOFF.md`. Create the branch, worktree, and work folder together " +
+      "on claim; remove the worktree and prune on resolve. Never run " +
+      "concurrent mutating work in the same worktree.",
     reviewChecks:
       "Check correctness, regressions, public-contract changes, error " +
       "paths, security boundaries, and whether verification matches the " +
