@@ -1,6 +1,7 @@
 ---
 name: klin-grill-me
 description: Stress-test a plan, design, decision, proposal, or idea through dependency-aware rounds of questions. Use when the user asks to be grilled, pressure-tested, walked through every decision or assumption, or interviewed or challenged about a plan or decision, including requests to "grill me," "batch grill this," or "stress-test this plan."
+disable-model-invocation: true
 ---
 
 # Klin Grill Me

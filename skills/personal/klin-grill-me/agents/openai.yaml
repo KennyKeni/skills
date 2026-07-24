@@ -2,3 +2,6 @@ interface:
   display_name: "Klin Grill Me"
   short_description: "Stress-test decisions in dependency-aware rounds"
   default_prompt: "Use $klin-grill-me to stress-test this plan through dependency-aware rounds of questions."
+
+policy:
+  allow_implicit_invocation: false
