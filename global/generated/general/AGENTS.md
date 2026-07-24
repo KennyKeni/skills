@@ -35,40 +35,26 @@ authentication check before using it. Run the requested `cf` operation
 directly and treat its result as authoritative; only troubleshoot
 authentication if that operation itself returns an authentication error.
 
-# Passive Background Polling
+# Background Waiting
 
-Poll passive background work no more frequently than once every 60 seconds by
-default. Treat 60 seconds as the minimum baseline, not the target, and use
-longer intervals when the expected duration warrants it. Poll sooner only when
-a concrete, task-specific reason makes faster observation necessary. Prefer
-event-driven waits, and do not treat user-facing update cadence as
-justification for polling the underlying work.
+Prefer event-driven waits that wake immediately when the watched process,
+task, or agent sends a message, produces output, or completes.
+When available, wait on the original process or session instead of polling
+status commands, process tables, or result files.
 
-Treat an event-driven or blocking wait that returns with a real event, new
-output, or completion as an event, not a poll; handle it immediately and
-re-enter waiting without imposing a 60-second delay. Apply the baseline after a
-no-change return or before a separate status or liveness check. When available,
-wait on the original process or session instead of polling status commands,
-process tables, or result files.
+Use a cache-aware observation cadence supplied by the active runtime when one
+is available. Otherwise, poll passive work no more frequently than once every
+60 seconds. Use longer intervals when expected work warrants it.
 
-# Computer Use App Testing
+A wait that returns without an event is a quiet observation tick, not progress,
+failure, or a reason to inspect the worker. On a cache-aware cadence, that tick
+also refreshes the lead context. Re-enter the wait without reporting "still
+waiting," polling liveness, or contacting the worker solely because the window
+expired.
 
-When using Computer Use to test an app, an app window that was already open
-may remain in its current AeroSpace workspace.
-
-If Computer Use opens a new window, move that specific window to an unoccupied
-AeroSpace workspace from this ordered set: `v`, `w`, `x`, `y`, `z`. Treat a
-workspace as occupied when AeroSpace reports one or more windows in it. This
-applies even when another window from the same app was already open; identify
-the newly opened window rather than assuming that every window from a running
-app may remain in place.
-
-Before opening a new window, record the relevant AeroSpace window IDs and the
-occupancy of `v`, `w`, `x`, `y`, and `z`. After opening it, identify the new
-window by comparing window IDs, then move it with
-`aerospace move-node-to-workspace --window-id <window-id> <workspace>`. Do not
-move unrelated existing windows. If all five workspaces are occupied, ask the
-user before moving the new window or disturbing another window.
+Handle real events immediately. Comply with higher-priority user-update
+requirements without treating an update as a worker event or using it to
+justify a worker poll.
 
 # GitHub Comment Attachments
 

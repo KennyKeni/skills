@@ -11,6 +11,16 @@ CATALOG_PATH = Path(__file__).resolve().with_name("harnesses.yaml")
 TEMPLATE_DIR = Path(__file__).resolve().with_name("templates")
 ALLOWED_FAMILIES = {"codex-native", "claude-native", "cursor", "opencode", "codex-exec"}
 NATIVE_FAMILIES = {"codex-native": "codex", "claude-native": "claude"}
+LEAD_PROFILE_FIELDS = {
+    "id",
+    "lead_label",
+    "output",
+    "quiet_wait_seconds",
+    "cache_window_seconds",
+    "cache_rationale",
+    "minimum_poll_seconds",
+    "computer_use",
+}
 COMMON_FIELDS = {"id", "family", "models"}
 FAMILY_FIELDS = {
     "codex-native": set(),
@@ -26,12 +36,90 @@ class CatalogError(ValueError):
     pass
 
 
-def load_harnesses(path: Path = CATALOG_PATH) -> dict[str, dict[str, Any]]:
+def _load_catalog(path: Path) -> dict[str, Any]:
     document = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(document, dict):
         raise CatalogError("harnesses.yaml must contain a mapping")
     if document.get("schema_version") != 1:
         raise CatalogError("harnesses.yaml must declare schema_version: 1")
+    return document
+
+
+def load_lead_profiles(path: Path = CATALOG_PATH) -> dict[str, dict[str, Any]]:
+    document = _load_catalog(path)
+    entries = document.get("lead_profiles")
+    if not isinstance(entries, list) or not entries:
+        raise CatalogError("harnesses.yaml must contain a non-empty lead_profiles list")
+
+    profiles: dict[str, dict[str, Any]] = {}
+    output_paths: set[str] = set()
+    for index, raw in enumerate(entries):
+        if not isinstance(raw, dict) or set(raw) != LEAD_PROFILE_FIELDS:
+            raise CatalogError(
+                f"lead profile {index} must define exactly: "
+                f"{', '.join(sorted(LEAD_PROFILE_FIELDS))}"
+            )
+        profile = deepcopy(raw)
+        profile_id = profile["id"]
+        if not isinstance(profile_id, str) or not profile_id.replace("-", "").isalnum():
+            raise CatalogError(f"invalid lead profile id: {profile_id!r}")
+        if profile_id in profiles:
+            raise CatalogError(f"duplicate lead profile id: {profile_id}")
+        if not isinstance(profile["lead_label"], str) or not profile["lead_label"]:
+            raise CatalogError(f"{profile_id} lead_label must be a non-empty string")
+        output = profile["output"]
+        if (
+            not isinstance(output, str)
+            or not output
+            or Path(output).is_absolute()
+            or ".." in Path(output).parts
+        ):
+            raise CatalogError(f"{profile_id} output must be a safe relative path")
+        if output in output_paths:
+            raise CatalogError(f"duplicate lead profile output: {output}")
+        output_paths.add(output)
+        if not isinstance(profile["computer_use"], bool):
+            raise CatalogError(f"{profile_id} computer_use must be boolean")
+
+        quiet_wait = profile["quiet_wait_seconds"]
+        cache_window = profile["cache_window_seconds"]
+        minimum_poll = profile["minimum_poll_seconds"]
+        cache_rationale = profile["cache_rationale"]
+        if quiet_wait is None:
+            if cache_window is not None or cache_rationale is not None:
+                raise CatalogError(
+                    f"{profile_id} without a quiet wait cannot define cache fields"
+                )
+            if not isinstance(minimum_poll, int) or minimum_poll < 60:
+                raise CatalogError(
+                    f"{profile_id} must define minimum_poll_seconds of at least 60"
+                )
+            profile["minimum_poll_duration"] = f"{minimum_poll} seconds"
+        else:
+            if not isinstance(quiet_wait, int) or quiet_wait < 60:
+                raise CatalogError(
+                    f"{profile_id} quiet_wait_seconds must be at least 60"
+                )
+            if not isinstance(cache_window, int) or cache_window <= quiet_wait:
+                raise CatalogError(
+                    f"{profile_id} cache_window_seconds must exceed quiet_wait_seconds"
+                )
+            if not isinstance(cache_rationale, str) or not cache_rationale:
+                raise CatalogError(
+                    f"{profile_id} cache_rationale must be a non-empty string"
+                )
+            if minimum_poll is not None:
+                raise CatalogError(
+                    f"{profile_id} with a quiet wait cannot define minimum_poll_seconds"
+                )
+            profile["quiet_wait_duration"] = _duration_adjective(quiet_wait)
+            profile["cache_window_duration"] = _duration_phrase(cache_window)
+        profiles[profile_id] = profile
+    return profiles
+
+
+def load_harnesses(path: Path = CATALOG_PATH) -> dict[str, dict[str, Any]]:
+    document = _load_catalog(path)
 
     entries = document.get("harnesses")
     if not isinstance(entries, list) or not entries:
@@ -59,6 +147,19 @@ def load_harnesses(path: Path = CATALOG_PATH) -> dict[str, dict[str, Any]]:
         _prepare_models(harness)
         harnesses[harness_id] = harness
     return harnesses
+
+
+def _duration_phrase(seconds: int) -> str:
+    if seconds % 60 == 0:
+        minutes = seconds // 60
+        return f"{minutes} minute{'s' if minutes != 1 else ''}"
+    return f"{seconds} seconds"
+
+
+def _duration_adjective(seconds: int) -> str:
+    if seconds % 60 == 0:
+        return f"{seconds // 60}-minute"
+    return f"{seconds}-second"
 
 
 def resolve_harness(

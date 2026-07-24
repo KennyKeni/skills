@@ -35,9 +35,9 @@ agents.
 
 ## Observe And Steer
 
-Use `wait_agent` for mailbox events and completion with a timeout of at least
-60 seconds; use a longer timeout when the expected duration warrants it. A
-runner event may wake the wait earlier. Use `send_message` with `target:
+Use `wait_agent` for mailbox events and completion with the active lead
+runtime's configured event-wait cadence. A runner event may wake the wait
+earlier. Use `send_message` with `target:
 SIDEKICK_TARGET` only to answer a sidekick question or communicate new
 information that materially invalidates the active assignment. Do not use it
 for progress inquiries or incremental review, and do not issue a second

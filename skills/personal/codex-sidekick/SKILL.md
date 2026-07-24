@@ -90,6 +90,11 @@ independent planning or judgment work when useful; otherwise observe through
 the adapter. Do not duplicate the sidekick's exploration or edit its active
 write scope.
 
+Use the active lead runtime's configured event-wait cadence while observing.
+Treat an empty wait as a quiet tick and return to observation without narrating
+it, probing liveness, or contacting the sidekick solely because the wait
+expired.
+
 Supervise patiently. Silence alone is not failure, a deadline, lost context, or
 permission to interrupt or replace the sidekick. Configure deadlines
 prospectively through the user, workflow, assignment contract, or runner. Let

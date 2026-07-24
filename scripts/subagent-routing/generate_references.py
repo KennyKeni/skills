@@ -25,6 +25,7 @@ from subagent_harnesses.catalog import (  # noqa: E402
     CatalogError,
     TEMPLATE_DIR,
     load_harnesses,
+    load_lead_profiles,
     resolve_harness,
 )
 from subagent_harnesses.generation import (  # noqa: E402
@@ -40,6 +41,7 @@ SKILLS_DIR = REPOSITORY_DIR / "skills" / "personal"
 LEADS_DIR = SOURCE_DIR / "leads"
 TEMPLATE_NAME = "lane.md.j2"
 SKILL_TEMPLATE_NAME = "skill.md.j2"
+GLOBAL_INSTRUCTIONS_TEMPLATE_NAME = "instructions/global.md.j2"
 LEAD_FIELDS = {"name", "skill_slug", "title", "native", "validation_context"}
 COMMON_FIELDS = {
     "slug",
@@ -73,7 +75,10 @@ class SpecError(ValueError):
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Generate the subagent routing skills and lane references."
+        description=(
+            "Generate subagent routing skills, lane references, and global "
+            "instruction variants."
+        )
     )
     parser.add_argument(
         "--check",
@@ -288,10 +293,15 @@ def human_join(values: list[str]) -> str:
     return f"{', '.join(values[:-1])}, or {values[-1]}"
 
 
-def render(leads: list[dict[str, Any]]) -> dict[Path, str]:
+def render(
+    leads: list[dict[str, Any]], lead_profiles: dict[str, dict[str, Any]]
+) -> dict[Path, str]:
     environment = create_environment(SOURCE_DIR, TEMPLATE_DIR)
     template = environment.get_template(TEMPLATE_NAME)
     skill_template = environment.get_template(SKILL_TEMPLATE_NAME)
+    global_instructions_template = environment.get_template(
+        GLOBAL_INSTRUCTIONS_TEMPLATE_NAME
+    )
     outputs: dict[Path, str] = {}
     for spec in leads:
         lead = spec["lead"]
@@ -311,31 +321,43 @@ def render(leads: list[dict[str, Any]]) -> dict[Path, str]:
             lane_description=human_join([lane["description_name"] for lane in lanes]),
         )
         outputs[skill_dir / "SKILL.md"] = skill_rendered.rstrip() + "\n"
+    for profile in lead_profiles.values():
+        output_path = REPOSITORY_DIR / profile["output"]
+        outputs[output_path] = (
+            global_instructions_template.render(profile=profile).rstrip() + "\n"
+        )
     return outputs
 
 
-def unexpected_references(
+def unexpected_outputs(
     leads: list[dict[str, Any]], outputs: dict[Path, str]
 ) -> list[Path]:
     unexpected: list[Path] = []
     for spec in leads:
         references_dir = SKILLS_DIR / spec["lead"]["skill_slug"] / "references"
         unexpected.extend(unexpected_markdown_outputs(references_dir, outputs))
+    global_outputs_dir = REPOSITORY_DIR / "global" / "generated"
+    unexpected.extend(
+        path for path in global_outputs_dir.rglob("*.md") if path not in outputs
+    )
     return unexpected
 
 
 def check(leads: list[dict[str, Any]], outputs: dict[Path, str]) -> int:
     stale = stale_outputs(outputs)
-    unexpected = unexpected_references(leads, outputs)
+    unexpected = unexpected_outputs(leads, outputs)
 
     if not stale and not unexpected:
         print(f"All {len(outputs)} generated routing files are current.")
         return 0
 
     for path in stale:
-        print(f"stale: {path.relative_to(SKILLS_DIR)}", file=sys.stderr)
+        print(f"stale: {path.relative_to(REPOSITORY_DIR)}", file=sys.stderr)
     for path in unexpected:
-        print(f"unexpected reference: {path.relative_to(SKILLS_DIR)}", file=sys.stderr)
+        print(
+            f"unexpected generated output: {path.relative_to(REPOSITORY_DIR)}",
+            file=sys.stderr,
+        )
     print("Run `task skills:routing:generate`.", file=sys.stderr)
     return 1
 
@@ -344,7 +366,8 @@ def main() -> int:
     args = parse_args()
     try:
         leads = load_leads()
-        outputs = render(leads)
+        lead_profiles = load_lead_profiles()
+        outputs = render(leads, lead_profiles)
     except (OSError, SpecError, CatalogError, yaml.YAMLError) as error:
         print(f"routing skill generation failed: {error}", file=sys.stderr)
         return 2
@@ -352,11 +375,11 @@ def main() -> int:
     if args.check:
         return check(leads, outputs)
 
-    removed = unexpected_references(leads, outputs)
-    trash_outputs(removed, relative_to=SKILLS_DIR)
+    removed = unexpected_outputs(leads, outputs)
+    trash_outputs(removed, relative_to=REPOSITORY_DIR)
     changed = write_outputs(outputs)
     for path in changed:
-        print(f"generated: {path.relative_to(SKILLS_DIR)}")
+        print(f"generated: {path.relative_to(REPOSITORY_DIR)}")
     if not changed and not removed:
         print(f"All {len(outputs)} generated routing files were already current.")
     return 0

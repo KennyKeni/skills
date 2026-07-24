@@ -1,0 +1,19 @@
+# Computer Use App Testing
+
+When using Computer Use to test an app, an app window that was already open
+may remain in its current AeroSpace workspace.
+
+If Computer Use opens a new window, move that specific window to an unoccupied
+AeroSpace workspace from this ordered set: `v`, `w`, `x`, `y`, `z`. Treat a
+workspace as occupied when AeroSpace reports one or more windows in it. This
+applies even when another window from the same app was already open; identify
+the newly opened window rather than assuming that every window from a running
+app may remain in place.
+
+Before opening a new window, record the relevant AeroSpace window IDs and the
+occupancy of `v`, `w`, `x`, `y`, and `z`. After opening it, identify the new
+window by comparing window IDs, then move it with
+`aerospace move-node-to-workspace --window-id <window-id> <workspace>`. Do not
+move unrelated existing windows. If all five workspaces are occupied, ask the
+user before moving the new window or disturbing another window.
+

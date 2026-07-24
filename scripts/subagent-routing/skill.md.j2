@@ -204,6 +204,10 @@ mailbox or event stream, classify each event, take the corresponding action,
 then return to observation. Passive waits and stream reads are observation and
 leave the assignment untouched.
 
+Use the active lead runtime's configured event-wait cadence. Treat its duration
+as cache maintenance for the lead, not as a progress interval for the
+assignment.
+
 | Event | Lead action |
 | --- | --- |
 | A wait or stream read returns without a runner event | Treat it as a quiet tick and observe again. |
@@ -239,10 +243,9 @@ Schedule lead work by dependency. When the next lead decision depends on the
 assignment, wait for its return. Continue work whose result is independent of
 that assignment.
 
-Report meaningful milestones and blockers. During ongoing work, send a brief
-status after roughly one minute of user-visible silence; while work remains
-active, repeat only at the host-required update interval rather than on every
-quiet tick. A user update neither contacts the assignment nor ends its quiet
+Report meaningful milestones and blockers. Do not narrate quiet ticks. Follow
+any higher-priority host-required update interval without treating a user
+update as an assignment event, contacting the assignment, or ending its quiet
 episode.
 
 Configure any wall-clock deadline prospectively through the user, workflow,

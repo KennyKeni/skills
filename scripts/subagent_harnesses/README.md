@@ -6,7 +6,9 @@ Generators compose both dimensions into user-facing skills and references.
 ## Ownership
 
 - `harnesses.yaml` owns shared harness identity, model profiles, and
-  family-specific configuration, including per-harness prose fields.
+  family-specific configuration, including per-harness prose fields. It also
+  owns lead-runtime cache windows and quiet-wait cadences used to generate
+  global instruction variants.
 - `catalog.py` validates and resolves harness configuration into workflow
   records, deriving uniform fields (`scout_model`, `worker_model`,
   `*_model_argument`) so templates never branch on how models were declared.
@@ -17,6 +19,10 @@ Generators compose both dimensions into user-facing skills and references.
 - Workflow directories such as `scripts/codex-subagent-routing/` and
   `scripts/sidekick/` own role policy, persistence rules, judgment boundaries,
   setup or lane registries, and output composition.
+- The routing generator also renders the Codex, Claude Code, and general global
+  instruction variants from the shared lead-runtime profiles. Exact timing
+  values live only in `harnesses.yaml`; workflow templates refer to the active
+  lead runtime's configured cadence without repeating numbers.
 
 ## Three Axes, Three Mechanisms
 

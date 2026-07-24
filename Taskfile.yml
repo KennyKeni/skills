@@ -70,12 +70,12 @@ tasks:
         echo "Released $tag."
 
   skills:routing:generate:
-    desc: Generate the Codex subagent routing skill and lane references.
+    desc: Generate routing skills, lane references, and global instruction variants.
     cmds:
       - uv run --script scripts/subagent-routing/generate_references.py
 
   skills:routing:check:
-    desc: Check that generated Codex subagent routing files are current.
+    desc: Check that generated routing and global instruction outputs are current.
     cmds:
       - uv run --script scripts/subagent-routing/generate_references.py --check
 
@@ -90,7 +90,7 @@ tasks:
       - uv run --script scripts/sidekick/generate_references.py --check
 
   skills:subagents:generate:
-    desc: Generate every declarative subagent skill.
+    desc: Generate every declarative subagent artifact.
     deps:
       - skills:routing:generate
       - skills:sidekick:generate
