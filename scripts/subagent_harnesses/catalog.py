@@ -36,9 +36,13 @@ FAMILY_FIELDS = {
     "cursor": {"model_label_patterns", "model_caution"},
     "opencode": {"title_prefix", "refresh_models", "model_caution"},
     "codex-exec": {"model_caution"},
-    "claude-exec": {"model_caution"},
+    "claude-exec": {"effort", "model_caution"},
 }
-RESERVED_FIELDS = set().union(COMMON_FIELDS, *FAMILY_FIELDS.values()) - {"id"}
+RESERVED_FIELDS = set().union(COMMON_FIELDS, *FAMILY_FIELDS.values()) - {
+    "effort",
+    "id",
+}
+CLAUDE_EFFORTS = {"low", "medium", "high", "xhigh", "max"}
 
 
 class CatalogError(ValueError):
@@ -300,3 +304,9 @@ def _prepare_models(harness: dict[str, Any]) -> None:
         if not isinstance(harness.get("refresh_models", True), bool):
             raise CatalogError(f"{harness_id} refresh_models must be a boolean")
         harness.setdefault("refresh_models", True)
+
+    if family == "claude-exec" and harness.get("effort") not in CLAUDE_EFFORTS:
+        raise CatalogError(
+            f"{harness_id} effort must be one of: "
+            f"{', '.join(sorted(CLAUDE_EFFORTS))}"
+        )

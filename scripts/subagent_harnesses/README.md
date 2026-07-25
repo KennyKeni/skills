@@ -92,7 +92,8 @@ that lead's lane registry. Each classified lane configures `routine_scout`,
 `validator`. Use `executor: lane` with `model_ref` to select a harness's
 scout, worker, or capability-selected model — add `lane: <slug>` to route the
 tier through a sibling lane, and `effort` when the target family configures
-effort per route (codex-exec). Use `executor: native` with an exact `model`
+effort per route (codex-exec). Claude-exec harnesses instead pin their shared
+CLI effort in `harnesses.yaml`. Use `executor: native` with an exact `model`
 and `effort` only for a lead that declares `native: true`. Set `fresh: true`
 when the route requires a new independent context.
 

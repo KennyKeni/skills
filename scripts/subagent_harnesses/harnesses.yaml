@@ -64,6 +64,7 @@ harnesses:
     family: claude-exec
     models:
       shared: claude-opus-5
+    effort: high
     model_caution: |-
       Include this in every assignment: preserve accurate existing comments.
       Keep new comments sparse and only for non-obvious constraints or rationale

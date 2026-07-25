@@ -249,6 +249,8 @@ def prepare_lane_route(
 
     effort = route.get("effort")
     if effort is None:
+        effort = target.get("effort")
+    if effort is None:
         if target["family"] in EFFORT_REQUIRED_FAMILIES:
             raise SpecError(f"{route_id} requires a valid effort")
         effort_phrase = ""
@@ -256,6 +258,7 @@ def prepare_lane_route(
         raise SpecError(f"{route_id} has invalid effort: {effort!r}")
     else:
         effort_phrase = f" at {effort} effort"
+        route["effort"] = effort
 
     if target is lane:
         place = "this lane"

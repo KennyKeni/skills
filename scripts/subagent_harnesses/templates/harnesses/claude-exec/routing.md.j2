@@ -2,8 +2,8 @@
 ## Select And Verify The Model
 
 Use `{{ execution.scout_model }}` for scouts and `{{ execution.worker_model }}`
-for workers routed to this lane. Pin the model explicitly rather than relying
-on user configuration.
+for workers routed to this lane, at {{ execution.effort }} effort. Pin the
+model and effort explicitly rather than relying on user configuration.
 {% if execution.model_caution %}
 {{ execution.model_caution }}
 {% endif %}
@@ -29,14 +29,14 @@ Worker invocation:
 
 ```bash
 SESSION_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
-{{ claude_commands.start(execution.worker_model_argument, "--permission-mode bypassPermissions --disallowedTools=Task") }}
+{{ claude_commands.start(execution.worker_model_argument, execution.effort, "--permission-mode bypassPermissions --disallowedTools=Task") }}
 ```
 
 Scout invocation:
 
 ```bash
 SESSION_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
-{{ claude_commands.start(execution.scout_model_argument, '--permission-mode dontAsk --tools "Read,Glob,Grep,WebFetch,WebSearch"') }}
+{{ claude_commands.start(execution.scout_model_argument, execution.effort, '--permission-mode dontAsk --tools "Read,Glob,Grep,WebFetch,WebSearch"') }}
 ```
 
 Workers receive full repository access except for Claude's `Task` tool, which
@@ -66,7 +66,7 @@ After a formal return, write an authorized focused follow-up to a new prompt
 file and a new `OUT` path, then resume the recorded assignment:
 
 ```bash
-{{ claude_commands.resume(execution.worker_model_argument, "--permission-mode bypassPermissions --disallowedTools=Task") }}
+{{ claude_commands.resume(execution.worker_model_argument, execution.effort, "--permission-mode bypassPermissions --disallowedTools=Task") }}
 ```
 
 Never use bare `--continue` when several Claude sessions may exist. Delete

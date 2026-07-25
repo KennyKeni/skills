@@ -2,21 +2,23 @@
 command claude --version
 {%- endmacro %}
 
-{% macro start(model_argument, permission_arguments) -%}
+{% macro start(model_argument, effort_argument, permission_arguments) -%}
 (cd "$REPO" \
   && command claude -p \
   --session-id "$SESSION_ID" \
   --model {{ model_argument }} \
+  --effort {{ effort_argument }} \
   --output-format json \
   {{ permission_arguments }} \
   < "$PROMPT_FILE" > "$OUT" 2>/dev/null)
 {%- endmacro %}
 
-{% macro resume(model_argument, permission_arguments) -%}
+{% macro resume(model_argument, effort_argument, permission_arguments) -%}
 (cd "$REPO" \
   && command claude -p \
   --resume "$SESSION_ID" \
   --model {{ model_argument }} \
+  --effort {{ effort_argument }} \
   --output-format json \
   {{ permission_arguments }} \
   < "$PROMPT_FILE" > "$OUT" 2>/dev/null)

@@ -4,9 +4,10 @@ persistent Claude CLI session as the sidekick.
 
 ## Verify
 
-Use `{{ execution.worker_model }}` for the persistent sidekick. Retain the
-current main agent's model and reasoning effort, and pin the sidekick model
-explicitly rather than relying on user configuration.
+Use `{{ execution.worker_model }}` at {{ execution.effort }} effort for the
+persistent sidekick. Retain the current main agent's model and reasoning
+effort, and pin the sidekick model and effort explicitly rather than relying
+on user configuration.
 {% if execution.model_caution %}
 {{ execution.model_caution }}
 {% endif %}
@@ -32,7 +33,7 @@ which enforces the no-delegation boundary:
 
 ```bash
 SESSION_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
-{{ claude_commands.start(execution.worker_model_argument, "--permission-mode bypassPermissions --disallowedTools=Task") }}
+{{ claude_commands.start(execution.worker_model_argument, execution.effort, "--permission-mode bypassPermissions --disallowedTools=Task") }}
 ```
 
 Run it in a supervised long-running execution session so the main agent can
@@ -55,7 +56,7 @@ After a formal return, write an authorized focused follow-up to a new prompt
 file and a new `OUT` path, then resume the recorded sidekick:
 
 ```bash
-{{ claude_commands.resume(execution.worker_model_argument, "--permission-mode bypassPermissions --disallowedTools=Task") }}
+{{ claude_commands.resume(execution.worker_model_argument, execution.effort, "--permission-mode bypassPermissions --disallowedTools=Task") }}
 ```
 
 Never use bare `--continue` when several Claude sessions may exist. Delete each

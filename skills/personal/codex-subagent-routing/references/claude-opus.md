@@ -115,8 +115,8 @@ Use these mappings:
 
 - routine `scout`: native Codex with `gpt-5.6-sol` at medium effort;
 - consequential `scout`: native Codex with `gpt-5.6-sol` at medium effort;
-- routine `worker`: this lane with `claude-opus-5`;
-- consequential `worker`: this lane with `claude-opus-5`;
+- routine `worker`: this lane with `claude-opus-5` at high effort;
+- consequential `worker`: this lane with `claude-opus-5` at high effort;
 - every `validator`: fresh native Codex with `gpt-5.6-sol` at high effort.
 
 Skip the scout when the main skill's delegation criteria do not justify one.
@@ -149,7 +149,7 @@ Treat lead or validator findings as new routing evidence. When reassessment
 returns `routine`, send only bounded routine corrections to the same session.
 When it returns `consequential`, stop the routine assignment and route the
 scout through native Codex with `gpt-5.6-sol` at medium effort or the worker
-through this lane with `claude-opus-5`, passing a compact
+through this lane with `claude-opus-5` at high effort, passing a compact
 handoff containing the contract, observations, attempted proof, changed files
 when applicable, and unresolved questions. When it returns `not_ready`, stop
 the worker, preserve its evidence, and return the candidate to the lead for
@@ -159,8 +159,8 @@ validation through fresh native Codex with `gpt-5.6-sol` at high effort.
 ## Select And Verify The Model
 
 Use `claude-opus-5` for scouts and `claude-opus-5`
-for workers routed to this lane. Pin the model explicitly rather than relying
-on user configuration.
+for workers routed to this lane, at high effort. Pin the
+model and effort explicitly rather than relying on user configuration.
 Include this in every assignment: preserve accurate existing comments.
 Keep new comments sparse and only for non-obvious constraints or rationale
 that clear code cannot express. Do not narrate or restate code; remove
@@ -191,6 +191,7 @@ SESSION_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
   && command claude -p \
   --session-id "$SESSION_ID" \
   --model claude-opus-5 \
+  --effort high \
   --output-format json \
   --permission-mode bypassPermissions --disallowedTools=Task \
   < "$PROMPT_FILE" > "$OUT" 2>/dev/null)
@@ -204,6 +205,7 @@ SESSION_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
   && command claude -p \
   --session-id "$SESSION_ID" \
   --model claude-opus-5 \
+  --effort high \
   --output-format json \
   --permission-mode dontAsk --tools "Read,Glob,Grep,WebFetch,WebSearch" \
   < "$PROMPT_FILE" > "$OUT" 2>/dev/null)
@@ -240,6 +242,7 @@ file and a new `OUT` path, then resume the recorded assignment:
   && command claude -p \
   --resume "$SESSION_ID" \
   --model claude-opus-5 \
+  --effort high \
   --output-format json \
   --permission-mode bypassPermissions --disallowedTools=Task \
   < "$PROMPT_FILE" > "$OUT" 2>/dev/null)

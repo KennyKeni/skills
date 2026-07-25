@@ -7,9 +7,10 @@ persistent Claude CLI session as the sidekick.
 
 ## Verify
 
-Use `claude-opus-5` for the persistent sidekick. Retain the
-current main agent's model and reasoning effort, and pin the sidekick model
-explicitly rather than relying on user configuration.
+Use `claude-opus-5` at high effort for the
+persistent sidekick. Retain the current main agent's model and reasoning
+effort, and pin the sidekick model and effort explicitly rather than relying
+on user configuration.
 Include this in every assignment: preserve accurate existing comments.
 Keep new comments sparse and only for non-obvious constraints or rationale
 that clear code cannot express. Do not narrate or restate code; remove
@@ -40,6 +41,7 @@ SESSION_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
   && command claude -p \
   --session-id "$SESSION_ID" \
   --model claude-opus-5 \
+  --effort high \
   --output-format json \
   --permission-mode bypassPermissions --disallowedTools=Task \
   < "$PROMPT_FILE" > "$OUT" 2>/dev/null)
@@ -69,6 +71,7 @@ file and a new `OUT` path, then resume the recorded sidekick:
   && command claude -p \
   --resume "$SESSION_ID" \
   --model claude-opus-5 \
+  --effort high \
   --output-format json \
   --permission-mode bypassPermissions --disallowedTools=Task \
   < "$PROMPT_FILE" > "$OUT" 2>/dev/null)
