@@ -16,6 +16,19 @@ This machine uses `mise` for runtime/tool version management. Prefer `mise`-mana
 All skills must be installed and tracked through `npx skills`. Never install
 skills manually.
 
+# Groundwork
+
+When the user mentions Groundwork as a tool or CLI, they mean the `groundwork`
+executable published by the `@kennykeni/groundwork` npm package. Run its
+interactive repository setup with:
+
+```sh
+pnpm dlx @kennykeni/groundwork setup
+```
+
+Pass `--cwd /path/to/repository` when setup should target a repository other
+than the current working directory.
+
 # Git-Excluded Instruction Files
 
 `AGENTS.md` and `CLAUDE.md` are globally git-excluded on this machine. If a repository should track one of these files, unexclude it on a per-repository basis.

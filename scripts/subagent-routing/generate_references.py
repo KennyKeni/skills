@@ -30,6 +30,7 @@ from subagent_harnesses.catalog import (  # noqa: E402
 )
 from subagent_harnesses.generation import (  # noqa: E402
     create_environment,
+    mark_generated_outputs,
     stale_outputs,
     trash_outputs,
     unexpected_markdown_outputs,
@@ -326,7 +327,9 @@ def render(
         outputs[output_path] = (
             global_instructions_template.render(profile=profile).rstrip() + "\n"
         )
-    return outputs
+    return mark_generated_outputs(
+        outputs, generator=Path(__file__).resolve(), relative_to=REPOSITORY_DIR
+    )
 
 
 def unexpected_outputs(
