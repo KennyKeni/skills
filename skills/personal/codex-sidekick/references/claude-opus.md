@@ -10,6 +10,13 @@ persistent Claude CLI session as the sidekick.
 Use `claude-opus-5` for the persistent sidekick. Retain the
 current main agent's model and reasoning effort, and pin the sidekick model
 explicitly rather than relying on user configuration.
+Include this instruction in every assignment to this model: preserve
+accurate existing comments, but keep new code comments sparse. Add a
+comment only for a non-obvious invariant, safety constraint, compatibility
+requirement, or rationale that clear code and names cannot express. Do not
+narrate control flow, restate the code, add section banners, or annotate
+obvious implementation steps. Remove newly added redundant comments before
+returning.
 Verify the CLI once before the first assignment in the current context:
 
 ```bash
