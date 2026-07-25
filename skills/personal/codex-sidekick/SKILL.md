@@ -15,9 +15,23 @@ main-agent judgment.
 
 Read [setups.md](references/setups.md), select an explicitly requested setup or
 its declared default, then read that adapter completely. Treat the adapter as
-the source of truth for model, start, observe, continue, stop, and recovery
-operations. Report an unavailable requested setup instead of silently changing
-models or harnesses.
+the source of truth for configured models, persistent identity, and
+harness-specific start, observe, continue, stop, and recovery operations.
+Execute those operations under the matching routing protocol below. Report an
+unavailable requested setup instead of silently changing models or harnesses.
+
+## Load The Routing Protocol
+
+Before the first assignment, read
+[Codex Subagent Routing](../codex-subagent-routing/SKILL.md)
+completely. Treat it as the exclusive protocol for role boundaries, assignment
+packets, lane eligibility, invocation, supervision, return-event
+classification, review-cycle serialization, and recovery. Sidekick configures
+the persistent worker and default validator route; it does not create a second
+orchestration protocol.
+
+If the routing skill is unavailable, keep the work in the main agent and report
+that the Sidekick pair could not be established.
 
 ## Defer To Active Orchestration
 
@@ -36,20 +50,15 @@ requires one.
 
 ## Select The Independent Validator
 
-Treat validator cadence and validator routing as separate decisions. Let an
-active orchestration workflow decide whether and when independent validation is
-required. Use an explicitly requested compatible validator route when present.
-Otherwise use the default validator route in the selected Sidekick setup
-adapter. When a subagent-routing skill is also active, use its matching
-validator invocation and supervision procedure without replacing the
-Sidekick-configured model, effort, or freshness requirement.
+Treat validator cadence and validator configuration as separate decisions. Let
+an active orchestration workflow decide whether and when independent validation
+is required. Use an explicitly requested compatible validator route when
+present; otherwise pass the selected Sidekick adapter's default validator route
+to Codex Subagent Routing. Let that routing protocol own freshness,
+packets, supervision, finding returns, and delta revalidation without replacing
+the Sidekick-configured model or effort.
 
-Start every initial formal validation pass in fresh context without
-implementation history. Give the validator only the coherent change, contract,
-relevant primary sources, validation evidence, findings-only return shape, and
-an explicit no-delegation boundary. Have the main agent disposition every
-finding. Reuse that validator only for bounded delta revalidation in the same
-review cycle.
+Never use the retained sidekick as a required fresh validator.
 
 ## Start Both Contexts Early
 

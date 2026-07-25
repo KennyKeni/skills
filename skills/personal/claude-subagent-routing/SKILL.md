@@ -16,6 +16,13 @@ subject to that policy's role and risk eligibility. Without one, use the default
 lane, native Claude. Use an external lane only when the
 user requests it or the active mission has a recorded preference for it.
 
+When an active Sidekick setup supplies the persistent worker's harness, model,
+or effort, treat that configuration as the explicit worker route for
+assignments the Sidekick owns. Use the setup adapter for harness operations and
+this skill for eligibility, role boundaries, supervision, and recovery. Do not
+remap or replace the configured worker unless it becomes ineligible or
+unavailable and the user or active workflow authorizes another route.
+
 Select a lane independently for each assignment. Before the first assignment
 to a lane in the current context, read its reference completely:
 
@@ -181,6 +188,21 @@ cycle.
 Require the validator to return all material blocker candidates within the
 assigned scope in one pass rather than stopping after the first finding.
 
+Serialize every worker-validator review cycle through formal returns:
+
+1. Wait for the validator's final return before dispositioning or forwarding
+   any finding.
+2. Have the lead disposition the complete report, then assign accepted fixes to
+   one worker.
+3. Wait for the worker's final return and have the lead inspect the coherent
+   correction delta.
+4. Only then reactivate the same validator for bounded delta revalidation.
+
+Never advance this sequence from an intermediate message, partial stream item,
+quiet observation tick, or liveness result. Keep the retained worker or
+validator idle while its counterpart owns the active review-cycle assignment;
+do not alternate updates between them while either is running.
+
 Have the lead disposition every finding before assigning fixes. Batch accepted
 blockers into one worker round when their ownership and scope permit it. A
 validator finding does not automatically trigger implementation.
@@ -219,7 +241,7 @@ assignment.
 | A wait or stream read returns without a runner event | Treat it as a quiet tick and observe again. |
 | A scout or worker requests input or reports a blocker | Send one focused response within the existing contract. |
 | New evidence invalidates the contract, authorized scope, or lane eligibility | Steer or stop the affected scout or worker at that boundary. |
-| A validator emits an intermediate message | Continue observing so it can return one complete findings or blocker report. |
+| A validator emits an intermediate message, including candidate findings | Do not disposition or forward it; continue observing until the validator's final return. |
 | The assignment returns | Apply the role-specific continuation rule below. |
 | The harness reports an error or configured deadline, loses the recorded session or process, or supplies lane-specific evidence of frozen execution | Recover a scout or worker under the selected lane; replace an interrupted initial validator with a corrected fresh pass; recover a validator session only when it is already performing bounded delta revalidation. |
 | The assignment continues beyond an explicit contract, scope, search, attempt, or proof boundary | Stop that assignment and preserve its useful evidence. |

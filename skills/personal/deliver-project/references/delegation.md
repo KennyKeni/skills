@@ -3,27 +3,47 @@
 Read this file before the first agent assignment in the current context. Reuse
 it for later assignments instead of rereading it for every spawn.
 
+## Separate Workflow Policy From Agent Control
+
+Keep Deliver Project responsible for whether delegation is justified, the
+project contract, validation cadence, review boundaries, finding disposition,
+completion criteria, and delivery state. Do not use this workflow as an agent
+transport or supervision protocol.
+
+Before the first assignment, read the routing skill matching the user-facing
+lead:
+
+- Codex: [Codex Subagent Routing](../../codex-subagent-routing/SKILL.md)
+- Claude: [Claude Subagent Routing](../../claude-subagent-routing/SKILL.md)
+
+Use that routing skill as the exclusive source for lane eligibility and route
+resolution, invocation, wait and stream handling, steering, formal-return
+classification, review-cycle serialization, session reuse, and recovery. When
+an active Sidekick setup supplies a persistent worker or default validator
+route, pass that configuration into routing without replacing its lifecycle
+protocol.
+
+If the matching routing skill or a required lane is unavailable, keep the work
+in the lead or report the limitation. Do not improvise a second delegation
+protocol inside Deliver Project.
+
 ## Contents
 
-- Separate roles
-- Build assignment packets
-- Delegate exploration deliberately
-- Control cost
+- Apply mission role semantics
+- Add project context to assignment packets
+- Choose valuable assignments
 - Execute features
 
-## Separate Roles
+## Apply Mission Role Semantics
 
-Use `lead`, `scout`, `worker`, and `validator` as the only canonical delegation
-roles. Treat them as hard boundaries for an assignment, not required
-participants in every run. Do not introduce role aliases such as
-implementation agent, reviewer, test author, integration agent, orchestrator,
-or coordinator. Treat implementation, review, and testing as activities. Treat
-implementation owner as a responsibility that belongs to the lead in direct
-execution or normally to a worker in mission execution.
+Use the routing protocol's `lead`, `scout`, `worker`, and `validator` roles.
+Treat them as hard boundaries for an assignment, not required participants in
+every run. Treat implementation, review, and testing as activities rather than
+additional roles.
 
 Have the lead own requirements, contracts, decomposition, architecture,
-assignment, cost control, integration, durable state, and final completion
-judgment. Allow direct implementation when delegation costs more than it adds.
+validation policy, integration, durable state, and final completion judgment.
+Allow direct implementation when delegation costs more than it adds.
 
 Have a scout perform bounded, read-only retrieval. Do not let a scout modify
 files, create external state, choose architecture, approve scope, or create
@@ -36,110 +56,47 @@ completion or create agents.
 Give each validator fresh context and a completed, coherent change. Have it
 report findings without implementing fixes or creating agents.
 
-Keep all delegation centralized through the lead.
+Keep all assignment decisions and result disposition centralized through the
+lead. Let the routing protocol control the selected lane.
 
-## Build Assignment Packets
+## Add Project Context To Assignment Packets
 
-Before every new scout, worker, or validator, build a concise assignment packet
-and include it directly in the spawn request. Do not rely on the subagent to
-infer mission state from conversation history or discover its assignment from
-the durable state artifact.
+Build the routing protocol's assignment packet before every new scout, worker,
+or validator. Add the project-specific context below instead of duplicating the
+mission history or asking the subagent to discover its assignment from durable
+state.
 
 Include:
 
-- role and one-sentence objective;
-- bounded deliverable, scope, and non-scope;
 - active stage, feature, issue, PR, and Git reference when relevant;
 - authoritative project sources and repository instructions to inspect;
 - relevant contract assertions, decisions, and ownership constraints;
 - allowed mutations, tools, external actions, and workspace boundary;
 - required checks and evidence;
-- output format;
-- stop condition and escalation triggers.
-
-Add role-specific material:
-
-- **Scout:** blocking questions, read-only boundary, and the required
-  observation-versus-inference evidence format.
-- **Worker:** feature contract, implementation ownership, validation
-  assertions, primary-source pointers, and required tests.
-- **Validator:** full-review or delta scope, coherent change, contract,
-  relevant doctrine sources, existing validation evidence, and the finding
-  admissibility and disposition rubric. Exclude intended findings and the
-  implementation trajectory.
+- authorized delivery boundary; and
+- durable-state facts needed to resume the bounded assignment.
 
 Pass applicable rules in the packet rather than entire orchestration template
 references, raw scout transcripts, or durable-state history. Point to primary
 project artifacts instead. For a focused follow-up, send only changed packet
 fields, new evidence, and the unresolved deliverable.
 
-## Delegate Exploration Deliberately
+## Choose Valuable Assignments
 
-State the questions blocking implementation before exploring.
+Use the routing skill's readiness, role, cost, and concurrency rules. Within
+those bounds, choose assignments only when their evidence or execution value
+exceeds handoff and review cost. Keep interpretation inseparable from project
+judgment in the lead.
 
-Use a scout when exploration spans unfamiliar subsystems, requires substantial
-retrieval, would pollute the lead context, produces checkable evidence, or will
-be reused.
-
-Explore directly when relevant files are known, the task is small, or
-interpretation cannot be separated from architectural judgment.
-
-When model routing is available, use the least expensive model that can
-reliably follow the evidence format. Do not use a cheap model as the sole
-source of architectural, security, migration, concurrency, or public-interface
-decisions.
-
-Use one scout for the active milestone and send focused follow-ups. Replace it
-only when its context is stale or its surface materially changes.
-
-Require the scout to return:
-
-- observed facts with file, symbol, line, command, log, or source references;
-- relevant patterns, validation commands, and integration paths;
-- inferences separated from observations;
-- contradictions and unresolved questions;
-- a recommended change surface labeled as a recommendation.
-
-Treat scout output as an evidence index. Verify claims that materially
-determine scope, architecture, ownership, security, migrations, or public
-behavior.
-
-Convert verified findings into a feature contract. Pass the contract and
-primary-source pointers to the worker, not the raw scout transcript.
-
-## Control Cost
-
-Use the active-agent capacity exposed by the runtime. Do not maintain
-per-milestone or per-mission session counters, and do not require approval
-solely because a cumulative number of agents has been created.
-
-Assign one implementation owner per feature or PR. Apply the active validation
-profile to decide which coherent boundaries require a validator. Use one
-validator for each required boundary and add a second only for high-risk work
-that needs materially distinct proof. Prohibit nesting and peer-to-peer
-coordination.
-
-Never run concurrent mutating workers in the same workspace. Require isolated
-worktrees or workspaces for them; otherwise serialize their assignments.
-
-Do not spawn an agent to decide whether to spawn agents. Do not run competing
-implementations or pass-at-k sampling unless the decision is unusually
-consequential and the cost is authorized.
-
-Before assignment, build and pass the assignment packet above. Reuse an
-existing scout or worker when its context remains relevant.
-
-Use a new validator for each boundary that the active profile requires. Reuse
-that validator only for delta revalidation in the same review cycle. Define
-fresh validator context as independent of implementation and limited to the
-coherent change, contract, relevant primary sources, and validation evidence
-rather than the implementation trajectory.
+Apply the active validation profile to decide which coherent boundaries require
+independent validation. Pass that decision and its project-specific contract to
+routing; do not select validator sessions or supervise their lifecycle here.
 
 ## Execute Features
 
-Give a worker the feature contract, validation assertions, verified evidence,
-primary-source pointers, relevant repository instructions, workspace boundary,
-and return format.
+Give routing the feature contract, validation assertions, verified evidence,
+primary-source pointers, relevant repository instructions, and workspace
+boundary for each ready worker assignment.
 
 Require it to inspect primary artifacts before editing.
 

@@ -3,6 +3,14 @@
 Read this file when a PR or milestone is coherent and before declaring
 completion.
 
+Use this reference only for validation policy: review boundaries, evidence,
+finding admissibility and disposition, revalidation scope, completion, and
+delivery gates. Delegate validator configuration, invocation, supervision,
+return-event handling, session reuse, and recovery to the routing protocol
+selected in [delegation.md](delegation.md). Treat requirements such as
+independence, freshness, and bounded delta review as constraints that routing
+must satisfy, not as a second agent-control procedure.
+
 ## Contents
 
 - Review coherent boundaries
