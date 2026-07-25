@@ -100,45 +100,15 @@ independent planning or judgment work when useful; otherwise observe through
 the adapter. Do not duplicate the sidekick's exploration or edit its active
 write scope.
 
-Use the active lead runtime's configured event-wait cadence while observing.
-Treat an empty wait as a quiet tick and return to observation without narrating
-it, probing liveness, or contacting the sidekick solely because the wait
-expired.
+Supervise every assignment through the matching routing protocol's single
+generic event loop. Treat the setup adapter only as the source of
+harness-specific operations. Do not add a Sidekick-specific policy for
+intermediate messages, quiet ticks, user updates, formal returns, continuation,
+interruption, or recovery.
 
-Supervise patiently. Silence alone is not failure, a deadline, lost context, or
-permission to interrupt or replace the sidekick. Configure deadlines
-prospectively through the user, workflow, assignment contract, or runner. Let
-the selected adapter own observation, liveness checks, and recovery mechanics;
-keep the user informed during quiet periods without contacting the sidekick.
-
-Do not use an active sidekick as an incremental review channel. Queue
-non-urgent lead findings locally, let the assignment return normally, review
-the coherent result, and batch accepted bounded corrections into one next
-execution unit whenever ownership and scope permit. Contact an active sidekick
-only to answer its question, communicate a new user or external constraint
-that materially invalidates the assignment, prevent a concrete imminent
-contract or scope violation, or stop work under the adapter's recovery rules.
-Do not send progress inquiries, suggestions, or review findings one at a time.
-
-Use a normal return and the adapter's continuation operation for planned phase
-transitions. Reserve interruption for active work that must stop before it can
-return normally.
-
-At each sidekick-originated question or return, or new external event that
-materially changes the contract, choose one move:
-
-- continue the same assignment when the contract still holds;
-- answer a bounded question and let the sidekick proceed;
-- reclaim the work when judgment, ambiguity, or consequential risk becomes the
-  deliverable;
-- resolve that decision in the main agent, then return the resulting mechanical
-  work to the same sidekick context; or
-- stop and recover the session through the adapter when its context or process
-  is no longer trustworthy.
-
-If repeated attempts to resume the persistent session fail, stop retrying it
-and start one replacement with the same requested setup and a compact handoff.
-Never hide the loss of context or silently substitute another model.
+Use the adapter's continuation operation only after routing reaches a formal
+return boundary and authorizes another bounded execution unit. Retain the same
+context while its route, role, contract, and evidence remain current.
 
 ## Review With The Main Agent
 

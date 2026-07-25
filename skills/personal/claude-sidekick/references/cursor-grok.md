@@ -52,21 +52,19 @@ Use full Agent mode throughout the persistent chat. Enforce exploration-only,
 writable scope, judgment boundaries, and no-delegation requirements through
 each assignment packet.
 
-## Observe And Steer
+## Observe
 
 `CHAT_ID` is minted before the run by `create-chat`; the initial `system/init`
 `session_id` confirms it. Treat the terminal `result` event's error state,
 subtype, process exit, and useful result as completion evidence. Keep thinking
-deltas out of the returned answer.
-
-Do not open a second chat for a focused question. Let the active run return,
-or interrupt it only when blocked, then resume `CHAT_ID` with the answer and
-the remaining assignment.
+deltas out of the returned answer. Apply the main routing event loop to the chat
+and its events.
 
 ## Continue
 
-Resume a focused follow-up with the recorded chat ID, the same workspace,
-exact model, full permissions, and a focused prompt file:
+After a formal return, resume an authorized focused follow-up with the recorded
+chat ID, the same workspace, exact model, full permissions, and a focused
+prompt file:
 
 ```bash
 MODEL=cursor-grok-4.5-high
@@ -87,7 +85,8 @@ trustworthy.
 
 ## Stop And Recover
 
-For a permitted health check or recovery, inspect only the recorded run:
+When the main routing event loop authorizes a health check or recovery, inspect
+only the recorded run:
 
 ```bash
 pgrep -fl -- "$CHAT_ID" || true
@@ -96,10 +95,9 @@ pgrep -fl -- "$CHAT_ID" || true
 Interrupt only the process created for that run and preserve the prompt and
 useful evidence until the chat is recoverable.
 
-When the chat cannot safely resume, return the work and useful evidence to the
-main agent. If replacement is worthwhile, start one new chat with the same
-model and a compact handoff, record its new `CHAT_ID`, and disclose that the
-cached sidekick context was lost.
+If routing selects replacement, start one new chat with the same model and a
+compact handoff, record its new `CHAT_ID`, and disclose that the cached context
+was lost.
 
 ## Independent Validator Route
 
@@ -107,8 +105,7 @@ Default validator: a fresh session of the Native Opus setup ([claude-native.md](
 
 Spawn each initial formal validation pass as a new background native Claude
 subagent with `claude-fable-5` and a compact findings-only
-validation packet. Record its target and wait for its completion notification
-without probing the running subagent or editing its review surface.
+validation packet. Record its target and apply the main routing event loop.
 
 If the configured model or fresh context is unavailable, report that
 independent validation is unavailable rather than substituting another model

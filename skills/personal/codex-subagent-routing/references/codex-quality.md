@@ -185,9 +185,8 @@ findings-only return shape directly in the fresh assignment.
 
 ## Continue And Clean Up
 
-Send focused scout or worker follow-ups to the recorded task, then return to
-mailbox waiting. Resume a scout or worker only while its context remains
-trustworthy; interrupt only the affected session without closing it. Preserve
-an interrupted initial validator's useful evidence and replace it with a fresh
-pass, resuming a validator only for bounded delta revalidation in the same
-review cycle. Replace or close any task whose context is no longer reliable.
+After a formal return, send an authorized focused follow-up to the recorded
+task, then return to mailbox waiting. Continue or replace the task according to
+the main routing continuation rule and its freshness requirement. Interrupt
+only the affected session without closing it, and preserve useful evidence
+before recovery.

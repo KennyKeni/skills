@@ -62,14 +62,14 @@ is available. Otherwise, poll passive work no more frequently than once every
 60 seconds. Use longer intervals when expected work warrants it.
 
 A wait that returns without an event is a quiet observation tick, not progress,
-failure, or a reason to inspect the worker. On a cache-aware cadence, that tick
-also refreshes the lead context. Re-enter the wait without reporting "still
-waiting," polling liveness, or contacting the worker solely because the window
-expired.
+failure, or a reason to inspect the assignment. On a cache-aware cadence, that
+tick also refreshes the lead context. Re-enter the wait without reporting
+"still waiting," polling liveness, or contacting the assignment solely because
+the window expired.
 
 Handle real events immediately. Comply with higher-priority user-update
-requirements without treating an update as a worker event or using it to
-justify a worker poll.
+requirements without treating an update as an assignment event or using it to
+justify an assignment poll.
 
 # GitHub Comment Attachments
 

@@ -43,22 +43,19 @@ Run it in a supervised long-running execution session. Record that execution
 session and capture OpenCode's `sessionID` as `SESSION_ID` so the main agent
 can continue independent judgment work while OpenCode executes.
 
-## Observe And Steer
+## Observe
 
 Give every run a unique title. `--format json` emits a newline-delimited event
 stream; record the exact `sessionID` from its first event before deleting the
 prompt file. Treat `step_finish` with `reason: "stop"` plus a zero process
 exit as completion, and a top-level `error` event or nonzero exit as failure,
-preserving any useful result and retryability evidence.
-
-Do not create a second session for a focused question. Let the active run
-return, or interrupt it only when blocked, then resume `SESSION_ID` with the
-answer and the remaining assignment.
+preserving any useful result and retryability evidence. Apply the main routing
+event loop to the session and its events.
 
 ## Continue
 
-Resume the recorded session with `MODEL` set to its exact model, omitting
-`--fork` and retaining `--auto` for every writable follow-up:
+After a formal return, resume an authorized follow-up with `MODEL` set to its
+exact model, omitting `--fork` and retaining `--auto`:
 
 ```bash
 opencode run --dir "$REPO" \
@@ -81,7 +78,8 @@ opencode session list --format json --max-count 20
 
 ## Stop And Recover
 
-For a permitted health check or recovery, inspect only the recorded run:
+When the main routing event loop authorizes a health check or recovery, inspect
+only the recorded run:
 
 ```bash
 pgrep -fl -- "$PROMPT_FILE" || true
@@ -90,10 +88,9 @@ pgrep -fl -- "$PROMPT_FILE" || true
 Interrupt only the process created for that run and preserve its prompt and
 useful evidence until the session is recoverable.
 
-When the session cannot safely resume, return the work and useful evidence to
-the main agent. If replacement is worthwhile, start one new session with the
-same model and a compact handoff, record its new `SESSION_ID`, and disclose
-that the cached sidekick context was lost.
+If routing selects replacement, start one new session with the same model and a
+compact handoff, record its new `SESSION_ID`, and disclose that the cached
+context was lost.
 
 ## Independent Validator Route
 
@@ -110,10 +107,10 @@ fork_turns: "none"
 message: <compact findings-only validation packet>
 ```
 
-Record the returned validator target. Observe it through mailbox waits and
-leave its review surface untouched while it runs. If the configured model,
-effort, or fresh context is unavailable, report that independent validation is
-unavailable rather than substituting another setting or claiming validation.
+Record the returned target and apply the main routing event loop. If the
+configured model, effort, or fresh context is unavailable, report that
+independent validation is unavailable rather than substituting another setting
+or claiming validation.
 
 Use this adapter for the full sidekick lifecycle. Keep its recorded identifier
 until the task ends or the main agent explicitly replaces an unrecoverable

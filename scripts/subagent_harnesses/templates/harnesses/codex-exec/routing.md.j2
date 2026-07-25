@@ -56,11 +56,11 @@ validation packet.
 
 ## Continue And Clean Up
 
-Send a focused follow-up to an existing scout or worker only while its context
-remains relevant. Resume targets that assignment's exact session: the macro
-reads `thread_id` from its `EVENTS` file, never `--last`, so a sibling Codex
-session — including the lead's own — cannot be selected by accident. `codex
-exec resume` has no `-C`; run it from the repository:
+After a formal return, send an authorized focused follow-up to the recorded
+assignment. Resume targets that assignment's exact session: the macro reads
+`thread_id` from its `EVENTS` file, never `--last`, so a sibling Codex session
+— including the lead's own — cannot be selected by accident. `codex exec
+resume` has no `-C`; run it from the repository:
 
 ```bash
 {{ codex_commands.resume(execution.worker_model_argument, "--dangerously-bypass-approvals-and-sandbox") }}

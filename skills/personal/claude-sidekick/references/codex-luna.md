@@ -48,24 +48,17 @@ continue independent judgment work while Codex executes. Resume later targets
 this session by the `thread_id` recorded in its `EVENTS` file, so a sibling
 Codex session in the same repository never collides with it.
 
-## Observe And Steer
+## Observe
 
 Suppress stderr because thinking noise bloats context; remove `2>/dev/null`
 only to debug a failing run. Wait on the existing supervised execution session
 until it exits, then read the `-o` result file rather than parsing streamed
-output. A `codex exec` run is quiet by design, so treat silence as normal. Do
-not poll process liveness or the result file during routine supervision; use
-them only for a health check or recovery permitted below. Do not interrupt a
-quiet run before a configured deadline.
-
-Do not start a second session for a focused question. Let the active run
-return, or interrupt it only when blocked, then resume the session with the
-answer and the remaining assignment.
+output. Apply the main routing event loop to the session and its results.
 
 ## Continue
 
-Write each follow-up to a new prompt file and a new `OUT` path. `codex exec
-resume` has no `-C`; run it from the repository:
+After a formal return, write an authorized follow-up to a new prompt file and a
+new `OUT` path. `codex exec resume` has no `-C`; run it from the repository:
 
 ```bash
 EFFORT=xhigh
@@ -86,20 +79,18 @@ repository since the sidekick's last return no longer forces a replacement.
 
 ## Stop And Recover
 
-For a permitted health check or recovery, match the sidekick's own process by
-its unique `OUT` path:
+When the main routing event loop authorizes a health check or recovery, match
+the recorded process by its unique `OUT` path:
 
 ```bash
 pgrep -fl -- "$OUT" || true
 ```
 
-Interrupt only the process created for the sidekick and preserve its result
-file and useful evidence until the session is recoverable.
+Interrupt only that process and preserve its result file and useful evidence
+until the session is recoverable.
 
-When the session cannot safely resume, return the work and useful evidence to
-the main agent. If replacement is worthwhile, start one new session with the
-same model and effort and a compact handoff, and disclose that the cached
-sidekick context was lost.
+If routing selects replacement, start one new session with the same model and
+effort plus a compact handoff, and disclose that the cached context was lost.
 
 ## Independent Validator Route
 
@@ -107,8 +98,7 @@ Default validator: a fresh session of the Native Opus setup ([claude-native.md](
 
 Spawn each initial formal validation pass as a new background native Claude
 subagent with `claude-fable-5` and a compact findings-only
-validation packet. Record its target and wait for its completion notification
-without probing the running subagent or editing its review surface.
+validation packet. Record its target and apply the main routing event loop.
 
 If the configured model or fresh context is unavailable, report that
 independent validation is unavailable rather than substituting another model

@@ -222,9 +222,10 @@ supervising, and leave the repository untouched during supervision.
 
 ## Continue And Clean Up
 
-Resume with the recorded session ID, `MODEL` set to the exact model used by the
-original scout or worker, and a focused follow-up file. Retain `--auto` for
-writable follow-ups, and omit `--fork` so the existing session continues:
+After a formal return, resume an authorized focused follow-up with the recorded
+session ID, `MODEL` set to the exact model used by the original assignment, and
+a focused follow-up file. Retain `--auto` when the assignment is writable, and
+omit `--fork` so the existing session continues:
 
 ```bash
 opencode run --dir "$REPO" \

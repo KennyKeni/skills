@@ -224,9 +224,9 @@ workspace untouched during supervision.
 
 ## Continue And Clean Up
 
-Resume a focused follow-up with the recorded chat ID, the same workspace, full
-permissions, and `MODEL` set to the exact model used by the original scout or
-worker:
+After a formal return, resume an authorized focused follow-up with the recorded
+chat ID, the same workspace, full permissions, and `MODEL` set to the exact
+model used by the original assignment:
 
 ```bash
 cursor-agent --print \
@@ -239,8 +239,8 @@ cursor-agent --print \
   < "$PROMPT_FILE"
 ```
 
-Keep `stream-json` for a follow-up to a long worker; `json` remains suitable
-for a short follow-up. Avoid bare `--continue` when several chats may exist.
+Keep the original output mode unless the authorized follow-up requires another.
+Avoid bare `--continue` when several chats may exist.
 Delete each prompt file only after its chat ID and useful result are
 preserved. Recover an unrecorded chat ID with `cursor-agent ls` interactively
 by matching the repository and assignment context.

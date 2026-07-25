@@ -29,9 +29,7 @@ only for bounded delta revalidation in the same review cycle.
 
 ## Continue And Clean Up
 
-Send focused scout or worker follow-ups to the recorded subagent so its
-context continues, then return to observation. Resume a scout or worker only
-while its context remains trustworthy; interrupt only the affected subagent.
-Preserve an interrupted initial validator's useful evidence and replace it
-with a fresh pass. Replace any subagent whose context is no longer reliable,
-passing a compact handoff of accepted facts and remaining scope.
+After a formal return, send an authorized focused follow-up to the recorded
+subagent, then return to observation. Continue or replace it according to the
+main routing continuation rule and its freshness requirement. Interrupt only
+the affected subagent and preserve useful evidence before recovery.
