@@ -50,27 +50,6 @@ authentication check before using it. Run the requested `cf` operation
 directly and treat its result as authoritative; only troubleshoot
 authentication if that operation itself returns an authentication error.
 
-# Background Waiting
-
-Prefer event-driven waits that wake immediately when the watched process,
-task, or agent sends a message, produces output, or completes.
-When available, wait on the original process or session instead of polling
-status commands, process tables, or result files.
-
-Use a cache-aware observation cadence supplied by the active runtime when one
-is available. Otherwise, poll passive work no more frequently than once every
-60 seconds. Use longer intervals when expected work warrants it.
-
-A wait that returns without an event is a quiet observation tick, not progress,
-failure, or a reason to inspect the assignment. On a cache-aware cadence, that
-tick also refreshes the lead context. Re-enter the wait without reporting
-"still waiting," polling liveness, or contacting the assignment solely because
-the window expired.
-
-Handle real events immediately. Comply with higher-priority user-update
-requirements without treating an update as an assignment event or using it to
-justify an assignment poll.
-
 # GitHub Comment Attachments
 
 Use the `drogers0/gh-image` GitHub CLI extension when an agent needs to upload
@@ -111,3 +90,24 @@ This extension uses GitHub's undocumented browser upload flow and may break.
 If it fails, report the failure and use GitHub's web comment editor, or ask
 before committing the image to a repository-hosted assets branch. Never
 silently upload files to a third-party host.
+
+# Background Waiting
+
+Prefer event-driven waits that wake immediately when the watched process,
+task, or agent sends a message, produces output, or completes.
+When available, wait on the original process or session instead of polling
+status commands, process tables, or result files.
+
+Use a cache-aware observation cadence supplied by the active runtime when one
+is available. Otherwise, poll passive work no more frequently than once every
+60 seconds. Use longer intervals when expected work warrants it.
+
+A wait that returns without an event is a quiet observation tick, not progress,
+failure, or a reason to inspect the assignment. On a cache-aware cadence, that
+tick also refreshes the lead context. Re-enter the wait without reporting
+"still waiting," polling liveness, or contacting the assignment solely because
+the window expired.
+
+Handle real events immediately. Comply with higher-priority user-update
+requirements without treating an update as an assignment event or using it to
+justify an assignment poll.

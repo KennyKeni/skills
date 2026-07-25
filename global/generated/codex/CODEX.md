@@ -91,6 +91,17 @@ If it fails, report the failure and use GitHub's web comment editor, or ask
 before committing the image to a repository-hosted assets branch. Never
 silently upload files to a third-party host.
 
+# Code Mode Tool Concurrency
+
+In Code Mode, within each bounded stage, run independent,
+`functions.exec`-available tool calls concurrently in one `functions.exec` call.
+Use `await Promise.allSettled([...])` when partial results are useful, and
+inspect every result; use `await Promise.all([...])` only when any failure
+should abort the batch. Keep dependencies, waits/resumes, approvals,
+conflicting or interdependent mutations, and adaptive investigations where
+each result may change the next step sequential. Do not split otherwise
+batchable inspections across outer tool calls.
+
 # Background Waiting
 
 Prefer event-driven waits that wake immediately when the watched process,
@@ -98,10 +109,10 @@ task, or agent sends a message, produces output, or completes.
 When available, wait on the original process or session instead of polling
 status commands, process tables, or result files.
 
-Use a 4-minute observation window for quiet Claude Code-led waits.
+Use a 10-minute observation window for quiet Codex-led waits.
 A higher-priority host limit may require a shorter window.
-This leaves margin inside Claude Code's default prompt-cache lifetime
-(5 minutes).
+This leaves margin inside the documented GPT-5.6 minimum prompt-cache lifetime
+(30 minutes).
 
 A wait that returns without an event is a quiet observation tick, not progress,
 failure, or a reason to inspect the assignment. On a cache-aware cadence, that
@@ -112,3 +123,22 @@ the window expired.
 Handle real events immediately. Comply with higher-priority user-update
 requirements without treating an update as an assignment event or using it to
 justify an assignment poll.
+
+# Computer Use App Testing
+
+When using Computer Use to test an app, an app window that was already open
+may remain in its current AeroSpace workspace.
+
+If Computer Use opens a new window, move that specific window to an unoccupied
+AeroSpace workspace from this ordered set: `v`, `w`, `x`, `y`, `z`. Treat a
+workspace as occupied when AeroSpace reports one or more windows in it. This
+applies even when another window from the same app was already open; identify
+the newly opened window rather than assuming that every window from a running
+app may remain in place.
+
+Before opening a new window, record the relevant AeroSpace window IDs and the
+occupancy of `v`, `w`, `x`, `y`, and `z`. After opening it, identify the new
+window by comparing window IDs, then move it with
+`aerospace move-node-to-workspace --window-id <window-id> <workspace>`. Do not
+move unrelated existing windows. If all five workspaces are occupied, ask the
+user before moving the new window or disturbing another window.

@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -32,9 +33,11 @@ from subagent_harnesses.generation import (  # noqa: E402
     create_environment,
     mark_generated_outputs,
     stale_outputs,
+    stale_symlinks,
     trash_outputs,
     unexpected_markdown_outputs,
     write_outputs,
+    write_symlinks,
 )
 
 
@@ -296,7 +299,7 @@ def human_join(values: list[str]) -> str:
 
 def render(
     leads: list[dict[str, Any]], lead_profiles: dict[str, dict[str, Any]]
-) -> dict[Path, str]:
+) -> tuple[dict[Path, str], dict[Path, str]]:
     environment = create_environment(SOURCE_DIR, TEMPLATE_DIR)
     template = environment.get_template(TEMPLATE_NAME)
     skill_template = environment.get_template(SKILL_TEMPLATE_NAME)
@@ -304,6 +307,7 @@ def render(
         GLOBAL_INSTRUCTIONS_TEMPLATE_NAME
     )
     outputs: dict[Path, str] = {}
+    symlinks: dict[Path, str] = {}
     for spec in leads:
         lead = spec["lead"]
         lanes = spec["lanes"]
@@ -324,44 +328,72 @@ def render(
         outputs[skill_dir / "SKILL.md"] = skill_rendered.rstrip() + "\n"
     for profile in lead_profiles.values():
         output_path = REPOSITORY_DIR / profile["output"]
-        outputs[output_path] = (
-            global_instructions_template.render(profile=profile).rstrip() + "\n"
+        fragment_content = "\n\n".join(
+            environment.get_template(fragment).render(profile=profile).strip()
+            for fragment in profile["fragments"]
         )
-    return mark_generated_outputs(
-        outputs, generator=Path(__file__).resolve(), relative_to=REPOSITORY_DIR
+        outputs[output_path] = (
+            global_instructions_template.render(
+                profile_instructions=fragment_content
+            ).rstrip()
+            + "\n"
+        )
+        for alias in profile["aliases"]:
+            alias_path = REPOSITORY_DIR / alias
+            symlinks[alias_path] = os.path.relpath(output_path, alias_path.parent)
+    return (
+        mark_generated_outputs(
+            outputs, generator=Path(__file__).resolve(), relative_to=REPOSITORY_DIR
+        ),
+        symlinks,
     )
 
 
 def unexpected_outputs(
-    leads: list[dict[str, Any]], outputs: dict[Path, str]
+    leads: list[dict[str, Any]],
+    outputs: dict[Path, str],
+    symlinks: dict[Path, str],
 ) -> list[Path]:
     unexpected: list[Path] = []
     for spec in leads:
         references_dir = SKILLS_DIR / spec["lead"]["skill_slug"] / "references"
         unexpected.extend(unexpected_markdown_outputs(references_dir, outputs))
     global_outputs_dir = REPOSITORY_DIR / "global" / "generated"
+    expected_global_paths = set(outputs) | set(symlinks)
     unexpected.extend(
-        path for path in global_outputs_dir.rglob("*.md") if path not in outputs
+        path
+        for path in global_outputs_dir.rglob("*.md")
+        if path not in expected_global_paths
     )
     return unexpected
 
 
-def check(leads: list[dict[str, Any]], outputs: dict[Path, str]) -> int:
+def check(
+    leads: list[dict[str, Any]],
+    outputs: dict[Path, str],
+    symlinks: dict[Path, str],
+) -> int:
     stale = stale_outputs(outputs)
-    unexpected = unexpected_outputs(leads, outputs)
+    stale_links = stale_symlinks(symlinks)
+    unexpected = unexpected_outputs(leads, outputs, symlinks)
 
-    if not stale and not unexpected:
-        print(f"All {len(outputs)} generated routing files are current.")
+    if not stale and not stale_links and not unexpected:
+        print(
+            f"All {len(outputs)} generated routing files and "
+            f"{len(symlinks)} aliases are current."
+        )
         return 0
 
     for path in stale:
         print(f"stale: {path.relative_to(REPOSITORY_DIR)}", file=sys.stderr)
+    for path in stale_links:
+        print(f"stale alias: {path.relative_to(REPOSITORY_DIR)}", file=sys.stderr)
     for path in unexpected:
         print(
             f"unexpected generated output: {path.relative_to(REPOSITORY_DIR)}",
             file=sys.stderr,
         )
-    print("Run `task skills:routing:generate`.", file=sys.stderr)
+    print("Run `task skills:subagents:generate`.", file=sys.stderr)
     return 1
 
 
@@ -370,21 +402,27 @@ def main() -> int:
     try:
         leads = load_leads()
         lead_profiles = load_lead_profiles()
-        outputs = render(leads, lead_profiles)
+        outputs, symlinks = render(leads, lead_profiles)
     except (OSError, SpecError, CatalogError, yaml.YAMLError) as error:
         print(f"routing skill generation failed: {error}", file=sys.stderr)
         return 2
 
     if args.check:
-        return check(leads, outputs)
+        return check(leads, outputs, symlinks)
 
-    removed = unexpected_outputs(leads, outputs)
+    removed = unexpected_outputs(leads, outputs, symlinks)
     trash_outputs(removed, relative_to=REPOSITORY_DIR)
     changed = write_outputs(outputs)
+    changed_aliases = write_symlinks(symlinks, relative_to=REPOSITORY_DIR)
     for path in changed:
         print(f"generated: {path.relative_to(REPOSITORY_DIR)}")
-    if not changed and not removed:
-        print(f"All {len(outputs)} generated routing files were already current.")
+    for path in changed_aliases:
+        print(f"generated alias: {path.relative_to(REPOSITORY_DIR)}")
+    if not changed and not changed_aliases and not removed:
+        print(
+            f"All {len(outputs)} generated routing files and "
+            f"{len(symlinks)} aliases were already current."
+        )
     return 0
 
 

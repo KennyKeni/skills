@@ -38,6 +38,14 @@ def stale_outputs(outputs: dict[Path, str]) -> list[Path]:
     ]
 
 
+def stale_symlinks(symlinks: dict[Path, str]) -> list[Path]:
+    return [
+        path
+        for path, expected_target in symlinks.items()
+        if not path.is_symlink() or os.readlink(path) != expected_target
+    ]
+
+
 def unexpected_markdown_outputs(
     references_dir: Path, outputs: dict[Path, str]
 ) -> list[Path]:
@@ -47,6 +55,21 @@ def unexpected_markdown_outputs(
 
 def write_outputs(outputs: dict[Path, str]) -> list[Path]:
     return [path for path, content in outputs.items() if _write_atomic(path, content)]
+
+
+def write_symlinks(
+    symlinks: dict[Path, str], *, relative_to: Path
+) -> list[Path]:
+    changed: list[Path] = []
+    for path, target in symlinks.items():
+        if path.is_symlink() and os.readlink(path) == target:
+            continue
+        if path.exists() or path.is_symlink():
+            trash_outputs([path], relative_to=relative_to)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.symlink_to(target)
+        changed.append(path)
+    return changed
 
 
 def _add_generated_notice(content: str, path: Path, generator_name: str) -> str:

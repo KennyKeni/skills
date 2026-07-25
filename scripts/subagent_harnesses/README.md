@@ -6,23 +6,29 @@ Generators compose both dimensions into user-facing skills and references.
 ## Ownership
 
 - `harnesses.yaml` owns shared harness identity, model profiles, and
-  family-specific configuration, including per-harness prose fields. It also
-  owns lead-runtime cache windows and quiet-wait cadences used to generate
-  global instruction variants.
+  family-specific configuration, including per-harness prose fields. Its
+  `lead_profiles` entries also declare each global instruction output, any
+  discovery aliases, the ordered instruction fragments to append, and the
+  timing values interpolated into those fragments.
 - `catalog.py` validates and resolves harness configuration into workflow
   records, deriving uniform fields (`scout_model`, `worker_model`,
   `*_model_argument`) so templates never branch on how models were declared.
 - `generation.py` owns shared generator mechanics: Jinja setup, stale-output
-  detection, atomic writes, and trash-safe cleanup.
+  detection, atomic writes, relative symlink aliases, and trash-safe cleanup.
 - `templates/harnesses/<family>/` owns family-specific execution mechanics:
   command macros plus Routing and Sidekick adapters.
 - Workflow directories such as `scripts/codex-subagent-routing/` and
   `scripts/sidekick/` own role policy, persistence rules, judgment boundaries,
   setup or lane registries, and output composition.
 - The routing generator also renders the Codex, Claude Code, and general global
-  instruction variants from the shared lead-runtime profiles. Exact timing
-  values live only in `harnesses.yaml`; workflow templates refer to the active
-  lead runtime's configured cadence without repeating numbers.
+  instruction variants from the shared lead-runtime profiles. The common
+  template receives one already-composed `profile_instructions` value and
+  contains no profile branching. Exact timing values live only in
+  `harnesses.yaml`; profile fragments refer to the active lead runtime's
+  configured cadence without repeating numbers. Codex's canonical artifact is
+  `global/generated/codex/CODEX.md`; its sibling `AGENTS.md` is a generated
+  relative symlink for Codex discovery. The general profile owns the standalone
+  generic `global/generated/general/AGENTS.md`.
 
 ## Three Axes, Three Mechanisms
 
@@ -40,7 +46,10 @@ mechanism:
 - The **lead axis** (which agent runs the skill: Codex or Claude) varies in
   lead facts (`lead_name`, validation context, whether a native executor
   exists) supplied by each workflow spec, and in which harnesses a lead's
-  registry may select.
+  registry may select. Global instruction variants use the same principle:
+  each `lead_profiles` record selects an ordered list of fragment templates
+  declaratively, rather than branching on profile identity in the common
+  template.
 
 Nativeness is not a fourth axis; it is a relation between family and lead.
 `NATIVE_FAMILIES` in `catalog.py` maps each native family to its lead

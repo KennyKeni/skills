@@ -15,11 +15,12 @@ LEAD_PROFILE_FIELDS = {
     "id",
     "lead_label",
     "output",
+    "aliases",
+    "fragments",
     "quiet_wait_seconds",
     "cache_window_seconds",
     "cache_rationale",
     "minimum_poll_seconds",
-    "computer_use",
 }
 COMMON_FIELDS = {"id", "family", "models"}
 FAMILY_FIELDS = {
@@ -52,7 +53,7 @@ def load_lead_profiles(path: Path = CATALOG_PATH) -> dict[str, dict[str, Any]]:
         raise CatalogError("harnesses.yaml must contain a non-empty lead_profiles list")
 
     profiles: dict[str, dict[str, Any]] = {}
-    output_paths: set[str] = set()
+    claimed_paths: set[str] = set()
     for index, raw in enumerate(entries):
         if not isinstance(raw, dict) or set(raw) != LEAD_PROFILE_FIELDS:
             raise CatalogError(
@@ -75,12 +76,44 @@ def load_lead_profiles(path: Path = CATALOG_PATH) -> dict[str, dict[str, Any]]:
             or ".." in Path(output).parts
         ):
             raise CatalogError(f"{profile_id} output must be a safe relative path")
-        if output in output_paths:
+        if output in claimed_paths:
             raise CatalogError(f"duplicate lead profile output: {output}")
-        output_paths.add(output)
-        if not isinstance(profile["computer_use"], bool):
-            raise CatalogError(f"{profile_id} computer_use must be boolean")
+        claimed_paths.add(output)
 
+        aliases = profile["aliases"]
+        if not isinstance(aliases, list):
+            raise CatalogError(f"{profile_id} aliases must be a list")
+        for alias in aliases:
+            if (
+                not isinstance(alias, str)
+                or not alias
+                or Path(alias).is_absolute()
+                or ".." in Path(alias).parts
+            ):
+                raise CatalogError(
+                    f"{profile_id} aliases must contain safe relative paths"
+                )
+            if alias in claimed_paths:
+                raise CatalogError(f"duplicate lead profile path: {alias}")
+            claimed_paths.add(alias)
+
+        fragments = profile["fragments"]
+        if not isinstance(fragments, list) or not fragments:
+            raise CatalogError(f"{profile_id} fragments must be a non-empty list")
+        if len(fragments) != len(set(fragments)):
+            raise CatalogError(f"{profile_id} fragments must not contain duplicates")
+        for fragment in fragments:
+            if (
+                not isinstance(fragment, str)
+                or not fragment
+                or Path(fragment).is_absolute()
+                or ".." in Path(fragment).parts
+                or not (TEMPLATE_DIR / fragment).is_file()
+            ):
+                raise CatalogError(
+                    f"{profile_id} fragment must name an existing template: "
+                    f"{fragment!r}"
+                )
         quiet_wait = profile["quiet_wait_seconds"]
         cache_window = profile["cache_window_seconds"]
         minimum_poll = profile["minimum_poll_seconds"]

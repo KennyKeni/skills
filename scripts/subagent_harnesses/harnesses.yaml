@@ -6,30 +6,39 @@ x-snippets:
 lead_profiles:
   - id: codex
     lead_label: Codex-led
-    output: global/generated/codex/AGENTS.md
+    output: global/generated/codex/CODEX.md
+    aliases:
+      - global/generated/codex/AGENTS.md
+    fragments:
+      - instructions/profiles/code-mode-concurrency.md.j2
+      - instructions/profiles/background-wait-quiet.md.j2
+      - instructions/computer-use.md.j2
     quiet_wait_seconds: 600
     cache_window_seconds: 1800
     cache_rationale: the documented GPT-5.6 minimum prompt-cache lifetime
     minimum_poll_seconds:
-    computer_use: true
 
   - id: claude
     lead_label: Claude Code-led
     output: global/generated/claude/CLAUDE.md
+    aliases: []
+    fragments:
+      - instructions/profiles/background-wait-quiet.md.j2
     quiet_wait_seconds: 240
     cache_window_seconds: 300
     cache_rationale: Claude Code's default prompt-cache lifetime
     minimum_poll_seconds:
-    computer_use: false
 
   - id: general
     lead_label: general
     output: global/generated/general/AGENTS.md
+    aliases: []
+    fragments:
+      - instructions/profiles/background-wait-poll.md.j2
     quiet_wait_seconds:
     cache_window_seconds:
     cache_rationale:
     minimum_poll_seconds: 60
-    computer_use: false
 
 harnesses:
   - id: native-codex
