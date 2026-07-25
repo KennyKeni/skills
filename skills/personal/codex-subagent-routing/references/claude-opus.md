@@ -161,13 +161,10 @@ validation through fresh native Codex with `gpt-5.6-sol` at high effort.
 Use `claude-opus-5` for scouts and `claude-opus-5`
 for workers routed to this lane. Pin the model explicitly rather than relying
 on user configuration.
-Include this instruction in every assignment to this model: preserve
-accurate existing comments, but keep new code comments sparse. Add a
-comment only for a non-obvious invariant, safety constraint, compatibility
-requirement, or rationale that clear code and names cannot express. Do not
-narrate control flow, restate the code, add section banners, or annotate
-obvious implementation steps. Remove newly added redundant comments before
-returning.
+Include this in every assignment: preserve accurate existing comments.
+Keep new comments sparse and only for non-obvious constraints or rationale
+that clear code cannot express. Do not narrate or restate code; remove
+redundant new comments before returning.
 Verify the CLI once before the first assignment in the current context:
 
 ```bash
