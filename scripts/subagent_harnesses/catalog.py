@@ -9,7 +9,14 @@ import yaml
 
 CATALOG_PATH = Path(__file__).resolve().with_name("harnesses.yaml")
 TEMPLATE_DIR = Path(__file__).resolve().with_name("templates")
-ALLOWED_FAMILIES = {"codex-native", "claude-native", "cursor", "opencode", "codex-exec"}
+ALLOWED_FAMILIES = {
+    "codex-native",
+    "claude-native",
+    "cursor",
+    "opencode",
+    "codex-exec",
+    "claude-exec",
+}
 NATIVE_FAMILIES = {"codex-native": "codex", "claude-native": "claude"}
 LEAD_PROFILE_FIELDS = {
     "id",
@@ -29,6 +36,7 @@ FAMILY_FIELDS = {
     "cursor": {"model_label_patterns", "model_caution"},
     "opencode": {"title_prefix", "refresh_models", "model_caution"},
     "codex-exec": {"model_caution"},
+    "claude-exec": {"model_caution"},
 }
 RESERVED_FIELDS = set().union(COMMON_FIELDS, *FAMILY_FIELDS.values()) - {"id"}
 

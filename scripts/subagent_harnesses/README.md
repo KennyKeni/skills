@@ -36,10 +36,10 @@ Harness content varies along three axes, each with its own declarative
 mechanism:
 
 - The **family axis** (codex-native, claude-native, cursor, opencode,
-  codex-exec) varies structurally: different CLIs, session semantics, and
-  command shapes. It is handled by template-file selection — a harness's
-  `family` field routes to `templates/harnesses/<family>/`, and no template
-  branches on family.
+  codex-exec, claude-exec) varies structurally: different CLIs, session
+  semantics, and command shapes. It is handled by template-file selection — a
+  harness's `family` field routes to `templates/harnesses/<family>/`, and no
+  template branches on family.
 - The **model axis** (which model runs inside a family) varies only in facts
   and small prose: model IDs, cautions, capability menus. It is handled by
   YAML fields interpolated into the family template.
@@ -57,7 +57,8 @@ Nativeness is not a fourth axis; it is a relation between family and lead.
 from it, and the routing generator rejects a lane whose harness is native to a
 different lead. The same executor can appear on both sides of the relation:
 Codex is `codex-native` for a Codex lead and the external `codex-exec` family
-for a Claude lead.
+for a Claude lead; Claude is `claude-native` for a Claude lead and the external
+`claude-exec` family for a Codex lead.
 
 A harness entry is the join row of the family and model axes; a lane or setup
 entry joins all three. If model facts ever need sharing across families beyond

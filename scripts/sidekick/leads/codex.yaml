@@ -21,6 +21,13 @@ setups:
     validator: &default_validator
       {executor: native, model: gpt-5.6-sol, effort: medium, fresh: true}
 
+  - slug: claude-opus
+    harness: claude-exec-opus
+    title: Claude Opus 5 via Claude CLI
+    selection_label: Claude Opus 5 through Claude CLI
+    default: false
+    validator: *default_validator
+
   - slug: opencode-grok
     harness: opencode-grok-4-5
     title: Grok 4.5 via OpenCode

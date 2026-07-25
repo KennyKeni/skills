@@ -1,0 +1,77 @@
+{% import "harnesses/claude-exec/commands.md.j2" as claude_commands %}
+Use the current {{ execution.lead_name }} session as the main agent and one
+persistent Claude CLI session as the sidekick.
+
+## Verify
+
+Use `{{ execution.worker_model }}` for the persistent sidekick. Retain the
+current main agent's model and reasoning effort, and pin the sidekick model
+explicitly rather than relying on user configuration.
+{% if execution.model_caution %}
+{{ execution.model_caution }}
+{% endif %}
+Verify the CLI once before the first assignment in the current context:
+
+```bash
+{{ claude_commands.verify() }}
+```
+
+Keep the work in the main agent and report the limitation when Claude is
+unavailable, unauthenticated, or rejects the configured model.
+
+## Start
+
+Write the compact assignment to a prompt file using the environment's approved
+file-writing mechanism — never inline shell quoting. Set `REPO`,
+`PROMPT_FILE`, and `OUT` to absolute paths. Mint a unique UUID as `SESSION_ID`
+before the run and record it immediately. Use `command claude` to bypass any
+interactive shell wrapper.
+
+Start the sidekick with full repository access except for Claude's `Task` tool,
+which enforces the no-delegation boundary:
+
+```bash
+SESSION_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
+{{ claude_commands.start(execution.worker_model_argument, "--permission-mode bypassPermissions --disallowedTools=Task") }}
+```
+
+Run it in a supervised long-running execution session so the main agent can
+continue independent judgment work while Claude executes. Retain the same
+`SESSION_ID` across exploration, implementation, testing, and correction while
+the sidekick's context remains trustworthy.
+
+## Observe
+
+Wait on the existing supervised execution session until it exits, then inspect
+the single-result JSON in `OUT`. Treat its `is_error`, `result`, `session_id`,
+and process exit as completion evidence; Claude can report an authentication
+or model error in JSON even when the process exits successfully. Confirm that
+the returned `session_id` equals the UUID recorded before launch. Apply the
+main routing event loop to the session and its result.
+
+## Continue
+
+After a formal return, write an authorized focused follow-up to a new prompt
+file and a new `OUT` path, then resume the recorded sidekick:
+
+```bash
+{{ claude_commands.resume(execution.worker_model_argument, "--permission-mode bypassPermissions --disallowedTools=Task") }}
+```
+
+Never use bare `--continue` when several Claude sessions may exist. Delete each
+prompt file after its invocation completes, and preserve the result JSON until
+its evidence is recorded.
+
+## Stop And Recover
+
+When the main routing event loop authorizes a health check or recovery, match
+only the sidekick process by its recorded session UUID:
+
+```bash
+{{ claude_commands.inspect_process() }}
+```
+
+Interrupt only that process and preserve its result file and useful evidence.
+If routing selects replacement, mint one new UUID and start a fresh session
+with the same model plus a compact handoff, then disclose that the cached
+context was lost.

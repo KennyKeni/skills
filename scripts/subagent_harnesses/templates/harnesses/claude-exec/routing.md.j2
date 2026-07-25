@@ -1,0 +1,85 @@
+{% import "harnesses/claude-exec/commands.md.j2" as claude_commands %}
+## Select And Verify The Model
+
+Use `{{ execution.scout_model }}` for scouts and `{{ execution.worker_model }}`
+for workers routed to this lane. Pin the model explicitly rather than relying
+on user configuration.
+{% if execution.model_caution %}
+{{ execution.model_caution }}
+{% endif %}
+Verify the CLI once before the first assignment in the current context:
+
+```bash
+{{ claude_commands.verify() }}
+```
+
+Keep the work in {{ execution.lead_name }} or report the limitation when Claude
+is unavailable, unauthenticated, or rejects the configured model.
+
+## Invoke Claude
+
+{{ execution.lead_name }} has no native Claude spawn control. Write the compact
+assignment to a prompt file using the environment's approved file-writing
+mechanism — never inline shell quoting. Set `REPO`, `PROMPT_FILE`, and `OUT` to
+absolute paths. Mint a unique UUID as `SESSION_ID` before the run and record it
+immediately; every follow-up and health check targets that exact session. Use
+`command claude` to bypass any interactive shell wrapper.
+
+Worker invocation:
+
+```bash
+SESSION_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
+{{ claude_commands.start(execution.worker_model_argument, "--permission-mode bypassPermissions --disallowedTools=Task") }}
+```
+
+Scout invocation:
+
+```bash
+SESSION_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
+{{ claude_commands.start(execution.scout_model_argument, '--permission-mode dontAsk --tools "Read,Glob,Grep,WebFetch,WebSearch"') }}
+```
+
+Workers receive full repository access except for Claude's `Task` tool, which
+enforces the no-delegation boundary. Keep their bounded change surface in the
+assignment. The scout form exposes only read-oriented tools and also requires
+the assignment's explicit read-only boundary. The tier mappings above remain
+authoritative: do not use the scout form for a tier mapped to another executor.
+
+Run long assignments in a supervised background execution session, wait on
+that existing session until it exits, then inspect the single-result JSON in
+`OUT`. Treat its `is_error`, `result`, `session_id`, and process exit as
+completion evidence; Claude can report an authentication or model error in
+JSON even when the process exits successfully. Confirm that the returned
+`session_id` equals the UUID recorded before launch.
+
+Apply the main skill's event loop. A `claude -p` run may remain quiet until its
+terminal result, so do not poll process liveness or the result file during
+routine supervision. Use them only when the main event loop permits a health
+check or recovery, and leave the repository untouched while supervising.
+
+For every validator routed to this harness, mint a fresh `SESSION_ID` and pass
+only its compact validation packet.
+
+## Continue And Clean Up
+
+After a formal return, write an authorized focused follow-up to a new prompt
+file and a new `OUT` path, then resume the recorded assignment:
+
+```bash
+{{ claude_commands.resume(execution.worker_model_argument, "--permission-mode bypassPermissions --disallowedTools=Task") }}
+```
+
+Never use bare `--continue` when several Claude sessions may exist. Delete
+each prompt file after its invocation completes, and preserve the result JSON
+until its evidence is recorded.
+
+When the main skill's event loop permits a health check or recovery, match only
+the delegated process by its recorded session UUID:
+
+```bash
+{{ claude_commands.inspect_process() }}
+```
+
+Interrupt only that process and preserve its result file and useful evidence.
+Resume it while its context remains trustworthy; replace it with a fresh UUID
+and compact handoff when it cannot resume.
