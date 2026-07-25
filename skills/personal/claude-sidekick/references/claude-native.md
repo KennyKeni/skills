@@ -5,7 +5,7 @@ Claude subagent as the sidekick.
 
 ## Verify
 
-Use `claude-opus-4-8` for the persistent sidekick. Retain the
+Use `claude-opus-5` for the persistent sidekick. Retain the
 current main agent's model and reasoning effort. If the model or the native
 subagent control is unavailable, keep the work in the main agent and report
 the limitation.

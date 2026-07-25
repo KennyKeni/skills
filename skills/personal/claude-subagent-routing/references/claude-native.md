@@ -111,10 +111,10 @@ For every consequential classification, record:
 
 Use these mappings:
 
-- routine `scout`: this lane with `claude-opus-4-8`;
-- consequential `scout`: this lane with `claude-opus-4-8`;
-- routine `worker`: this lane with `claude-opus-4-8`;
-- consequential `worker`: this lane with `claude-opus-4-8`;
+- routine `scout`: this lane with `claude-opus-5`;
+- consequential `scout`: this lane with `claude-opus-5`;
+- routine `worker`: this lane with `claude-opus-5`;
+- consequential `worker`: this lane with `claude-opus-5`;
 - every `validator`: a fresh session of this lane with `claude-fable-5` at high effort.
 
 Skip the scout when the main skill's delegation criteria do not justify one.
@@ -146,8 +146,8 @@ required contract or operational envelope.
 Treat lead or validator findings as new routing evidence. When reassessment
 returns `routine`, send only bounded routine corrections to the same session.
 When it returns `consequential`, stop the routine assignment and route the
-scout through this lane with `claude-opus-4-8` or the worker
-through this lane with `claude-opus-4-8`, passing a compact
+scout through this lane with `claude-opus-5` or the worker
+through this lane with `claude-opus-5`, passing a compact
 handoff containing the contract, observations, attempted proof, changed files
 when applicable, and unresolved questions. When it returns `not_ready`, stop
 the worker, preserve its evidence, and return the candidate to the lead for

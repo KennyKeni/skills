@@ -112,10 +112,10 @@ For every consequential classification, record:
 Use these mappings:
 
 - routine `scout`: this lane with `cursor-grok-4.5-high`;
-- consequential `scout`: the native Claude lane ([claude-native.md](claude-native.md)) with `claude-opus-4-8`;
+- consequential `scout`: the native Claude lane ([claude-native.md](claude-native.md)) with `claude-opus-5`;
 - routine `worker`: this lane with `cursor-grok-4.5-high`;
-- consequential `worker`: the native Claude lane ([claude-native.md](claude-native.md)) with `claude-opus-4-8`;
-- every `validator`: a fresh session of the native Claude lane ([claude-native.md](claude-native.md)) with `claude-opus-4-8`.
+- consequential `worker`: the native Claude lane ([claude-native.md](claude-native.md)) with `claude-opus-5`;
+- every `validator`: a fresh session of the native Claude lane ([claude-native.md](claude-native.md)) with `claude-opus-5`.
 
 Skip the scout when the main skill's delegation criteria do not justify one.
 Keep `scout`, `worker`, and `validator` as the canonical roles and include the
@@ -146,13 +146,13 @@ required contract or operational envelope.
 Treat lead or validator findings as new routing evidence. When reassessment
 returns `routine`, send only bounded routine corrections to the same session.
 When it returns `consequential`, stop the routine assignment and route the
-scout through the native Claude lane ([claude-native.md](claude-native.md)) with `claude-opus-4-8` or the worker
-through the native Claude lane ([claude-native.md](claude-native.md)) with `claude-opus-4-8`, passing a compact
+scout through the native Claude lane ([claude-native.md](claude-native.md)) with `claude-opus-5` or the worker
+through the native Claude lane ([claude-native.md](claude-native.md)) with `claude-opus-5`, passing a compact
 handoff containing the contract, observations, attempted proof, changed files
 when applicable, and unresolved questions. When it returns `not_ready`, stop
 the worker, preserve its evidence, and return the candidate to the lead for
 shaping. Treat executor self-checks as worker evidence; retain independent
-validation through a fresh session of the native Claude lane ([claude-native.md](claude-native.md)) with `claude-opus-4-8`.
+validation through a fresh session of the native Claude lane ([claude-native.md](claude-native.md)) with `claude-opus-5`.
 
 ## Select And Verify The Model
 
