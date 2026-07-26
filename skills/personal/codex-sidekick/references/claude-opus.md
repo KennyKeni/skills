@@ -38,7 +38,7 @@ which enforces the no-delegation boundary:
 ```bash
 SESSION_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
 (cd "$REPO" \
-  && command claude -p \
+  && CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS=1 command claude -p \
   --session-id "$SESSION_ID" \
   --model claude-opus-5 \
   --effort high \
@@ -68,7 +68,7 @@ file and a new `OUT` path, then resume the recorded sidekick:
 
 ```bash
 (cd "$REPO" \
-  && command claude -p \
+  && CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS=1 command claude -p \
   --resume "$SESSION_ID" \
   --model claude-opus-5 \
   --effort high \
