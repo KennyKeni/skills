@@ -30,7 +30,8 @@ Write the compact assignment to a prompt file using the environment's approved
 file-writing mechanism — never inline shell quoting. Set `REPO`,
 `PROMPT_FILE`, and `OUT` to absolute paths. Mint a unique UUID as `SESSION_ID`
 before the run and record it immediately. Use `command claude` to bypass any
-interactive shell wrapper.
+interactive shell wrapper. The commands below default to `--max-turns 100`;
+the main agent may change or remove that cap when the assignment warrants it.
 
 Start the sidekick with full repository access except for Claude's `Task` tool,
 which enforces the no-delegation boundary:
@@ -42,6 +43,7 @@ SESSION_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
   --session-id "$SESSION_ID" \
   --model claude-opus-5 \
   --effort medium \
+  --max-turns 100 \
   --output-format json \
   --permission-mode bypassPermissions --disallowedTools=Task \
   < "$PROMPT_FILE" > "$OUT" 2>/dev/null)
@@ -72,6 +74,7 @@ file and a new `OUT` path, then resume the recorded sidekick:
   --resume "$SESSION_ID" \
   --model claude-opus-5 \
   --effort medium \
+  --max-turns 100 \
   --output-format json \
   --permission-mode bypassPermissions --disallowedTools=Task \
   < "$PROMPT_FILE" > "$OUT" 2>/dev/null)

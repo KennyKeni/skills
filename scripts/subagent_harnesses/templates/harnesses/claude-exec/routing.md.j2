@@ -23,7 +23,9 @@ assignment to a prompt file using the environment's approved file-writing
 mechanism — never inline shell quoting. Set `REPO`, `PROMPT_FILE`, and `OUT` to
 absolute paths. Mint a unique UUID as `SESSION_ID` before the run and record it
 immediately; every follow-up and health check targets that exact session. Use
-`command claude` to bypass any interactive shell wrapper.
+`command claude` to bypass any interactive shell wrapper. The commands below
+default to `--max-turns 100`; the lead may change or remove that cap when the
+assignment warrants it.
 
 Worker invocation:
 

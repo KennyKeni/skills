@@ -181,7 +181,9 @@ assignment to a prompt file using the environment's approved file-writing
 mechanism — never inline shell quoting. Set `REPO`, `PROMPT_FILE`, and `OUT` to
 absolute paths. Mint a unique UUID as `SESSION_ID` before the run and record it
 immediately; every follow-up and health check targets that exact session. Use
-`command claude` to bypass any interactive shell wrapper.
+`command claude` to bypass any interactive shell wrapper. The commands below
+default to `--max-turns 100`; the lead may change or remove that cap when the
+assignment warrants it.
 
 Worker invocation:
 
@@ -192,6 +194,7 @@ SESSION_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
   --session-id "$SESSION_ID" \
   --model claude-opus-5 \
   --effort medium \
+  --max-turns 100 \
   --output-format json \
   --permission-mode bypassPermissions --disallowedTools=Task \
   < "$PROMPT_FILE" > "$OUT" 2>/dev/null)
@@ -206,6 +209,7 @@ SESSION_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
   --session-id "$SESSION_ID" \
   --model claude-opus-5 \
   --effort medium \
+  --max-turns 100 \
   --output-format json \
   --permission-mode dontAsk --tools "Read,Glob,Grep,WebFetch,WebSearch" \
   < "$PROMPT_FILE" > "$OUT" 2>/dev/null)
@@ -243,6 +247,7 @@ file and a new `OUT` path, then resume the recorded assignment:
   --resume "$SESSION_ID" \
   --model claude-opus-5 \
   --effort medium \
+  --max-turns 100 \
   --output-format json \
   --permission-mode bypassPermissions --disallowedTools=Task \
   < "$PROMPT_FILE" > "$OUT" 2>/dev/null)
