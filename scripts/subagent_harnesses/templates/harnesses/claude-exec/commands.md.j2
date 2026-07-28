@@ -8,7 +8,7 @@ command claude --version
   --session-id "$SESSION_ID" \
   --model {{ model_argument }} \
   --effort {{ effort_argument }} \
-  --max-turns 100 \
+  --max-turns 80 \
   --output-format json \
   {{ permission_arguments }} \
   < "$PROMPT_FILE" > "$OUT" 2>/dev/null)
@@ -20,7 +20,7 @@ command claude --version
   --resume "$SESSION_ID" \
   --model {{ model_argument }} \
   --effort {{ effort_argument }} \
-  --max-turns 100 \
+  --max-turns 80 \
   --output-format json \
   {{ permission_arguments }} \
   < "$PROMPT_FILE" > "$OUT" 2>/dev/null)
