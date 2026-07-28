@@ -32,6 +32,8 @@ file-writing mechanism — never inline shell quoting. Set `REPO`,
 before the run and record it immediately. Use `command claude` to bypass any
 interactive shell wrapper. The commands below default to `--max-turns 80`;
 the main agent may change or remove that cap when the assignment warrants it.
+Raise it to 100 only when the task inherently requires several long
+verification stages.
 
 Start the sidekick with full repository access except for Claude's `Task` tool,
 which enforces the no-delegation boundary:

@@ -183,7 +183,8 @@ absolute paths. Mint a unique UUID as `SESSION_ID` before the run and record it
 immediately; every follow-up and health check targets that exact session. Use
 `command claude` to bypass any interactive shell wrapper. The commands below
 default to `--max-turns 80`; the lead may change or remove that cap when the
-assignment warrants it.
+assignment warrants it. Raise it to 100 only when the task inherently requires
+several long verification stages.
 
 Worker invocation:
 
