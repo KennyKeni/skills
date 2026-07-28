@@ -64,12 +64,12 @@ harnesses:
     family: claude-exec
     models:
       shared: claude-opus-5
-    effort: high
+    effort: medium
     model_caution: |-
       Include this in every assignment: preserve accurate existing comments.
-      Keep new comments sparse and only for non-obvious constraints or rationale
-      that clear code cannot express. Do not narrate or restate code; remove
-      redundant new comments before returning.
+      Keep new comments sparse, concise, and only for non-obvious constraints or
+      rationale that clear code cannot express. Do not narrate or restate code;
+      remove redundant new comments before returning.
 
   - id: cursor-grok-4-5
     family: cursor
