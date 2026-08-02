@@ -7,6 +7,7 @@ Default: [Luna Max](luna-max.md)
 | Request | Harness | Sidekick model | Default validator | Adapter |
 | --- | --- | --- | --- | --- |
 | Luna Max | codex-native | `gpt-5.6-luna` | `gpt-5.6-sol` at medium effort | [luna-max.md](luna-max.md) |
+| Sol Medium | codex-native | `gpt-5.6-sol` | `gpt-5.6-sol` at medium effort | [sol-medium.md](sol-medium.md) |
 | Claude Opus 5 through Claude CLI | claude-exec | `claude-opus-5` | `gpt-5.6-sol` at medium effort | [claude-opus.md](claude-opus.md) |
 | Grok 4.5 through OpenCode | opencode | `xai/grok-4.5` | `gpt-5.6-sol` at medium effort | [opencode-grok.md](opencode-grok.md) |
 | Qwen3.8 Max Preview through OpenCode | opencode | `alibaba-token-plan/qwen3.8-max-preview` | `gpt-5.6-sol` at medium effort | [opencode-qwen.md](opencode-qwen.md) |

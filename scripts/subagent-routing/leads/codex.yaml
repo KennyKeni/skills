@@ -28,6 +28,21 @@ lanes:
       consequential_worker: {executor: native, model: gpt-5.6-sol, effort: medium}
       validator: {executor: native, model: gpt-5.6-sol, effort: high, fresh: true}
 
+  - slug: codex-sol-medium
+    harness: native-codex
+    title: Sol Medium Lane
+    description_name: Sol Medium native Codex
+    selection_label: Sol Medium
+    policy: classified
+    default: false
+    external: false
+    routes:
+      routine_scout: {executor: native, model: gpt-5.6-sol, effort: medium}
+      consequential_scout: {executor: native, model: gpt-5.6-sol, effort: medium}
+      routine_worker: {executor: native, model: gpt-5.6-sol, effort: medium}
+      consequential_worker: {executor: native, model: gpt-5.6-sol, effort: medium}
+      validator: {executor: native, model: gpt-5.6-sol, effort: high, fresh: true}
+
   - slug: claude-opus
     harness: claude-exec-opus
     title: Claude Opus Lane

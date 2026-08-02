@@ -21,6 +21,18 @@ setups:
     validator: &default_validator
       {executor: native, model: gpt-5.6-sol, effort: medium, fresh: true}
 
+  - slug: sol-medium
+    harness: native-codex
+    title: Sol Medium
+    selection_label: Sol Medium
+    default: false
+    sidekick_model: gpt-5.6-sol
+    reasoning_effort: medium
+    agent_type: worker
+    task_name: sidekick
+    context_fork: none
+    validator: *default_validator
+
   - slug: claude-opus
     harness: claude-exec-opus
     title: Claude Opus 5 via Claude CLI
