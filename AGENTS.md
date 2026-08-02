@@ -17,6 +17,15 @@ After installing or updating skills, explicitly tell the user which skills
 were installed or updated and whether the operation was project-scoped or
 global.
 
+# Local Decision Log
+
+Record notable repository-local operational decisions in
+`.local/DECISIONS.md`, linked from `.local/INDEX.md`. Treat the log as
+append-only: never rewrite or remove an earlier entry. Supersede a decision by
+appending a new dated entry that names the prior decision. Each entry must
+record its status, rationale, affected artifacts, verification evidence,
+maintenance trigger, revert trigger, and exact rollback procedure.
+
 # Generated Skill Artifacts
 
 Generated ownership is declared by the generators, not by a maintained list of
